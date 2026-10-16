@@ -1,0 +1,44 @@
+name: Deploy App zu GitHub Pages
+
+# Veröffentlicht den Ordner app/ als Pages-Site. Die App ist reines statisches
+# Vanilla-JS (kein Build-Step) → wir laden app/ direkt als Pages-Artefakt hoch.
+# Ergebnis-URLs:
+#   https://kp-sauer.github.io/tracking-app/        → Produktiv (app/index.html)
+#   https://kp-sauer.github.io/tracking-app/test/   → Test       (app/test/index.html)
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Nur ein Deploy gleichzeitig; laufende nicht abbrechen (sauberes Veröffentlichen).
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload app/ als Pages-Artefakt
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ./app
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
