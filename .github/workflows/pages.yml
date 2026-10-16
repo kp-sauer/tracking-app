@@ -33,6 +33,10 @@ jobs:
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
+        with:
+          # Aktiviert Pages bei Bedarf selbst (robust, falls die Settings-Umstellung
+          # auf "GitHub Actions" noch nicht gegriffen hat → behebt "Get Pages site failed").
+          enablement: true
 
       - name: Upload app/ als Pages-Artefakt
         uses: actions/upload-pages-artifact@v4
