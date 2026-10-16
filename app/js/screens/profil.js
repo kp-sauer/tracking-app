@@ -58,7 +58,7 @@ export function renderProfil(container, ctx) {
       <div class="btn-reihe">
         <button type="button" id="pr-export" class="btn primär">Export</button>
         <button type="button" id="pr-import-btn" class="btn">Import</button>
-        <input id="pr-import" type="file" accept="application/json" hidden>
+        <input id="pr-import" type="file" accept=".json,application/json,text/json,text/plain" hidden>
       </div>
       <p class="status" id="pr-status" role="status" hidden></p>
     </div></section>`;
