@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>TESTMODUS – tracking-app</title>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="stylesheet" href="../css/app.css">
+  <link rel="stylesheet" href="../vendor/uPlot.min.css">
+  <script src="../vendor/uPlot.iife.min.js"></script>
+  <meta name="theme-color" content="#ff9800">
+</head>
+<body data-theme="hell">
+  <header id="kopf">
+    <div class="kopf-links">
+      <h1 id="titel">Übersicht</h1>
+      <span id="test-badge" hidden>TEST</span>
+    </div>
+    <div class="kopf-rechts">
+      <button id="undo-btn" class="kopf-undo" aria-label="Rückgängig" title="Rückgängig" hidden></button>
+      <button id="redo-btn" class="kopf-undo" aria-label="Wiederherstellen" title="Wiederherstellen" hidden></button>
+      <button id="theme-toggle" aria-label="Darstellung wechseln" title="Darstellung wechseln"></button>
+      <a href="#/profil" id="profil-link" aria-label="Profil"></a>
+    </div>
+  </header>
+  <main id="screen"></main>
+  <nav id="tabs" aria-label="Hauptnavigation">
+    <a href="#/dashboard" data-screen="dashboard" aria-label="Übersicht"><span class="tab-label">Übersicht</span></a>
+    <a href="#/eingabe"  data-screen="eingabe"  aria-label="Eingabe"><span class="tab-label">Eingabe</span></a>
+    <a href="#/charts"   data-screen="charts"   aria-label="Charts"><span class="tab-label">Charts</span></a>
+    <a href="#/verlauf"  data-screen="verlauf"  aria-label="Verlauf"><span class="tab-label">Verlauf</span></a>
+  </nav>
+  <script type="module" src="../js/main.js"></script>
+</body>
+</html>

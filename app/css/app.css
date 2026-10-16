@@ -1,0 +1,501 @@
+/* app/css/app.css — Design-Fundament (iOS-clean, Weiß/Grau/Blau, Hell+Dunkel) */
+
+/* ---- Tokens HELL (Default) ---- */
+:root {
+  --bg: #f2f2f7; --surface: #ffffff; --surface-2: #f7f7fb;
+  --fg: #1c1c1e; --fg-2: #6b7280; --fg-3: #9ca3af;
+  --akzent: #2563eb; --akzent-weich: #e8f0fe;
+  --rand: #e5e5ea;
+  --gut: #059669; --warn: #d97706;
+  --schlecht: #dc2626;
+  --chart-linie: #2563eb; --chart-trend: #94a3b8;
+  --chart-gitter: #ececf1; --chart-flaeche: rgba(37,99,235,.08);
+  --radius: 16px; --radius-s: 10px;
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 24px; --sp-6: 32px;
+  --screen-pad-x: var(--sp-5);
+  --screen-pad-top: var(--sp-5);
+  --karten-gap: var(--sp-4);
+  --karten-pad: var(--sp-5);
+  --schatten: 0 1px 2px rgba(0,0,0,.04), 0 4px 16px rgba(0,0,0,.06);
+  --tap: 44px;
+}
+/* ---- Tokens DUNKEL (eigene Werte, nicht invertiert) ---- */
+[data-theme="dunkel"] {
+  --bg: #000000; --surface: #1c1c1e; --surface-2: #2c2c2e;
+  --fg: #f5f5f7; --fg-2: #a1a1aa; --fg-3: #6b7280;
+  --akzent: #4f93f5; --akzent-weich: #1e2a44;
+  --rand: #38383a;
+  --gut: #34d399; --warn: #fbbf24;
+  --schlecht: #f87171;
+  --chart-linie: #4f93f5; --chart-trend: #8b94a3;
+  --chart-gitter: #2c2c2e; --chart-flaeche: rgba(79,147,245,.14);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  background: var(--bg); color: var(--fg); -webkit-font-smoothing: antialiased;
+  line-height: 1.4; display: flex; flex-direction: column; min-height: 100vh;
+  transition: background .25s, color .25s;
+}
+
+/* Testmodus-Badge (dezent, in der Kopfzeile neben dem Screen-Namen) */
+#test-badge {
+  font-size: 11px; font-weight: 700; letter-spacing: .08em; color: #fff;
+  background: var(--warn); padding: 3px 8px; border-radius: 999px; align-self: center;
+}
+#test-badge[hidden] { display: none; }
+
+/* Kopf */
+#kopf {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: var(--sp-3) var(--screen-pad-x) var(--sp-2);
+  position: sticky; top: 0; z-index: 10;
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+}
+.kopf-links { display: flex; align-items: center; gap: var(--sp-2); min-width: 0; }
+#titel { font-size: 28px; font-weight: 700; letter-spacing: -.03em; }
+.kopf-rechts { display: flex; gap: 8px; align-items: center; }
+
+/* Theme-Toggle (zustandsabhängig: Mond in Hell, Sonne in Dunkel) */
+#theme-toggle {
+  width: var(--tap); height: var(--tap); border-radius: 50%;
+  border: 1px solid var(--rand); background: var(--surface); color: var(--fg);
+  cursor: pointer; display: grid; place-items: center;
+  transition: background .25s, color .25s, border-color .25s; font-size: 22px;
+}
+#theme-toggle:hover, #profil-link:hover { color: var(--akzent); border-color: var(--akzent); }
+/* Icon-Wrapper + SVG sauber zentrieren (kein Baseline-Versatz) */
+#theme-toggle span { display: grid; place-items: center; line-height: 0; }
+#theme-toggle svg, #profil-link svg { display: block; width: 22px; height: 22px; }
+#theme-toggle .ico-sonne { display: none; }
+[data-theme="dunkel"] #theme-toggle .ico-mond { display: none; }
+[data-theme="dunkel"] #theme-toggle .ico-sonne { display: grid; }
+
+/* Profil-Link */
+#profil-link {
+  width: var(--tap); height: var(--tap); border-radius: 50%;
+  display: grid; place-items: center; color: var(--fg); text-decoration: none;
+  background: var(--surface); border: 1px solid var(--rand); font-size: 22px;
+}
+
+/* Undo/Redo im Kopf (nur auf dem Verlauf-Screen sichtbar, sonst [hidden]) */
+.kopf-undo {
+  width: var(--tap); height: var(--tap); border-radius: 50%;
+  border: 1px solid var(--rand); background: var(--surface); color: var(--fg);
+  cursor: pointer; display: grid; place-items: center;
+  transition: background .25s, color .25s, border-color .25s;
+}
+.kopf-undo svg { display: block; width: 20px; height: 20px; }
+.kopf-undo:not(:disabled):hover { color: var(--akzent); border-color: var(--akzent); }
+.kopf-undo:disabled { color: var(--fg-3); opacity: .4; cursor: default; }
+.kopf-undo[hidden] { display: none; }
+
+/* Screen-Container */
+#screen {
+  flex: 1; overflow-y: auto;
+  padding: var(--screen-pad-top) var(--screen-pad-x) 100px;
+  display: flex; flex-direction: column; gap: var(--karten-gap);
+}
+#screen h2 { font-size: 17px; font-weight: 600; margin: 20px 0 10px; }
+
+/* Formulare (iOS-artig) */
+form label { display: block; font-size: 13px; color: var(--fg-2); font-weight: 600; margin: 14px 0 6px; }
+input, select, button[type="submit"] {
+  font-family: inherit; font-size: 16px; width: 100%;
+  padding: 12px 14px; border-radius: var(--radius-s); border: 1px solid var(--rand);
+  background: var(--surface); color: var(--fg);
+}
+input:focus, select:focus { outline: 2px solid var(--akzent); outline-offset: -1px; border-color: var(--akzent); }
+fieldset { border: 1px solid var(--rand); border-radius: var(--radius-s); padding: 12px 14px; margin: 14px 0; }
+legend { font-size: 13px; color: var(--fg-2); font-weight: 600; padding: 0 6px; }
+fieldset label { display: flex; align-items: center; gap: 8px; }
+fieldset input[type="checkbox"] { width: auto; }
+button[type="submit"] {
+  background: var(--akzent); color: #fff; border: 0; font-weight: 600; cursor: pointer;
+  margin-top: 20px; padding: 14px; font-size: 17px;
+}
+button[type="submit"]:hover { filter: brightness(1.05); }
+
+/* generische Buttons (Export/Import etc.) */
+#screen button:not([type="submit"]) {
+  font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer;
+  padding: 10px 16px; border-radius: var(--radius-s);
+  border: 1px solid var(--rand); background: var(--surface); color: var(--akzent);
+}
+
+p[role="status"] { font-size: 14px; color: var(--fg-2); margin-top: 12px; }
+
+/* KPI-Liste (Dashboard — wird in Mockup 2 weiter verfeinert) */
+.kpi { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--sp-3); }
+.kpi li {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: var(--sp-4); background: var(--surface); border-radius: var(--radius-s);
+  box-shadow: var(--schatten);
+}
+.kpi span { color: var(--fg-2); font-size: 14px; }
+.kpi b { font-size: 18px; font-weight: 700; letter-spacing: -.01em; }
+
+/* Verlauf-Tabelle */
+.verlauf { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14px; }
+.verlauf th { text-align: left; padding: 8px 10px; color: var(--fg-2); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .03em; }
+.verlauf td { text-align: left; padding: 12px 10px; border-top: 1px solid var(--rand); }
+.verlauf tbody tr:first-child td { border-top: 0; }
+.verlauf button { background: none; border: none; color: var(--fg-3); cursor: pointer; font-size: 1em; padding: 4px; }
+.verlauf button:hover { color: var(--warn); }
+
+/* Charts-Screen */
+.charts-screen { display:flex; flex-direction:column; gap:var(--sp-3); }
+/* Zeile 1: Segmented-Control links, Vollbild-Icon rechts — fix, kein Umbruch. */
+.charts-leiste { display:flex; align-items:center; justify-content:space-between; gap:var(--sp-2); flex-wrap:nowrap; }
+.charts-leiste .seg { flex-wrap:nowrap; }
+/* Zeile 2: Kontext (Jahr-Stepper bzw. Tage-Pills) in eigener Zeile. */
+.charts-kontext-zeile { display:flex; align-items:center; }
+.charts-kontext-zeile[hidden] { display:none; }
+.ch-voll, #screen button.ch-voll { flex:none; width:var(--tap); height:var(--tap); display:grid; place-items:center; padding:0; border:1px solid var(--rand); background:var(--surface); color:var(--fg); border-radius:50%; cursor:pointer; transition:background .2s, color .2s, border-color .2s; }
+.ch-voll svg { width:20px; height:20px; display:block; }
+.ch-voll:hover, #screen button.ch-voll:hover { color:var(--akzent); border-color:var(--akzent); }
+
+/* Serien-Chips (Toggle mit Serien-Farbpunkt) — zentriert, kompakt, damit sie
+   möglichst in eine Zeile passen; bei Umbruch auf schmalen Geräten bleibt es dank
+   Zentrierung ausgewogen. */
+.serie-chips { display:flex; gap:6px; flex-wrap:wrap; justify-content:center; }
+.serie-chip, #screen button.serie-chip { display:inline-flex; align-items:center; gap:5px; font-size:12.5px; font-weight:600; padding:6px 11px; border-radius:999px; border:1px solid var(--rand); background:var(--surface); color:var(--fg-2); cursor:pointer; font-family:inherit; }
+.serie-chip.aktiv, #screen button.serie-chip.aktiv { background:var(--akzent-weich); color:var(--akzent); border-color:transparent; }
+.serie-chip .serie-punkt { width:8px; height:8px; border-radius:50%; display:inline-block; flex:none; }
+.serie-chip:not(.aktiv) .serie-punkt { opacity:.4; }
+
+/* Chart-Fläche */
+.chart-flaeche { background:var(--surface); border-radius:var(--radius); box-shadow:var(--schatten); padding:12px 10px 6px; min-height:120px; }
+.chart-flaeche .leer-hinweis { font-size:13px; color:var(--fg-3); text-align:center; padding:40px 10px; }
+.chart-flaeche .uplot, .chart-flaeche .u-wrap { width:100% !important; }
+/* Eigenes Chart-Tooltip (ersetzt die native uPlot-Legende) */
+.ch-tooltip { position:absolute; pointer-events:none; background:var(--surface); border:1px solid var(--rand); border-radius:var(--radius-s); box-shadow:var(--schatten); padding:7px 10px; font-size:12px; font-weight:600; color:var(--fg); z-index:5; white-space:nowrap; }
+.ch-tooltip .ch-tip-datum { font-size:11px; color:var(--fg-2); margin-bottom:3px; }
+.ch-tooltip .ch-tip-pkt { width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:5px; vertical-align:middle; }
+
+/* Vollbild-Modus: Chart füllt den Screen, Filter oben schmal, Rest ausgeblendet. */
+body.chart-vollbild #kopf, body.chart-vollbild #tabs { display:none; }
+/* Fester Vollbild-Container: KEIN overflow-scroll — die Chart-Fläche schrumpft per Flex
+   auf die Resthöhe zwischen Leiste/Kontext oben und Chips unten. */
+.charts-screen.vollbild { position:fixed; inset:0; z-index:60; background:var(--bg); padding:10px 12px; gap:8px; overflow:hidden; }
+.charts-screen.vollbild .charts-leiste { gap:6px; order:0; flex:none; }
+.charts-screen.vollbild .charts-kontext-zeile { order:1; flex:none; }
+.charts-screen.vollbild .eigene-feld { order:1; flex:none; }
+/* Chart nimmt die Resthöhe; min-height:0 erlaubt korrektes Flex-Schrumpfen (kein Overflow). */
+.charts-screen.vollbild .chart-flaeche { order:2; flex:1 1 auto; min-height:0; display:flex; align-items:stretch; overflow:hidden; }
+/* Chips immer unten, nie gequetscht → bleiben erreichbar. */
+.charts-screen.vollbild .serie-chips { order:3; flex:none; }
+
+/* Tab-Leiste unten */
+#tabs {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 480px; display: flex; justify-content: space-around;
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--rand); padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+}
+#tabs a {
+  flex: 1; text-align: center; color: var(--fg-3); text-decoration: none;
+  display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px 0;
+}
+#tabs a svg { width: 24px; height: 24px; display: block; }
+#tabs a .tab-label { font-size: 10px; font-weight: 600; letter-spacing: .01em; }
+#tabs a.aktiv { color: var(--akzent); }
+
+/* App auf Phone-Breite zentrieren */
+body > #kopf, body > #screen { max-width: 480px; margin-left: auto; margin-right: auto; width: 100%; }
+
+/* Segmented-Control (Geschlecht, Theme) */
+.seg { display:inline-flex; background:var(--surface-2); border:1px solid var(--rand); border-radius:999px; padding:3px; gap:2px; flex-wrap:wrap; justify-content:flex-end; }
+/* spezifisch genug, um die allgemeine #screen button-Regel zu überschreiben */
+.seg button, #screen .seg button { border:0; background:transparent; cursor:pointer; color:var(--fg-2); font-size:13px; font-weight:600; padding:7px 16px; border-radius:999px; font-family:inherit; transition:all .2s; }
+.seg button.aktiv, #screen .seg button.aktiv { background:var(--akzent); color:#fff; box-shadow:0 1px 3px rgba(0,0,0,.15); }
+.seg button:not(.aktiv):hover, #screen .seg button:not(.aktiv):hover { color:var(--akzent); }
+/* A-Größen-Variante (Anzeigegröße): gleich breite Felder, A vertikal zentriert trotz
+   unterschiedlicher Schriftgröße. .aa trägt die stufenabhängige font-size inline. */
+.seg-ikon button, #screen .seg-ikon button { min-width:38px; padding:4px 10px; display:grid; place-items:center; }
+.seg-ikon .aa { font-weight:700; line-height:1; }
+
+/* Zeitfilter (Übersicht): Segmented + inline Jahr-Stepper / Tage-Pills + Eigene-Zahlenfeld. */
+.filter { display:flex; flex-direction:column; gap:0; }
+.filterzeile { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.stepper { display:inline-flex; align-items:center; gap:4px; }
+.stepper button, #screen .stepper button { width:36px; height:36px; border-radius:50%; border:1px solid var(--rand); background:var(--surface); color:var(--akzent); font-size:18px; cursor:pointer; display:grid; place-items:center; padding:0; }
+.stepper button:disabled, #screen .stepper button:disabled { color:var(--fg-3); opacity:.5; cursor:default; }
+.stepper button svg, #screen .stepper button svg { width:20px; height:20px; display:block; }
+.stepper .j { font-size:17px; font-weight:700; min-width:58px; text-align:center; }
+.tage-pills { display:inline-flex; gap:8px; flex-wrap:wrap; }
+.tp, #screen .tp { border:1px solid var(--rand); background:var(--surface); color:var(--fg); border-radius:999px; padding:8px 15px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; }
+.tp.aktiv, #screen .tp.aktiv { background:var(--akzent); color:#fff; border-color:var(--akzent); }
+.eigene-feld { display:none; align-items:center; gap:10px; margin-top:10px; }
+.eigene-feld.auf { display:flex; }
+.eigene-feld label { font-size:14px; color:var(--fg-2); font-weight:600; }
+.num { display:inline-flex; align-items:center; border:1px solid var(--rand); border-radius:var(--radius-s); background:var(--surface); overflow:hidden; }
+.num input { width:64px; border:0; text-align:center; font-size:16px; font-weight:700; color:var(--fg); font-family:inherit; padding:9px 4px; background:transparent; }
+.num input:focus { outline:none; color:var(--akzent); }
+.num button, #screen .num button { width:38px; height:40px; border:0; border-left:1px solid var(--rand); background:var(--surface-2); color:var(--akzent); font-size:16px; cursor:pointer; padding:0; border-radius:0; }
+.num button:first-of-type, #screen .num button:first-of-type { border-left:0; border-right:1px solid var(--rand); }
+.num button, #screen .num button { display:grid; place-items:center; }
+.num button svg, #screen .num button svg { width:20px; height:20px; display:block; }
+.eigene-feld .einheit { font-size:14px; color:var(--fg-2); }
+
+/* Ziel-Eingabe im Profil: Zeile mit voller Breite für Zahlenfeld + abgeleitete Anzeige. */
+.ziel-eingabe .ctrl-voll { display:flex; align-items:center; gap:var(--sp-3); justify-content:flex-end; flex-wrap:wrap; width:100%; }
+/* Harmonisiert: Typ-Segmented links neben dem Zahlenfeld (Haupt- und Zwischenziele gleich). */
+.ctrl-ziel { display:flex; align-items:center; gap:var(--sp-2); justify-content:flex-end; flex-wrap:wrap; }
+.ziel-abgeleitet { font-size:14px; color:var(--fg-2); font-weight:600; }
+.zw-info { padding-top:var(--sp-2); }
+.zw-info .erkl { font-size:12px; color:var(--fg-3); }
+
+/* ---- Übersicht/Dashboard (Mockup 06) ---- */
+.hero { background:var(--surface); border-radius:var(--radius); padding:22px; box-shadow:var(--schatten); }
+.hero-label { font-size:13px; color:var(--fg-2); font-weight:600; text-transform:uppercase; letter-spacing:.04em; }
+.hero-wert { font-size:52px; font-weight:700; letter-spacing:-.03em; margin-top:4px; }
+.hero-wert .einheit { font-size:24px; font-weight:600; color:var(--fg-2); margin-left:4px; }
+.hero-pills { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+.pill { display:inline-flex; align-items:center; gap:5px; font-size:14px; font-weight:600; padding:4px 11px; border-radius:999px; }
+.pill.gut { color:var(--gut); background:color-mix(in srgb, var(--gut) 14%, transparent); }
+.pill.schlecht { color:#dc2626; background:color-mix(in srgb, #dc2626 14%, transparent); }
+[data-theme="dunkel"] .pill.schlecht { color:#f87171; background:color-mix(in srgb, #f87171 16%, transparent); }
+.pill.neutral { color:var(--fg-2); background:var(--surface-2); }
+.pill svg { width:14px; height:14px; }
+
+.kpi-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.kpi-tile { background:var(--surface); border-radius:var(--radius-s); padding:16px; box-shadow:var(--schatten); }
+.kpi-tile .k-label { font-size:12px; color:var(--fg-2); font-weight:600; }
+.kpi-tile .k-wert { font-size:24px; font-weight:700; letter-spacing:-.02em; margin-top:6px; }
+.kpi-tile .k-wert.positiv { color:var(--gut); }
+.kpi-tile .k-sub { font-size:12px; color:var(--fg-3); margin-top:2px; }
+
+.ziel-karte { background:var(--surface); border-radius:var(--radius); padding:20px; box-shadow:var(--schatten); }
+.ziel-kopf { display:flex; justify-content:space-between; align-items:baseline; }
+.ziel-kopf .titel { font-size:15px; font-weight:600; }
+.ziel-kopf .proz { font-size:15px; font-weight:700; color:var(--akzent); }
+.ziel-karte .balken { position:relative; height:10px; background:var(--rand); border-radius:999px; margin:30px 0 32px; overflow:visible; }
+.ziel-karte .balken > .fuell { display:block; height:100%; border-radius:999px; background:linear-gradient(90deg, var(--akzent), color-mix(in srgb, var(--akzent) 70%, #7cc)); transition:width .25s; }
+/* Marker auf dem Ziel-Balken.
+   Zwischenziel (eigen): Label OBEN (blau, bzw. grün+✓ wenn erreicht), weicht bei weit-rechts
+   nach links aus. WHO-Schwellen: neutral graue Striche, BMI-Wert als Label UNTEN. */
+.ziel-karte .marker { position:absolute; top:50%; transform:translate(-50%,-50%); }
+.marker-eigen { width:3px; height:20px; background:var(--akzent); border-radius:2px; }
+.marker-eigen .m-label { position:absolute; bottom:22px; left:50%; transform:translateX(-50%); font-size:11px; font-weight:700; color:var(--akzent); white-space:nowrap; }
+.marker-eigen .m-label.links { left:auto; right:0; transform:none; } /* weicht der Prozentzahl aus */
+.marker-eigen.erreicht { background:var(--gut); }
+.marker-eigen.erreicht .m-label { color:var(--gut); }
+.marker-who { width:2px; height:14px; background:var(--fg); border-radius:1px; }
+.marker-who .who-label { position:absolute; top:20px; left:50%; transform:translateX(-50%); font-size:10px; font-weight:600; color:var(--fg-3); white-space:nowrap; }
+.marker-who .who-label.links { left:auto; right:0; transform:none; }
+.marker-who .who-label.rechts { left:0; transform:none; }
+.marker-who.erreicht { background:var(--gut); }
+.marker-who.erreicht .who-label { color:var(--gut); }
+.m-label svg, .who-label svg { width:1em; height:1em; vertical-align:-0.1em; }
+.ziel-fuss { display:flex; justify-content:space-between; font-size:13px; color:var(--fg-2); }
+.ziel-fuss b { color:var(--fg); }
+
+.chart-karte { background:var(--surface); border-radius:var(--radius); padding:20px; box-shadow:var(--schatten); }
+.chart-karte .chart-titel { font-size:15px; font-weight:600; margin-bottom:4px; }
+.chart-karte .legende { display:flex; gap:16px; font-size:12px; color:var(--fg-2); margin:8px 0 10px; }
+.chart-karte .legende span { display:inline-flex; align-items:center; gap:5px; }
+.chart-karte .leg-strich { width:16px; height:3px; border-radius:2px; display:inline-block; background:var(--chart-linie); }
+.chart-karte .leg-trend { background:var(--warn); }
+.chart-karte .spark { width:100%; height:120px; display:block; }
+.chart-karte .leer-hinweis { font-size:13px; color:var(--fg-3); }
+
+/* Datums-Rädchen-Picker */
+.datum-anzeige { font-size:16px; font-weight:600; color:var(--akzent); cursor:pointer; padding:8px 14px; border-radius:var(--radius-s); background:var(--akzent-weich); display:inline-flex; align-items:center; gap:var(--sp-2); }
+.datum-picker { display:none; margin-top:var(--sp-4); }
+.datum-picker.offen { display:block; }
+.raeder { display:flex; gap:var(--sp-2); height:160px; }
+.rad { flex:1; overflow-y:scroll; scroll-snap-type:y mandatory; text-align:center; border-radius:var(--radius-s); background:var(--surface-2); scrollbar-width:none; }
+.rad::-webkit-scrollbar { display:none; }
+.rad-item { scroll-snap-align:center; padding:12px 0; font-size:16px; color:var(--fg-2); cursor:pointer; }
+.rad-item.sel { color:var(--akzent); font-weight:700; font-size:18px; }
+
+/* Profil: Info-Karte */
+.karte { background:var(--surface); border-radius:var(--radius); box-shadow:var(--schatten); overflow:hidden; }
+.karte.info { display:flex; }
+.info .zelle { flex:1; text-align:center; padding:var(--sp-4) var(--sp-2); }
+.info .zelle + .zelle { border-left:1px solid var(--rand); }
+.info .z-wert { font-size:22px; font-weight:700; letter-spacing:-.02em; }
+.info .z-wert.welt-test { color:var(--warn); }
+.info .z-label { font-size:11px; color:var(--fg-2); margin-top:2px; }
+
+/* Profil: Abschnittsüberschrift */
+.abschnitt { font-size:13px; font-weight:700; color:var(--fg-2); text-transform:uppercase; letter-spacing:.04em; margin:var(--sp-2) 0 calc(-1*var(--sp-2)) var(--sp-1); }
+
+/* Profil: Formularzeilen (Label links, Control rechts) */
+.karte .zeile { display:flex; align-items:center; justify-content:space-between; gap:var(--sp-3); padding:var(--sp-4) var(--karten-pad); }
+.karte .zeile + .zeile { border-top:1px solid var(--rand); }
+.karte .zeile > label { font-size:15px; font-weight:500; color:var(--fg); white-space:nowrap; }
+.karte .zeile .ctrl { flex:1; display:flex; justify-content:flex-end; align-items:center; gap:4px; color:var(--fg-2); }
+.karte .zeile .ctrl input { font-family:inherit; font-size:16px; text-align:right; border:0; background:transparent; color:var(--fg); max-width:120px; }
+.karte .zeile .ctrl input:focus { outline:none; color:var(--akzent); }
+.karte .zeile .readonly { font-size:16px; color:var(--fg-2); }
+/* Datumszeile: Picker darf unter die Zeile aufklappen */
+.karte .zeile-datum { flex-wrap:wrap; }
+/* Nur die Picker-Pille sitzt rechts in der ctrl → vertikal zum Label zentriert.
+   (Die „Heute"-Pille steht jetzt neben dem Label, nicht mehr in der ctrl.) */
+.karte .zeile-datum .ctrl { flex-direction:row; align-items:center; gap:4px; }
+/* „Heute"-Pille inline neben dem Label „Datum" */
+.karte .zeile-datum > label { display:inline-flex; align-items:center; gap:8px; }
+
+/* Tag-vor/zurück-Pfeile in der Datumszeile (dezent, kein eigener Block). */
+/* Tag-vor/zurück-Pfeile: reine Icon-Tap-Flächen, KEIN Rahmen/Hintergrund (nur Hover-Echo).
+   `#screen button.tag-pfeil` = Spezifität (1,1,1) → schlägt die generische
+   `#screen button:not([type="submit"])`-Regel (sonst erbt padding/border → SVG rechtsbündig). */
+.tag-pfeil, #screen button.tag-pfeil { width:40px; height:40px; display:grid; place-items:center; padding:0; border:0; background:transparent; color:var(--akzent); border-radius:var(--radius-s); cursor:pointer; font-family:inherit; }
+.tag-pfeil svg { display:block; width:22px; height:22px; }
+.tag-pfeil:hover, #screen button.tag-pfeil:hover { background:var(--akzent-weich); }
+.tag-pfeil:disabled, #screen button.tag-pfeil:disabled { color:var(--fg-3); opacity:.4; cursor:default; background:transparent; }
+
+/* Profil: Backup */
+.backup-pad { padding:var(--karten-pad); display:flex; flex-direction:column; gap:var(--sp-3); }
+.backup-pad .erkl { font-size:13px; color:var(--fg-2); }
+.btn-reihe { display:flex; gap:var(--sp-3); }
+.btn { flex:1; font-family:inherit; font-size:15px; font-weight:600; cursor:pointer; padding:12px; border-radius:var(--radius-s); border:1px solid var(--rand); background:var(--surface); color:var(--akzent); }
+.btn.primär { background:var(--akzent); color:#fff; border-color:var(--akzent); }
+.btn.primär:hover { filter:brightness(1.05); }
+.status { font-size:14px; padding:var(--sp-3); border-radius:var(--radius-s); background:var(--akzent-weich); color:var(--akzent); }
+.status[hidden] { display:none; }
+
+/* ===== Eingabe-Screen (Mockup 08-1) ===== */
+.heute-tag { font-size:11px; font-weight:700; color:var(--akzent); background:var(--akzent-weich); border-radius:999px; padding:2px 8px; }
+
+/* Gewicht-Hero */
+.hero-ein { background:var(--surface); border-radius:var(--radius); padding:20px 22px 22px; box-shadow:var(--schatten); text-align:center; }
+.hero-ein .label { font-size:12px; color:var(--fg-2); font-weight:600; text-transform:uppercase; letter-spacing:.04em; }
+.hero-wert-zeile { display:flex; align-items:center; justify-content:center; gap:14px; margin-top:8px; }
+.gewicht-feld { display:inline-flex; align-items:baseline; gap:4px; }
+.gewicht-feld input { font-size:54px; font-weight:700; letter-spacing:-.03em; width:160px; text-align:center; border:0; background:transparent; color:var(--fg); font-family:inherit; padding:0; transition:color .15s; }
+.gewicht-feld input:focus { outline:none; color:var(--akzent); }
+.gewicht-feld .einheit { font-size:22px; font-weight:600; color:var(--fg-2); }
+/* Vorschlags-Zustand: gedämpft, damit klar „noch nicht gespeichert" */
+.hero-ein.vorschlag .gewicht-feld input { color:var(--fg-3); }
+.stepper-v { display:flex; flex-direction:column; gap:6px; }
+/* spezifisch genug (#screen), um die allgemeine #screen button-Regel zu überschreiben;
+   place-items + line-height:1 + padding:0 zentriert die +/−-Zeichen exakt. */
+.stepper-v button, #screen .stepper-v button { width:44px; height:36px; display:grid; place-items:center; padding:0; line-height:1; border:1px solid var(--rand); background:var(--surface-2); color:var(--akzent); border-radius:var(--radius-s); cursor:pointer; font-family:inherit; }
+.stepper-v button svg { display:block; width:20px; height:20px; }
+.stepper-v button:active, #screen .stepper-v button:active { background:var(--akzent-weich); }
+
+/* Hinweis-Zeile unterm Hero */
+.hero-hint { margin-top:12px; min-height:26px; display:flex; justify-content:center; }
+.pill-hint { display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:600; padding:5px 12px; border-radius:999px; }
+.pill-hint svg { width:14px; height:14px; }
+.pill-hint.vorschlag { color:var(--fg-2); background:var(--surface-2); cursor:pointer; }
+.pill-hint.warn { color:var(--warn); background:color-mix(in srgb,var(--warn) 13%,transparent); }
+
+/* Zugeklappte Auslöser-Zeile (Ereignis / Medikament) */
+.add-zeile { display:flex; align-items:center; justify-content:space-between; padding:var(--sp-4) var(--karten-pad); cursor:pointer; }
+.add-zeile .links { display:flex; align-items:center; gap:10px; font-size:15px; font-weight:600; color:var(--akzent); }
+.add-zeile .links svg { width:20px; height:20px; transition:transform .2s; }
+.add-zeile.offen .links svg.chev { transform:rotate(45deg); }
+.add-zeile .rechts { font-size:13px; color:var(--fg-3); }
+/* „läuft"-Zustand: mehrtägiges Ereignis überlappt den Tag nur (nicht editierbar).
+   Gedämpft/neutral mit grauem Info-Punkt – bewusst KEIN grüner Erfolgs-Haken. */
+.add-zeile .rechts.laeuft { color:var(--fg-2); font-style:italic; }
+.add-zeile .rechts.laeuft::before { content:""; display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--fg-3); margin-right:6px; vertical-align:middle; }
+/* Status-Zusammenfassung mit grünem Haken (nach dem Speichern) */
+.add-zeile .rechts .status-haken { display:inline-flex; align-items:center; vertical-align:middle; margin-right:5px; color:var(--gut); }
+.add-zeile .rechts .status-haken svg { width:14px; height:14px; }
+.add-zeile.offen { border-bottom:1px solid var(--rand); }
+.collapse { display:none; }
+.collapse.auf { display:block; }
+
+/* Speichern + Erfolgs-Pille */
+.speichern { width:100%; font-family:inherit; font-size:17px; font-weight:700; cursor:pointer; padding:15px; border-radius:var(--radius-s); border:0; background:var(--akzent); color:#fff; margin-top:4px; }
+.ok-pill { display:none; align-items:center; justify-content:center; gap:8px; font-size:15px; font-weight:600; color:var(--gut); background:color-mix(in srgb,var(--gut) 13%,transparent); padding:14px; border-radius:var(--radius-s); margin-top:4px; }
+.ok-pill.auf { display:flex; }
+.ok-pill svg { width:18px; height:18px; }
+
+/* Überschreiben-Dialog */
+.dialog-bg { position:fixed; inset:0; background:rgba(0,0,0,.4); display:none; align-items:center; justify-content:center; z-index:50; }
+.dialog-bg.auf { display:flex; }
+.dialog { background:var(--surface); border-radius:var(--radius); padding:22px; width:84%; max-width:300px; text-align:center; box-shadow:0 20px 50px rgba(0,0,0,.3); }
+.dialog .d-titel { font-size:17px; font-weight:700; margin-bottom:8px; }
+.dialog .d-text { font-size:14px; color:var(--fg-2); margin-bottom:18px; }
+.dialog .d-text b { color:var(--fg); }
+.dialog .d-btns { display:flex; gap:10px; }
+/* #screen-Präfix nötig, damit die generische `#screen button`-Regel (ID-Spezifität)
+   die Dialog-Button-Farben nicht überschreibt (Basis + Varianten). */
+#screen .dialog .d-btns button { flex:1; font-family:inherit; font-size:15px; font-weight:600; padding:12px; border-radius:var(--radius-s); cursor:pointer; border:1px solid var(--rand); background:var(--surface); color:var(--fg); }
+#screen .dialog .d-btns button.primär { background:var(--warn); color:#fff; border-color:var(--warn); }
+#screen .dialog .d-btns button.gefahr { background:var(--schlecht); color:#fff; border-color:var(--schlecht); }
+
+/* Ereignis-Overlay: etwas breiter + links-bündiges Formular (statt zentriert). */
+.dialog.ev-edit { max-width: 340px; text-align: left; }
+.dialog.ev-edit .d-titel { text-align: center; }
+.dialog.ev-edit .feld { margin-bottom: 14px; }
+.dialog.ev-edit .feld > label { display:block; font-size:12px; font-weight:600; color:var(--fg-2); margin-bottom:6px; }
+.dialog.ev-edit .zeitraum { display:flex; gap:10px; }
+.dialog.ev-edit .zeitraum .feld { flex:1; margin-bottom:0; }
+.dialog.ev-edit .notiz { width:100%; padding:10px 12px; border-radius:var(--radius-s); border:1px solid var(--rand); background:var(--surface); color:var(--fg); font-size:14px; font-family:inherit; }
+/* Kategorie-Segment im Overlay OHNE grauen Pillen-Container (nur die aktive Kategorie
+   füllt sich blau). Hebt den globalen .seg-Rahmen/Hintergrund nur hier auf; linksbündig
+   mit kleinem Zeilenabstand bei Umbruch. */
+.dialog.ev-edit .seg { background:transparent; border:0; padding:0; gap:6px; row-gap:6px; justify-content:flex-start; }
+/* Speichern im Ereignis-Overlay ist neutrale Haupt-Aktion → BLAU (--akzent), nicht
+   das orange --warn des Eingabe-Überschreiben-Dialogs. Spezifität via zusätzlichem
+   .ev-edit höher als #screen .dialog .d-btns button.primär (Zeile darüber). */
+#screen .dialog.ev-edit .d-btns button.primär { background:var(--akzent); border-color:var(--akzent); }
+
+/* Löschen als dezente rote Textzeile UNTER den Haupt-Buttons.
+   #screen-Präfix nötig: sonst überschreibt die generische `#screen button`-Regel
+   (ID-Spezifität) die rote Textfarbe → Button würde fälschlich blau. */
+.loeschen-zeile { text-align:center; margin-top:14px; }
+.loeschen-zeile button, #screen .loeschen-zeile button { background:transparent; border:0; color:var(--schlecht); font-family:inherit; font-size:14px; font-weight:600; cursor:pointer; padding:6px; display:inline-flex; align-items:center; gap:6px; }
+.loeschen-zeile svg { width:15px; height:15px; }
+
+/* ---- Verlauf-Screen (Mockup 09) ---- */
+.verlauf-leer { text-align:center; color:var(--fg-3); padding:60px 20px; font-size:15px; }
+
+/* Monats-Gruppenüberschrift */
+.v-monat {
+  display:flex; justify-content:space-between; align-items:baseline;
+  font-size:13px; font-weight:700; color:var(--fg-2);
+  text-transform:uppercase; letter-spacing:.05em;
+  margin:var(--sp-3) 0 calc(-1 * var(--sp-2)) 4px;
+}
+.v-monat .v-zusatz { font-size:11px; font-weight:600; color:var(--fg-3); text-transform:none; letter-spacing:0; }
+
+/* Karte mit Tageszeilen */
+.v-karte { overflow:hidden; }
+.v-tag { display:flex; align-items:center; gap:var(--sp-3); padding:var(--sp-3) var(--sp-4); cursor:pointer; }
+.v-tag + .v-tag { border-top:1px solid var(--rand); }
+.v-tag:hover { background:var(--surface-2); }
+
+/* Datum-Block links */
+.v-datum { display:flex; flex-direction:column; align-items:center; min-width:46px; }
+.v-datum .v-wtag { font-size:11px; font-weight:700; color:var(--fg-3); text-transform:uppercase; letter-spacing:.03em; }
+.v-datum .v-tagnr { font-size:20px; font-weight:700; letter-spacing:-.02em; line-height:1.1; }
+.v-datum.heute-ring { color:var(--akzent); }
+.v-datum.heute-ring .v-tagnr { background:var(--akzent); color:#fff; border-radius:10px; padding:1px 7px; }
+
+/* Mitte: Gewicht + Chips */
+.v-mitte { flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; }
+.v-gewicht-zeile { display:flex; align-items:baseline; gap:8px; }
+.v-gewicht { font-size:19px; font-weight:700; letter-spacing:-.02em; }
+.v-gewicht .v-einh { font-size:13px; font-weight:600; color:var(--fg-3); margin-left:2px; }
+.v-mitte .diff { font-size:12px; font-weight:600; }
+.v-mitte .diff.ab { color:var(--gut); }
+.v-mitte .diff.zu { color:var(--schlecht); }
+.v-chips { display:flex; gap:6px; flex-wrap:wrap; }
+.v-chips .chip { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600; padding:2px 8px; border-radius:999px; background:var(--surface-2); color:var(--fg-2); }
+.v-chips .chip svg { width:11px; height:11px; }
+.v-chips .chip.med { color:var(--akzent); background:var(--akzent-weich); }
+.v-chips .chip.ev { color:var(--warn); background:color-mix(in srgb, var(--warn) 14%, transparent); }
+
+/* Aktionen rechts */
+.v-aktionen { display:flex; gap:2px; }
+.v-akt { width:34px; height:34px; border-radius:8px; border:0; background:transparent; color:var(--fg-3); cursor:pointer; display:grid; place-items:center; }
+.v-akt svg { width:17px; height:17px; display:block; }
+.v-akt:hover { background:var(--surface-2); color:var(--akzent); }
+.v-akt.del:hover { color:var(--schlecht); }
+/* `#screen button.v-akt` = Spezifität (1,1,1) — gleich der generischen Regel
+   `#screen button:not([type="submit"])`, gewinnt durch spätere Quell-Position.
+   Damit dezent: kein Rand, transparent, grau; Hover blau bzw. rot bei .del. */
+#screen button.v-akt { padding:0; border:0; background:transparent; color:var(--fg-3); }
+#screen button.v-akt:hover { background:var(--surface-2); color:var(--akzent); }
+#screen button.v-akt.del:hover { color:var(--schlecht); }

@@ -1,0 +1,33 @@
+# Quelldatei NIEMALS versionieren (unantastbar, nur lesen)
+Blutwerte.xlsx
+
+# Aus der Excel erzeugte Markdown-Tabellen = ECHTE Gewichtsdaten → NICHT versionieren
+# (Repo ist öffentlich; Gesundheitsdaten bleiben beim Nutzer). Lokal bleiben sie erhalten.
+markdown/
+
+# Alte Implementierungspläne = enthalten echte Test-/Beispielwerte → nicht öffentlich.
+# Lokal erhalten; für die öffentliche App ohne Wert.
+docs/plans/
+
+# Rohe Gesprächsnotiz aus früherer Session (kein Projekt-Artefakt)
+tracking-app.txt
+
+# Design-Mockups (Wegwerf, nicht Teil der App)
+mockups/
+
+# Visual-Companion-Brainstorming (Wegwerf, vom Browser-Tool verwaltet)
+.superpowers/
+
+# Generierte Seed-/Backup-Dateien
+seed_*.json
+backup_*.json
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+
+# Node (falls später doch mal lokale Tools)
+node_modules/
+
+# Python
+__pycache__/
