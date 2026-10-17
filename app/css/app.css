@@ -182,11 +182,11 @@ body.chart-vollbild #kopf, body.chart-vollbild #tabs { display:none; }
 .charts-screen.vollbild { position:fixed; inset:0; z-index:60; background:var(--bg); padding:10px 12px; gap:8px; overflow:hidden; }
 .charts-screen.vollbild .charts-leiste { gap:6px; order:0; flex:none; }
 .charts-screen.vollbild .charts-kontext-zeile { order:1; flex:none; }
-.charts-screen.vollbild .eigene-feld { order:1; flex:none; }
+.charts-screen.vollbild .eigene-feld { order:2; flex:none; }
 /* Chart nimmt die Resthöhe; min-height:0 erlaubt korrektes Flex-Schrumpfen (kein Overflow). */
-.charts-screen.vollbild .chart-flaeche { order:2; flex:1 1 auto; min-height:0; display:flex; align-items:stretch; overflow:hidden; }
+.charts-screen.vollbild .chart-flaeche { order:3; flex:1 1 auto; min-height:0; display:flex; align-items:stretch; overflow:hidden; }
 /* Chips immer unten, nie gequetscht → bleiben erreichbar. */
-.charts-screen.vollbild .serie-chips { order:3; flex:none; }
+.charts-screen.vollbild .serie-chips { order:4; flex:none; }
 
 /* Tab-Leiste unten */
 #tabs {
@@ -401,11 +401,11 @@ body > #kopf, body > #screen { max-width: 480px; margin-left: auto; margin-right
 .pill-hint.warn { color:var(--warn); background:color-mix(in srgb,var(--warn) 13%,transparent); }
 
 /* Zugeklappte Auslöser-Zeile (Ereignis / Medikament) */
-.add-zeile { display:flex; align-items:center; justify-content:space-between; padding:var(--sp-4) var(--karten-pad); cursor:pointer; }
-.add-zeile .links { display:flex; align-items:center; gap:10px; font-size:15px; font-weight:600; color:var(--akzent); }
+.add-zeile { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:var(--sp-4) var(--karten-pad); cursor:pointer; }
+.add-zeile .links { display:flex; align-items:center; gap:10px; font-size:15px; font-weight:600; color:var(--akzent); flex:none; }
 .add-zeile .links svg { width:20px; height:20px; transition:transform .2s; }
 .add-zeile.offen .links svg.chev { transform:rotate(45deg); }
-.add-zeile .rechts { font-size:13px; color:var(--fg-3); }
+.add-zeile .rechts { font-size:13px; color:var(--fg-3); text-align:right; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 /* „läuft"-Zustand: mehrtägiges Ereignis überlappt den Tag nur (nicht editierbar).
    Gedämpft/neutral mit grauem Info-Punkt – bewusst KEIN grüner Erfolgs-Haken. */
 .add-zeile .rechts.laeuft { color:var(--fg-2); font-style:italic; }

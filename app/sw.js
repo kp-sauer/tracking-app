@@ -1,5 +1,5 @@
 // Cacht die App-Shell für Offline-Betrieb. Cache-Name pro Deploy hochzählen.
-const CACHE = 'tracking-shell-v58';
+const CACHE = 'tracking-shell-v59';
 const SHELL = [
   '.', 'index.html', 'css/app.css',
   'js/main.js', 'js/world.js', 'js/theme.js', 'js/router.js', 'js/icons.js', 'js/felder.js',
