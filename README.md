@@ -7,13 +7,22 @@ Sessions ohne weiteren Kontext weiterarbeiten können.
 > **Projektziel:** siehe Abschnitt [App-Konzept](#app-konzept-ziel) weiter unten. Der Daten-Kontext
 > (Analyse der Excel) ist vollständig erfasst und bleibt als Referenz unten stehen.
 
-> ## 🚦 Aktueller Stand (2026-10-16)
+> ## Aktueller Stand (2026-10-17)
 >
-> **v1 ist funktional fertig & abgenommen.** Seitdem läuft das **Design-/UX-Feintuning** Screen für
-> Screen (clean, iOS-artig; Weiß/Grau als Basis, Blau als einziger Akzent). **Alle Screens sind
-> feingetunt & im Browser verifiziert — das Design-/UX-Feintuning ist ABGESCHLOSSEN.**
+> **v1 ist funktional fertig & abgenommen. Design-/UX-Feintuning ABGESCHLOSSEN.**
+> Backlog Commits 1–4 vollständig umgesetzt (siehe `docs/BACKLOG.md`); Commits 5+6 (Prio 99) offen.
 >
-> **Fertig & im Browser verifiziert:**
+> **Commits 1–4 (alle ✅):**
+> - **Commit 1** — Micro-Fixes (Toaster Profil, Labels, Umgebungs-Badge, touch-action Stepper)
+> - **Commit 2** — CSS-Redesign Chips & Buttons (blauer Rand statt grauem, Speichern hellblau, Kopf kompakter)
+> - **Commit 3** — Eingabe-Layout: Datumszeile immer zweizeilig (‹ Datum ›), Speichern-Button zwischen Hero und Ereignis/Medikament
+> - **Commit 4** — Dashboard-Logik: „Heute noch kein Wert erfasst" als Amber-Pille (eigene Zeile); Trend-Zone Amber (0–1 kg Zunahme) + Rot (>1 kg)
+>
+> **Zusätzliche Bugfixes (2026-10-17, SW v59):**
+> - Eingabe: `.add-zeile` gap + ellipsis auf `.rechts` → Kategorie-Hinweis bricht nicht mehr um
+> - Charts Vollbild + „+Eigene" Filter: Flex-Order-Konflikt behoben
+>
+> **Fertig & im Browser verifiziert** (alle Screens, Details unverändert gültig — siehe vorherigen Stand unten):
 > - **Fundament/Shell** — Theme-Toggle (hell/dunkel/system), zentrales 4px-Spacing-System, Kopf mit
 >   dynamischem Screen-Namen + TEST-Badge, untere Tab-Leiste.
 > - **Service-Worker** auf *network-first* umgestellt → App-Updates kommen sofort an (vorher zäh).
