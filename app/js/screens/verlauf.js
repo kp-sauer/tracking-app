@@ -1,6 +1,6 @@
 import { nachDatumSortiert, entferneTageseintrag, gruppiereNachMonat, vortagesDifferenzen } from '../db.js';
 import { ereignisseAmTag, aktualisiereEreignis, entferneEreignis } from '../ereignisse.js';
-import { MONATE, formatiereDatum, datumsPicker } from '../felder.js';
+import { MONATE, formatiereDatum, formatiereDatumKurz, datumsPicker } from '../felder.js';
 import { EINGABE_KATEGORIEN, istEingabeKategorie } from '../schema.js';
 import { icon } from '../icons.js';
 
@@ -185,8 +185,8 @@ export function renderVerlauf(container, ctx) {
   }
 
   const heuteIso = new Date().toISOString().slice(0, 10);
-  const evVon = datumsPicker(container.querySelector('#v-ev-von'), heuteIso, () => {});
-  const evBis = datumsPicker(container.querySelector('#v-ev-bis'), heuteIso, () => {});
+  const evVon = datumsPicker(container.querySelector('#v-ev-von'), heuteIso, () => {}, formatiereDatumKurz);
+  const evBis = datumsPicker(container.querySelector('#v-ev-bis'), heuteIso, () => {}, formatiereDatumKurz);
 
   function oeffneEvDialog(id) {
     const ev = ctx.store.get().ereignisse.find(e => e.id === id);

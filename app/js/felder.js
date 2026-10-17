@@ -30,6 +30,11 @@ export function formatiereDatum(iso) {
   const { tag, monat, jahr } = isoZuTeilen(iso);
   return `${tag}. ${MONATE[monat - 1]} ${jahr}`;
 }
+// Kurze Anzeige "15. Jun 1980" (3-Buchstaben-Monat) — für platzkritische Stellen.
+export function formatiereDatumKurz(iso) {
+  const { tag, monat, jahr } = isoZuTeilen(iso);
+  return `${tag}. ${MONATE_KURZ[monat - 1]} ${jahr}`;
+}
 
 const GESCHLECHT_OPTIONEN = [['m','Männlich'],['w','Weiblich'],['divers','Divers']];
 
@@ -60,8 +65,10 @@ export function geschlechtSegment(host, wert, onChange) {
 
 // ---- Datums-Rädchen-Picker ----
 // Rendert in `host` eine Anzeige + aufklappbaren Rädchen-Picker. isoWert = "YYYY-MM-DD".
-// onChange(neuesIso) callback. Liefert { getWert() -> iso }.
-export function datumsPicker(host, isoWert, onChange) {
+// onChange(neuesIso) callback. formatFn(iso) optional — Standard: formatiereDatum.
+// Liefert { getWert() -> iso }.
+export function datumsPicker(host, isoWert, onChange, formatFn) {
+  const zeigeText = formatFn ?? formatiereDatum;
   let { tag, monat, jahr } = isoZuTeilen(isoWert);
   host.innerHTML = `
     <span class="datum-anzeige" role="button" tabindex="0">
@@ -83,7 +90,7 @@ export function datumsPicker(host, isoWert, onChange) {
   const radJahr = host.querySelector('[data-feld="jahr"]');
 
   function iso() { return teileZuIso(tag, monat, jahr); }
-  function aktualisiereText() { text.textContent = formatiereDatum(iso()); }
+  function aktualisiereText() { text.textContent = zeigeText(iso()); }
 
   function fuelleRad(el, von, bis, selWert, labelFn) {
     el.innerHTML = '';

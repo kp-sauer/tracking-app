@@ -6,7 +6,7 @@ export function effektivesTheme(wahl, prefersDark) {
 }
 
 // Erlaubte Anzeige-Skalierungsstufen (Prozent). Standard = 100 (kein Zoom).
-export const SKALA_STUFEN = [90, 100, 110, 120, 130];
+export const SKALA_STUFEN = [90, 100, 110];
 
 // Normalisiert einen gespeicherten Skala-Wert auf eine erlaubte Stufe.
 // Fehlend/ungültig → 100; krumme Werte rasten auf die nächstgelegene Stufe

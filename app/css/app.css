@@ -235,7 +235,7 @@ body > #kopf, body > #screen { max-width: 480px; margin-left: auto; margin-right
 .num { display:inline-flex; align-items:center; border:1px solid var(--rand); border-radius:var(--radius-s); background:var(--surface); overflow:hidden; }
 .num input { width:64px; border:0; text-align:center; font-size:16px; font-weight:700; color:var(--fg); font-family:inherit; padding:9px 4px; background:transparent; }
 .num input:focus { outline:none; color:var(--akzent); }
-.num button, #screen .num button { width:38px; height:40px; border:0; border-left:1px solid var(--rand); background:var(--surface-2); color:var(--akzent); font-size:16px; cursor:pointer; padding:0; border-radius:0; }
+.num button, #screen .num button { width:38px; height:40px; border:0; border-left:1px solid var(--rand); background:var(--surface-2); color:var(--akzent); font-size:16px; cursor:pointer; padding:0; border-radius:0; touch-action:manipulation; }
 .num button:first-of-type, #screen .num button:first-of-type { border-left:0; border-right:1px solid var(--rand); }
 .num button, #screen .num button { display:grid; place-items:center; }
 .num button svg, #screen .num button svg { width:20px; height:20px; display:block; }
@@ -359,6 +359,8 @@ body > #kopf, body > #screen { max-width: 480px; margin-left: auto; margin-right
 .btn.primär:hover { filter:brightness(1.05); }
 .status { font-size:14px; padding:var(--sp-3); border-radius:var(--radius-s); background:var(--akzent-weich); color:var(--akzent); }
 .status[hidden] { display:none; }
+.pr-toast { font-size:14px; font-weight:600; color:var(--gut); background:color-mix(in srgb,var(--gut) 13%,transparent); padding:var(--sp-3) var(--sp-4); border-radius:var(--radius-s); margin-top:var(--sp-2); display:none; text-align:center; }
+.pr-toast.auf { display:block; }
 
 /* ===== Eingabe-Screen (Mockup 08-1) ===== */
 .heute-tag { font-size:11px; font-weight:700; color:var(--akzent); background:var(--akzent-weich); border-radius:999px; padding:2px 8px; }
@@ -376,7 +378,7 @@ body > #kopf, body > #screen { max-width: 480px; margin-left: auto; margin-right
 .stepper-v { display:flex; flex-direction:column; gap:6px; }
 /* spezifisch genug (#screen), um die allgemeine #screen button-Regel zu überschreiben;
    place-items + line-height:1 + padding:0 zentriert die +/−-Zeichen exakt. */
-.stepper-v button, #screen .stepper-v button { width:44px; height:36px; display:grid; place-items:center; padding:0; line-height:1; border:1px solid var(--rand); background:var(--surface-2); color:var(--akzent); border-radius:var(--radius-s); cursor:pointer; font-family:inherit; }
+.stepper-v button, #screen .stepper-v button { width:44px; height:36px; display:grid; place-items:center; padding:0; line-height:1; border:1px solid var(--rand); background:var(--surface-2); color:var(--akzent); border-radius:var(--radius-s); cursor:pointer; font-family:inherit; touch-action:manipulation; }
 .stepper-v button svg { display:block; width:20px; height:20px; }
 .stepper-v button:active, #screen .stepper-v button:active { background:var(--akzent-weich); }
 

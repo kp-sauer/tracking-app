@@ -5,7 +5,7 @@ import { alter, zielInKg, zielInBmi, DEFAULT_ZIEL } from '../calc.js';
 import { nachDatumSortiert } from '../db.js';
 import { icon } from '../icons.js';
 
-const WELT_LABEL = { test: 'TEST', produktiv: 'PRODUKTIV' };
+const WELT_LABEL = { test: 'TEST', produktiv: 'PROD' };
 
 export function renderProfil(container, ctx) {
   const daten = ctx.store.get();
@@ -32,6 +32,7 @@ export function renderProfil(container, ctx) {
       <div class="zeile"><label>Alter</label><div class="ctrl"><span class="readonly" id="pr-alter">${alterText}</span></div></div>
     </section>
     <div style="margin-top:var(--sp-4)"><button type="button" id="pr-speichern" class="btn primär" style="width:100%">Stammdaten speichern</button></div>
+    <div class="pr-toast" id="pr-toast"></div>
 
     <div class="abschnitt">Ziel</div>
     <section class="karte">
@@ -49,7 +50,7 @@ export function renderProfil(container, ctx) {
     <div class="abschnitt">Darstellung</div>
     <section class="karte">
       <div class="zeile"><label>Design</label><div class="ctrl"><span id="pr-theme"></span></div></div>
-      <div class="zeile"><label>Anzeigegröße</label><div class="ctrl"><span id="pr-skala"></span></div></div>
+      <div class="zeile"><label>Größe</label><div class="ctrl"><span id="pr-skala"></span></div></div>
     </section>
 
     <div class="abschnitt">Backup &amp; Daten</div>
@@ -230,6 +231,13 @@ export function renderProfil(container, ctx) {
     s.textContent = text; s.hidden = false;
   }
 
+  function zeigeToast(text) {
+    const t = container.querySelector('#pr-toast');
+    t.textContent = text;
+    t.classList.add('auf');
+    setTimeout(() => t.classList.remove('auf'), 2200);
+  }
+
   // Stammdaten speichern — Darstellung (theme, anzeige_skala) wird NICHT angefasst,
   // die speichert der jeweilige Schalter bereits live. Daher Merge statt Neuaufbau.
   container.querySelector('#pr-speichern').addEventListener('click', async () => {
@@ -239,7 +247,7 @@ export function renderProfil(container, ctx) {
       geburtsdatum: datum.getWert(),
     };
     await ctx.store.aktualisiere(d => ({ ...d, profil: { ...(d.profil ?? {}), ...stammdaten } }), { undobar: false });
-    zeigeStatus('Stammdaten gespeichert.');
+    zeigeToast('Stammdaten gespeichert');
   });
 
   // Export

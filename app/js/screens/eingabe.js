@@ -70,7 +70,7 @@ export function renderEingabe(container, ctx) {
 
     <section class="karte">
       <div class="add-zeile" id="ein-ev-trigger">
-        <span class="links">${CHEV} <span id="ein-ev-links">Ereignis hinzufügen</span></span>
+        <span class="links">${CHEV} <span id="ein-ev-links">Ereignis</span></span>
         <span class="rechts" id="ein-ev-rechts">Urlaub · Fest · Krankheit · Wiesn · Sonst</span>
       </div>
       <div class="collapse" id="ein-ev">
@@ -83,7 +83,7 @@ export function renderEingabe(container, ctx) {
 
     <section class="karte">
       <div class="add-zeile" id="ein-med-trigger">
-        <span class="links">${CHEV} <span id="ein-med-links">Medikament hinzufügen</span></span>
+        <span class="links">${CHEV} <span id="ein-med-links">Medikament</span></span>
         <span class="rechts" id="ein-med-zuletzt"></span>
       </div>
       <div class="collapse" id="ein-med">
@@ -372,7 +372,7 @@ export function renderEingabe(container, ctx) {
     }
     if (evPanel.classList.contains('auf') && evAusgewaehlt) {
       // Bewusste (Neu-)Auswahl – auch an einem Überlappungstag möglich → wird gespeichert.
-      evLinks.textContent = 'Ereignis hinzufügen';
+      evLinks.textContent = 'Ereignis';
       evRechts.textContent = evZusammenfassung(katWahl, evVon.getWert(), evBis.getWert());
       return;
     }
@@ -386,7 +386,7 @@ export function renderEingabe(container, ctx) {
       return;
     }
     // Kein Ereignis am Tag, nichts bewusst gewählt → dezenter Default-Hinweis.
-    evLinks.textContent = 'Ereignis hinzufügen';
+    evLinks.textContent = 'Ereignis';
     evRechts.textContent = EV_DEFAULT_HINT;
   }
 
@@ -401,12 +401,12 @@ export function renderEingabe(container, ctx) {
     }
     if (medPanel.classList.contains('auf')) {
       // Aufgeklappt → Präparat/Dosis/Nr. haben gültige Defaults, gilt als eingestellt.
-      medLinks.textContent = 'Medikament hinzufügen';
+      medLinks.textContent = 'Medikament';
       medRechts.textContent = medZusammenfassung(
         praepWahl, DOSIS_LISTE[praepWahl][dosisIdx], parseInt(penFeld.value, 10) || 1);
       return;
     }
-    medLinks.textContent = 'Medikament hinzufügen';
+    medLinks.textContent = 'Medikament';
     medRechts.textContent = medDefaultHintText();
   }
 
