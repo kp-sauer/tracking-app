@@ -259,10 +259,14 @@ body > #kopf, body > #screen { max-width: 480px; margin-left: auto; margin-right
 .hero-pills { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
 .pill { display:inline-flex; align-items:center; gap:5px; font-size:14px; font-weight:600; padding:4px 11px; border-radius:999px; }
 .pill.gut { color:var(--gut); background:color-mix(in srgb, var(--gut) 14%, transparent); }
+.pill.warn { color:var(--warn); background:color-mix(in srgb, var(--warn) 14%, transparent); }
 .pill.schlecht { color:#dc2626; background:color-mix(in srgb, #dc2626 14%, transparent); }
 [data-theme="dunkel"] .pill.schlecht { color:#f87171; background:color-mix(in srgb, #f87171 16%, transparent); }
+[data-theme="dunkel"] .pill.warn { color:var(--warn); }
 .pill.neutral { color:var(--fg-2); background:var(--surface-2); }
 .pill svg { width:14px; height:14px; }
+/* Dezenter Hinweis unter Hero-Zahl: heute noch kein Wert */
+.hero-kein-wert { font-size:13px; color:var(--fg-3); margin-top:4px; }
 
 .kpi-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 .kpi-tile { background:var(--surface); border-radius:var(--radius-s); padding:16px; box-shadow:var(--schatten); }

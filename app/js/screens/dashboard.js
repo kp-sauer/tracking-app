@@ -61,12 +61,18 @@ export function renderDashboard(container, ctx) {
 
     // Hero ist IMMER global (filter-unabhängig): zeigt den aktuellen Ist-Zustand.
     // Eigene, ungefilterte W-AVG-Serie über den Gesamtbestand.
-    const alleTageWavg = wAvgSerie(nachDatumSortiert(daten));
+    const alleTage = nachDatumSortiert(daten);
+    const alleTageWavg = wAvgSerie(alleTage);
     const heroGewicht = alleTageWavg.length ? alleTageWavg[alleTageWavg.length - 1].gewicht_kg : null;
+    const letztesDatum = alleTage.length ? alleTage[alleTage.length - 1].datum : null;
+    const heute = new Date().toISOString().slice(0, 10);
+    const heuteNochKeinWert = letztesDatum !== heute;
     const heroWavg = alleTageWavg.map(t => t.w_avg).filter(v => v != null);
     let heroTrend = null;
     if (heroWavg.length >= 2) heroTrend = heroWavg[heroWavg.length - 2] - heroWavg[heroWavg.length - 1];
     const heroTrendRunter = heroTrend != null && heroTrend >= 0; // Abnahme = gut
+    // Amber-Zone: Zunahme 0–1 kg = orange, >1 kg = rot.
+    const heroTrendKlasse = heroTrend == null ? '' : heroTrend >= 0 ? 'gut' : (Math.abs(heroTrend) <= 1 ? 'warn' : 'schlecht');
     const heroAvg = heroWavg.length ? heroWavg[heroWavg.length - 1] : null; // aktueller 7-Tage-Schnitt
 
     // Chart-Serien auf dem gefilterten Fenster (W-AVG neu auf Teilmenge gerechnet).
@@ -144,8 +150,9 @@ export function renderDashboard(container, ctx) {
       <section class="hero">
         <div class="hero-label">Aktuelles Gewicht</div>
         <div class="hero-wert">${heroGewicht == null ? '–' : heroGewicht.toFixed(1).replace('.', ',')}<span class="einheit">kg</span></div>
+        ${heuteNochKeinWert && heroGewicht != null ? '<div class="hero-kein-wert">Heute noch kein Wert erfasst</div>' : ''}
         <div class="hero-pills">
-          ${heroTrend == null ? '' : `<span class="pill ${heroTrendRunter ? 'gut' : 'schlecht'}">${heroTrendRunter ? icon('trend-runter') : icon('trend-hoch')} ${Math.abs(heroTrend).toFixed(1).replace('.', ',')} kg · 7-Tage-Schnitt</span>`}
+          ${heroTrend == null ? '' : `<span class="pill ${heroTrendKlasse}">${heroTrendRunter ? icon('trend-runter') : icon('trend-hoch')} ${Math.abs(heroTrend).toFixed(1).replace('.', ',')} kg · 7-Tage-Schnitt</span>`}
           ${heroAvg == null ? '' : `<span class="pill neutral">Ø ${heroAvg.toFixed(1).replace('.', ',')} kg</span>`}
         </div>
       </section>
