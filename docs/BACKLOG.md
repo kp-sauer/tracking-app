@@ -24,10 +24,10 @@ Priorisierte Liste nach Session 2026-10-17. Abarbeitung in Commit-Paketen.
 
 ---
 
-## Commit 3 — Eingabe-Layout (Prio 1 + 2)
+## Commit 3 — Eingabe-Layout (Prio 1 + 2) ✅
 
-- [ ] **[EINGABE]** Datumsauswahl immer zweizeilig: Zeile 1 = Datum-Text + optional "Heute"-Chip, Zeile 2 = ‹ Datum › Chevrons
-- [ ] **[EINGABE]** Speichern-Button zwischen Gewichtseingabe und Ereignis/Medikament verschieben (schnelle Eingabe ohne Scrollen)
+- [x] **[EINGABE]** Datumsauswahl immer zweizeilig: Zeile 1 = Datum-Text + optional "Heute"-Chip, Zeile 2 = ‹ Datum › Chevrons
+- [x] **[EINGABE]** Speichern-Button zwischen Gewichtseingabe und Ereignis/Medikament verschieben (schnelle Eingabe ohne Scrollen)
 
 ---
 
