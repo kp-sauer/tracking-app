@@ -343,6 +343,11 @@ body > #kopf, body > #screen { max-width: 480px; margin-left: auto; margin-right
 /* „Heute"-Pille inline neben dem Label „Datum" */
 .karte .zeile-datum > label { display:inline-flex; align-items:center; gap:8px; }
 
+/* Eingabe-Screen: Datum-Navigationszeile (‹ Datum ›) — immer zweizeilig.
+   Zeile 1 = Label + Heute-Chip (via .zeile-datum > label, bereits oben).
+   Zeile 2 = .datum-nav: Chevrons links/rechts, Datum-Pill zentriert. */
+.karte .zeile-datum .datum-nav { width:100%; display:flex; align-items:center; justify-content:center; gap:4px; padding:var(--sp-1) 0 var(--sp-2); }
+
 /* Tag-vor/zurück-Pfeile in der Datumszeile (dezent, kein eigener Block). */
 /* Tag-vor/zurück-Pfeile: reine Icon-Tap-Flächen, KEIN Rahmen/Hintergrund (nur Hover-Echo).
    `#screen button.tag-pfeil` = Spezifität (1,1,1) → schlägt die generische

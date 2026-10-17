@@ -51,7 +51,7 @@ export function renderEingabe(container, ctx) {
     <section class="karte">
       <div class="zeile zeile-datum">
         <label>Datum <span class="heute-tag" id="ein-heute">Heute</span></label>
-        <div class="ctrl">
+        <div class="datum-nav">
           <button type="button" class="tag-pfeil" id="ein-tag-zurueck" aria-label="Ein Tag zurück"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
           <span id="ein-datum"></span>
           <button type="button" class="tag-pfeil" id="ein-tag-vor" aria-label="Ein Tag vor"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
@@ -67,6 +67,9 @@ export function renderEingabe(container, ctx) {
       </div>
       <div class="hero-hint" id="ein-hero-hint"></div>
     </section>
+
+    <button type="button" class="speichern" id="ein-speichern">Speichern</button>
+    <div class="ok-pill" id="ein-ok"><span>${CHECK_ICON}</span><span id="ein-ok-text">gespeichert</span></div>
 
     <section class="karte">
       <div class="add-zeile" id="ein-ev-trigger">
@@ -93,9 +96,6 @@ export function renderEingabe(container, ctx) {
       </div>
     </section>
 
-    <button type="button" class="speichern" id="ein-speichern">Speichern</button>
-    <div class="ok-pill" id="ein-ok"><span>${CHECK_ICON}</span><span id="ein-ok-text">gespeichert</span></div>
-
     <div class="dialog-bg" id="ein-dialog">
       <div class="dialog">
         <div class="d-titel">Tag überschreiben?</div>
@@ -103,6 +103,7 @@ export function renderEingabe(container, ctx) {
         <div class="d-btns"><button type="button" id="ein-d-abbr">Abbrechen</button><button type="button" class="primär" id="ein-d-ok">Überschreiben</button></div>
       </div>
     </div>`;
+
 
   const hero = container.querySelector('#ein-hero');
   const gewFeld = container.querySelector('#ein-gewicht');
