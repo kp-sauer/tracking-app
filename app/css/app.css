@@ -49,7 +49,7 @@ body {
 /* Kopf */
 #kopf {
   display: flex; justify-content: space-between; align-items: center;
-  padding: var(--sp-3) var(--screen-pad-x) var(--sp-2);
+  padding: var(--sp-2) var(--screen-pad-x) var(--sp-2);
   position: sticky; top: 0; z-index: 10;
   background: color-mix(in srgb, var(--bg) 82%, transparent);
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
@@ -207,12 +207,14 @@ body.chart-vollbild #kopf, body.chart-vollbild #tabs { display:none; }
 /* App auf Phone-Breite zentrieren */
 body > #kopf, body > #screen { max-width: 480px; margin-left: auto; margin-right: auto; width: 100%; }
 
-/* Segmented-Control (Geschlecht, Theme) */
-.seg { display:inline-flex; background:var(--surface-2); border:1px solid var(--rand); border-radius:999px; padding:3px; gap:2px; flex-wrap:wrap; justify-content:flex-end; }
+/* Segmented-Control (Geschlecht, Theme, Kategorien …)
+   Kein grauer Container-Hintergrund mehr — einzelne Buttons tragen ihre eigene
+   Umrandung, damit sie auch beim Umbruch als Chips erkennbar bleiben. */
+.seg { display:inline-flex; background:transparent; border:0; padding:0; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
 /* spezifisch genug, um die allgemeine #screen button-Regel zu überschreiben */
-.seg button, #screen .seg button { border:0; background:transparent; cursor:pointer; color:var(--fg-2); font-size:13px; font-weight:600; padding:7px 16px; border-radius:999px; font-family:inherit; transition:all .2s; }
+.seg button, #screen .seg button { border:1px solid var(--akzent); background:transparent; cursor:pointer; color:var(--akzent); font-size:13px; font-weight:600; padding:7px 16px; border-radius:999px; font-family:inherit; transition:all .2s; }
 .seg button.aktiv, #screen .seg button.aktiv { background:var(--akzent); color:#fff; box-shadow:0 1px 3px rgba(0,0,0,.15); }
-.seg button:not(.aktiv):hover, #screen .seg button:not(.aktiv):hover { color:var(--akzent); }
+.seg button:not(.aktiv):hover, #screen .seg button:not(.aktiv):hover { background:var(--akzent-weich); }
 /* A-Größen-Variante (Anzeigegröße): gleich breite Felder, A vertikal zentriert trotz
    unterschiedlicher Schriftgröße. .aa trägt die stufenabhängige font-size inline. */
 .seg-ikon button, #screen .seg-ikon button { min-width:38px; padding:4px 10px; display:grid; place-items:center; }
@@ -355,8 +357,10 @@ body > #kopf, body > #screen { max-width: 480px; margin-left: auto; margin-right
 .backup-pad .erkl { font-size:13px; color:var(--fg-2); }
 .btn-reihe { display:flex; gap:var(--sp-3); }
 .btn { flex:1; font-family:inherit; font-size:15px; font-weight:600; cursor:pointer; padding:12px; border-radius:var(--radius-s); border:1px solid var(--rand); background:var(--surface); color:var(--akzent); }
-.btn.primär { background:var(--akzent); color:#fff; border-color:var(--akzent); }
+.btn.primär { background:var(--akzent); color:#fff; border-color:var(--akzent); box-shadow:0 2px 8px rgba(37,99,235,.3); }
 .btn.primär:hover { filter:brightness(1.05); }
+/* #screen btn.primär: schlägt generische #screen button-Regel */
+#screen button.btn.primär { background:var(--akzent); color:#fff; border-color:var(--akzent); }
 .status { font-size:14px; padding:var(--sp-3); border-radius:var(--radius-s); background:var(--akzent-weich); color:var(--akzent); }
 .status[hidden] { display:none; }
 .pr-toast { font-size:14px; font-weight:600; color:var(--gut); background:color-mix(in srgb,var(--gut) 13%,transparent); padding:var(--sp-3) var(--sp-4); border-radius:var(--radius-s); margin-top:var(--sp-2); display:none; text-align:center; }
@@ -407,7 +411,10 @@ body > #kopf, body > #screen { max-width: 480px; margin-left: auto; margin-right
 .collapse.auf { display:block; }
 
 /* Speichern + Erfolgs-Pille */
-.speichern { width:100%; font-family:inherit; font-size:17px; font-weight:700; cursor:pointer; padding:15px; border-radius:var(--radius-s); border:0; background:var(--akzent); color:#fff; margin-top:4px; }
+/* #screen button.speichern schlägt die generische `#screen button`-Regel (gleiche Spezifität,
+   aber spätere Position + Klassen-Selektor → Priorität). */
+#screen button.speichern, .speichern { width:100%; font-family:inherit; font-size:17px; font-weight:700; cursor:pointer; padding:15px; border-radius:var(--radius-s); border:0; background:var(--akzent); color:#fff; margin-top:var(--sp-4); box-shadow:0 2px 8px rgba(37,99,235,.35); }
+#screen button.speichern:active { filter:brightness(.95); }
 .ok-pill { display:none; align-items:center; justify-content:center; gap:8px; font-size:15px; font-weight:600; color:var(--gut); background:color-mix(in srgb,var(--gut) 13%,transparent); padding:14px; border-radius:var(--radius-s); margin-top:4px; }
 .ok-pill.auf { display:flex; }
 .ok-pill svg { width:18px; height:18px; }
@@ -434,10 +441,9 @@ body > #kopf, body > #screen { max-width: 480px; margin-left: auto; margin-right
 .dialog.ev-edit .zeitraum { display:flex; gap:10px; }
 .dialog.ev-edit .zeitraum .feld { flex:1; margin-bottom:0; }
 .dialog.ev-edit .notiz { width:100%; padding:10px 12px; border-radius:var(--radius-s); border:1px solid var(--rand); background:var(--surface); color:var(--fg); font-size:14px; font-family:inherit; }
-/* Kategorie-Segment im Overlay OHNE grauen Pillen-Container (nur die aktive Kategorie
-   füllt sich blau). Hebt den globalen .seg-Rahmen/Hintergrund nur hier auf; linksbündig
-   mit kleinem Zeilenabstand bei Umbruch. */
-.dialog.ev-edit .seg { background:transparent; border:0; padding:0; gap:6px; row-gap:6px; justify-content:flex-start; }
+/* Kategorie-Segment im Overlay: linksbündig mit kleinem Zeilenabstand bei Umbruch.
+   .seg hat global keinen Container mehr, daher nur noch Layout-Overrides nötig. */
+.dialog.ev-edit .seg { gap:6px; row-gap:6px; justify-content:flex-start; }
 /* Speichern im Ereignis-Overlay ist neutrale Haupt-Aktion → BLAU (--akzent), nicht
    das orange --warn des Eingabe-Überschreiben-Dialogs. Spezifität via zusätzlichem
    .ev-edit höher als #screen .dialog .d-btns button.primär (Zeile darüber). */

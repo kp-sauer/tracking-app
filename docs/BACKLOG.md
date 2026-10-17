@@ -16,11 +16,11 @@ Priorisierte Liste nach Session 2026-10-17. Abarbeitung in Commit-Paketen.
 
 ---
 
-## Commit 2 — CSS-Redesign Chips & Buttons (Prio 1 + 2)
+## Commit 2 — CSS-Redesign Chips & Buttons (Prio 1 + 2) ✅
 
-- [ ] **[ÜBERALL]** Chip/Pill-Auswahl-Elemente: graue Hintergrundumrandung entfernen, stattdessen dünner blauer Rand (betrifft: Ereignis-Kategorie, Profil Geschlecht/Anzeigegröße/Design, Popup-Ereignis, ggf. weitere)
-- [ ] **[ÜBERALL]** Speichern-Buttons hellblau einfärben (heben sich aktuell zu wenig vom Content ab)
-- [ ] **[ÜBERALL]** Kopf-/Titelzeile: etwas kompakter (weniger Padding oben/unten)
+- [x] **[ÜBERALL]** Chip/Pill-Auswahl-Elemente: graue Hintergrundumrandung entfernen, stattdessen dünner blauer Rand (betrifft: Ereignis-Kategorie, Profil Geschlecht/Anzeigegröße/Design, Popup-Ereignis, ggf. weitere)
+- [x] **[ÜBERALL]** Speichern-Buttons hellblau einfärben (heben sich aktuell zu wenig vom Content ab)
+- [x] **[ÜBERALL]** Kopf-/Titelzeile: etwas kompakter (weniger Padding oben/unten)
 
 ---
 
