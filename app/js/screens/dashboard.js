@@ -150,11 +150,11 @@ export function renderDashboard(container, ctx) {
       <section class="hero">
         <div class="hero-label">Aktuelles Gewicht</div>
         <div class="hero-wert">${heroGewicht == null ? '–' : heroGewicht.toFixed(1).replace('.', ',')}<span class="einheit">kg</span></div>
-        ${heuteNochKeinWert && heroGewicht != null ? '<div class="hero-kein-wert">Heute noch kein Wert erfasst</div>' : ''}
-        <div class="hero-pills">
+        ${heuteNochKeinWert && heroGewicht != null ? '<div class="hero-pills"><span class="pill warn">Heute noch kein Wert erfasst</span></div>' : ''}
+        ${heroTrend != null || heroAvg != null ? `<div class="hero-pills">
           ${heroTrend == null ? '' : `<span class="pill ${heroTrendKlasse}">${heroTrendRunter ? icon('trend-runter') : icon('trend-hoch')} ${Math.abs(heroTrend).toFixed(1).replace('.', ',')} kg · 7-Tage-Schnitt</span>`}
           ${heroAvg == null ? '' : `<span class="pill neutral">Ø ${heroAvg.toFixed(1).replace('.', ',')} kg</span>`}
-        </div>
+        </div>` : ''}
       </section>
 
       <section class="filter">
