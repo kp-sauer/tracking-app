@@ -31,10 +31,10 @@ Priorisierte Liste nach Session 2026-10-17. Abarbeitung in Commit-Paketen.
 
 ---
 
-## Commit 4 — Dashboard-Logik (Prio 2)
+## Commit 4 — Dashboard-Logik (Prio 2) ✅
 
-- [ ] **[ÜBERSICHT]** Hinweis "Heute noch kein Wert erfasst" — subtil, unterhalb Hero-Zahl, oberhalb der Filter-Chips
-- [ ] **[ÜBERSICHT]** Trend-Icon: Amber/Orange-Zone einführen: 0 bis +1 kg = orange, über +1 kg = rot (statt alles rot)
+- [x] **[ÜBERSICHT]** Hinweis "Heute noch kein Wert erfasst" — subtil, unterhalb Hero-Zahl, oberhalb der Filter-Chips
+- [x] **[ÜBERSICHT]** Trend-Icon: Amber/Orange-Zone einführen: 0 bis +1 kg = orange, über +1 kg = rot (statt alles rot)
 
 ---
 
