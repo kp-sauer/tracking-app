@@ -7,10 +7,14 @@ Sessions ohne weiteren Kontext weiterarbeiten können.
 > **Projektziel:** siehe Abschnitt [App-Konzept](#app-konzept-ziel) weiter unten. Der Daten-Kontext
 > (Analyse der Excel) ist vollständig erfasst und bleibt als Referenz unten stehen.
 
-> ## Aktueller Stand (2026-10-17)
+> ## Aktueller Stand (2026-10-19)
 >
 > **v1 ist funktional fertig & abgenommen. Design-/UX-Feintuning ABGESCHLOSSEN.**
 > Backlog Commits 1–4 vollständig umgesetzt (siehe `docs/BACKLOG.md`); Commits 5+6 (Prio 99) offen.
+>
+> **Zusätzliche Änderungen (2026-10-19, SW v60):**
+> - Übersicht: „Heute noch kein Wert erfasst"-Pille von Amber → Blau (Option C, `pill.akzent`)
+> - PWA-Name: `tracking-app` → **WeightLog** (Produktiv) / **WeightLog [TEST]** (Test) in beiden `manifest.webmanifest`
 >
 > **Commits 1–4 (alle ✅):**
 > - **Commit 1** — Micro-Fixes (Toaster Profil, Labels, Umgebungs-Badge, touch-action Stepper)
