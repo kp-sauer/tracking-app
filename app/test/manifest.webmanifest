@@ -1,6 +1,6 @@
 {
-  "name": "tracking-app TEST",
-  "short_name": "tracking TEST",
+  "name": "WeightLog [TEST]",
+  "short_name": "WeightLog [TEST]",
   "start_url": ".",
   "scope": ".",
   "display": "standalone",

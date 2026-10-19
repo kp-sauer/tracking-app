@@ -1,6 +1,6 @@
 {
-  "name": "tracking-app",
-  "short_name": "tracking",
+  "name": "WeightLog",
+  "short_name": "WeightLog",
   "start_url": ".",
   "scope": ".",
   "display": "standalone",

@@ -47,3 +47,9 @@ Priorisierte Liste nach Session 2026-10-17. Abarbeitung in Commit-Paketen.
 ## Commit 6 — Swipe-Navigation (Prio 99, später)
 
 - [ ] **[USABILITY]** Wischen zwischen den 4 Screens (Übersicht ↔ Eingabe ↔ Charts ↔ Verlauf) via touchstart/touchend
+
+---
+
+## Commit 7 — In-App-Splash-Screen (Prio 99, später)
+
+- [ ] **[UX]** Eigener In-App-Splash beim Start (ersetzt den langweiligen nativen PWA-Splash): Logo mit abgerundeten Ecken, Fade-in/out-Animation, modern. Design noch offen (Mockup-Runde ausstehend).
