@@ -208,13 +208,17 @@ body.chart-vollbild #kopf, body.chart-vollbild #tabs { display:none; }
 body > #kopf, body > #screen { max-width: 480px; margin-left: auto; margin-right: auto; width: 100%; }
 
 /* Segmented-Control (Geschlecht, Theme, Kategorien …)
-   Kein grauer Container-Hintergrund mehr — einzelne Buttons tragen ihre eigene
-   Umrandung, damit sie auch beim Umbruch als Chips erkennbar bleiben. */
+   Standard: blaue Umrandung je Button — funktioniert auch bei Umbruch.
+   .seg-kompakt: grauer Container-Hintergrund + nowrap — nur wenn einzeilig garantiert. */
 .seg { display:inline-flex; background:transparent; border:0; padding:0; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
+.seg-kompakt { background:var(--surface-2); border-radius:999px; padding:3px; gap:2px; flex-wrap:nowrap; }
 /* spezifisch genug, um die allgemeine #screen button-Regel zu überschreiben */
 .seg button, #screen .seg button { border:1px solid var(--akzent); background:transparent; cursor:pointer; color:var(--akzent); font-size:13px; font-weight:600; padding:7px 16px; border-radius:999px; font-family:inherit; transition:all .2s; }
+.seg.seg-kompakt button, #screen .seg.seg-kompakt button { border:none; background:transparent; color:var(--fg-2); }
 .seg button.aktiv, #screen .seg button.aktiv { background:var(--akzent); color:#fff; box-shadow:0 1px 3px rgba(0,0,0,.15); }
+.seg.seg-kompakt button.aktiv, #screen .seg.seg-kompakt button.aktiv { background:var(--surface); color:var(--akzent); box-shadow:0 1px 4px rgba(0,0,0,.12); }
 .seg button:not(.aktiv):hover, #screen .seg button:not(.aktiv):hover { background:var(--akzent-weich); }
+.seg.seg-kompakt button:not(.aktiv):hover, #screen .seg.seg-kompakt button:not(.aktiv):hover { background:var(--surface); }
 /* A-Größen-Variante (Anzeigegröße): gleich breite Felder, A vertikal zentriert trotz
    unterschiedlicher Schriftgröße. .aa trägt die stufenabhängige font-size inline. */
 .seg-ikon button, #screen .seg-ikon button { min-width:38px; padding:4px 10px; display:grid; place-items:center; }

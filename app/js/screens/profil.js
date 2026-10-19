@@ -121,7 +121,7 @@ export function renderProfil(container, ctx) {
     }
 
     // Typ-Segmented
-    const typSeg = document.createElement('div'); typSeg.className = 'seg';
+    const typSeg = document.createElement('div'); typSeg.className = 'seg seg-kompakt';
     for (const [v, label] of [['bmi', 'BMI'], ['kg', 'kg']]) {
       const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.dataset.v = v;
       if (v === ziel.typ) b.classList.add('aktiv');
@@ -186,7 +186,7 @@ export function renderProfil(container, ctx) {
   function zwischenzielSlot(idx, anHostId, zeileId, typId, feldId, abgId) {
     const anHost = container.querySelector(anHostId);
     const zeile = container.querySelector(zeileId);
-    const anSeg = document.createElement('div'); anSeg.className = 'seg';
+    const anSeg = document.createElement('div'); anSeg.className = 'seg seg-kompakt';
     let aktiv = !!zwStart[idx];
     let leseZiel = null;
 
