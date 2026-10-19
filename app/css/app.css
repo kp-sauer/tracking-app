@@ -264,6 +264,7 @@ body > #kopf, body > #screen { max-width: 480px; margin-left: auto; margin-right
 [data-theme="dunkel"] .pill.schlecht { color:#f87171; background:color-mix(in srgb, #f87171 16%, transparent); }
 [data-theme="dunkel"] .pill.warn { color:var(--warn); }
 .pill.neutral { color:var(--fg-2); background:var(--surface-2); }
+.pill.akzent { color:var(--akzent); background:var(--akzent-weich); }
 .pill svg { width:14px; height:14px; }
 
 .kpi-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
