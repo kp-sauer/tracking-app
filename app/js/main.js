@@ -1,3 +1,4 @@
+import './version.js'; // Seiteneffekt: setzt globalThis.APP_VERSION (zentrale Version)
 import { aktuelleWelt } from './world.js';
 import { effektivesTheme, effektiveSkala } from './theme.js';
 import { routeAusHash } from './router.js';

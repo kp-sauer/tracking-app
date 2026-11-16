@@ -62,7 +62,9 @@ export function renderProfil(container, ctx) {
         <input id="pr-import" type="file" accept=".json,application/json,text/json,text/plain" hidden>
       </div>
       <p class="status" id="pr-status" role="status" hidden></p>
-    </div></section>`;
+    </div></section>
+
+    <div class="pr-version">v${globalThis.APP_VERSION ?? '?'}</div>`;
 
   // Komponenten initialisieren
   const geschlecht = geschlechtSegment(container.querySelector('#pr-geschlecht'), p.geschlecht);

@@ -384,6 +384,7 @@ body > #kopf, body > #screen { max-width: 480px; margin-left: auto; margin-right
 .status[hidden] { display:none; }
 .pr-toast { font-size:14px; font-weight:600; color:var(--gut); background:color-mix(in srgb,var(--gut) 13%,transparent); padding:var(--sp-3) var(--sp-4); border-radius:var(--radius-s); margin-top:var(--sp-2); display:none; text-align:center; }
 .pr-toast.auf { display:block; }
+.pr-version { text-align:center; color:var(--fg-3); font-size:12px; font-weight:500; padding:16px 0 8px; }
 
 /* ===== Eingabe-Screen (Mockup 08-1) ===== */
 .heute-tag { font-size:11px; font-weight:700; color:var(--akzent); background:var(--akzent-weich); border-radius:999px; padding:2px 8px; }

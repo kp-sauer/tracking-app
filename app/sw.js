@@ -1,8 +1,10 @@
-// Cacht die App-Shell für Offline-Betrieb. Cache-Name pro Deploy hochzählen.
-const CACHE = 'tracking-shell-v63';
+// Cacht die App-Shell für Offline-Betrieb. Version kommt zentral aus js/version.js
+// (importScripts, da klassischer Worker) → EINE Quelle für UI und Cache-Name.
+importScripts('js/version.js');
+const CACHE = 'tracking-shell-v' + self.APP_VERSION;
 const SHELL = [
   '.', 'index.html', 'css/app.css',
-  'js/main.js', 'js/world.js', 'js/theme.js', 'js/router.js', 'js/icons.js', 'js/felder.js',
+  'js/main.js', 'js/world.js', 'js/theme.js', 'js/router.js', 'js/icons.js', 'js/felder.js', 'js/version.js',
   'vendor/uPlot.iife.min.js', 'vendor/uPlot.min.css',
   'manifest.webmanifest',
 ];
