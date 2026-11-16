@@ -143,6 +143,26 @@ export function renderCharts(container, ctx) {
       if (v !== iso) bisPicker.setWert(v);
       zeichnePlot();
     }, formatiereDatumKurz);
+
+    // Von/Bis gemeinsam auf/zu: Ein Klick auf EINE Anzeige toggelt BEIDE Picker
+    // synchron (sonst müsste man zum Einstellen des Zeitraums zweimal tippen).
+    // Der interne Einzel-Toggle des datumsPicker würde gegenläufig arbeiten → wir
+    // fangen den Klick in der Capture-Phase ab, stoppen ihn und steuern beide zentral.
+    const anzeigen = [hostVon, hostBis].map(h => h.querySelector('.datum-anzeige'));
+    const picker = [hostVon, hostBis].map(h => h.querySelector('.datum-picker'));
+    function toggleBeide() {
+      const öffnen = !picker[0].classList.contains('offen');
+      picker.forEach(p => p.classList.toggle('offen', öffnen));
+      if (öffnen) {
+        // Gewählte Räder zentrieren (wie im Einzel-Picker).
+        [hostVon, hostBis].forEach(h =>
+          h.querySelectorAll('.rad-item.sel').forEach(x => x.scrollIntoView({ block: 'center' })));
+      }
+    }
+    anzeigen.forEach(a => a && a.addEventListener('click', (e) => {
+      e.stopPropagation();        // internen Einzel-Toggle des datumsPicker unterbinden
+      toggleBeide();
+    }, true));                    // Capture-Phase: vor dem picker-eigenen Handler
   }
 
   function zeichnePlot() {
