@@ -50,6 +50,75 @@ Priorisierte Liste nach Session 2026-10-17. Abarbeitung in Commit-Paketen.
 
 ---
 
-## Commit 7 — In-App-Splash-Screen (Prio 99, später)
+## Commit 7 — Chips/Seg dynamisch (Prio 99, später)
+
+- [ ] **[ÜBERALL]** `.seg-kompakt` per ResizeObserver automatisch setzen: wenn alle Buttons in einer Zeile passen → grauer Hintergrund-Container (`.seg-kompakt`), sonst blaue Umrandung (`.seg`). Ändert sich dynamisch bei Gerätedrehung. Aktuell statisch per Klasse gelöst (Session 2026-10-19).
+
+---
+
+## Commit 8 — In-App-Splash-Screen (Prio 99, später)
 
 - [ ] **[UX]** Eigener In-App-Splash beim Start (ersetzt den langweiligen nativen PWA-Splash): Logo mit abgerundeten Ecken, Fade-in/out-Animation, modern. Design noch offen (Mockup-Runde ausstehend).
+
+---
+---
+
+# Sammel-Runde 2026-11-16 (Urlaubs-Erkenntnisse & Nutzungs-Feedback)
+
+> Acht Punkte aus realer Nutzung (u. a. Reise nach Palau, UTC+9). Vollständige Begründungen,
+> Entscheidungen und verifizierter Bug-Befund in
+> [`specs/2026-11-16-sammel-runde-urlaub-feedback-design.md`](specs/2026-11-16-sammel-runde-urlaub-feedback-design.md).
+> Reihenfolge in Phasen; die bestehenden Commits 5–8 sind in die Phasen eingeordnet.
+
+## Phase A — Bug zuerst
+
+- [ ] **[TZ / global]** Zeitzonen-Bug: „heute“ wird aus UTC (`toISOString`) statt lokal abgeleitet → in
+  Palau (UTC+9) morgens Vortag vorgeschlagen. **Root Cause verifiziert (2026-11-16).** Fix: zentraler
+  Helper `heuteLokal()` (lokale Datums-Komponenten), 4 Aufrufstellen umstellen (`eingabe.js:8`,
+  `dashboard.js:68`, `verlauf.js:42`, `profil.js:17`). `Date.UTC`-Arithmetik NICHT anfassen. Kein
+  Zeitstempel, keine Datenmodell-Änderung.
+
+## Phase B — Charts-Filterleiste am Stück (fasst alles dieselbe Leiste an)
+
+- [ ] **[CHARTS]** Tage-Filter um **30 & 60** ergänzen → `30 · 60 · 90 · 180 · +Eigene`.
+- [ ] **[CHARTS]** Neuer Filter **„Frei“** (4. Segment): Von/Bis via bekanntem `datumsPicker`,
+  vorbelegt mit max. Zeitraum (erster–letzter Datenpunkt), Grenzen = Datenrand, Von ≤ Bis.
+- [ ] **[ÜBERALL] (= bisheriger Commit 7)** `.seg-kompakt` dynamisch per ResizeObserver: einzeilig →
+  grauer Hintergrund-Container, bei Umbruch → dünne blaue Umrandung; reagiert auf Gerätedrehung.
+  Zusatz-Idee: Geschlecht-Chips bei wenig Platz als **M / W / D** (+ ggf. Geschlecht-Icons) abkürzen.
+
+## Phase C — kleine visuelle Fixes
+
+- [ ] **[VERLAUF]** Chip-Farben: **Ereignis blau (Rand, nicht gefüllt)**, **Medikament grau**.
+  (Ursprungswunsch „grün“ verworfen — grün = Abnahme/gut, Verwechslungsgefahr.)
+- [ ] **[ÜBERSICHT]** Aktuelles **Minimum als grüner Punkt** auf der Sparkline + gleicher grüner Punkt
+  neben dem Label der Min-KPI-Kachel. (Grün, nicht rot — konsistent mit „niedrig = gut“ & Chart.)
+- [ ] **[PROFIL]** kg/BMI-Äquivalent in den Ziel-Editoren **immer unterhalb** des Eingabefelds (eigene
+  Zeile), statt mal ein-, mal zweizeilig.
+
+## Phase D — Verlauf-Navigation
+
+- [ ] **[VERLAUF]** Jahr-Filter oben: `Alle · 2024 · 2025 · … ` (horizontal scrollbar), filtert
+  Monatsgruppen aufs Jahr; Default „Alle“. Zweck: schnelles Springen zu einem Zeitpunkt.
+
+## Phase E — restlicher Backlog (Prio 99)
+
+- [ ] **(= Commit 5)** [VERLAUF] Medikamenten-Chips per Doppelklick bearbeitbar (Popup analog Ereignis).
+  Beim Umsetzen: Wechselwirkung mit V-Farbe prüfen (grauer Chip wird dann klickbar).
+- [ ] **(= Commit 6)** [USABILITY] Swipe-Navigation zwischen den 4 Screens.
+- [ ] **(= Commit 8)** [UX] In-App-Splash-Screen (Mockup-Runde ausstehend).
+
+## Phase F — ganz ans Ende (Prio 99)
+
+- [ ] **[CHARTS]** Wertepicker/Tooltip zeigt im **Hochformat** falsche/zufällige Punkte (nur Vollbild
+  korrekt); soll nur Gewichtswerten folgen. **Erst im Browser reproduzieren** (Verdacht: Plot-Größe vor
+  finalem Layout gezeichnet, rAF-Nachmessung nur im Vollbild), dann fixen. Zusatz: stattgefundene
+  **Ereignisse im Popover** anzeigen.
+
+---
+
+## Spätere Ideen (nicht eingeplant)
+
+- **Zeitstempel mit Zeitzone pro Eintrag** (Option 2 aus der TZ-Diskussion): additives `erfasst_am` mit
+  UTC/Offset als Metadaten. Verworfen für jetzt (kein sichtbarer Nutzen, Altdaten ohne Stempel). Bei
+  Bedarf später additiv nachrüstbar.

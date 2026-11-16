@@ -1,6 +1,6 @@
 import { dashboardModell } from '../kpi.js';
 import { nachDatumSortiert, imZeitfenster } from '../db.js';
-import { wAvgSerie, zielInKg, DEFAULT_ZIEL, zielgewicht } from '../calc.js';
+import { wAvgSerie, zielInKg, DEFAULT_ZIEL, zielgewicht, heuteLokal } from '../calc.js';
 import { icon } from '../icons.js';
 
 const r1 = (x) => (x == null ? '–' : x.toFixed(1));
@@ -65,7 +65,7 @@ export function renderDashboard(container, ctx) {
     const alleTageWavg = wAvgSerie(alleTage);
     const heroGewicht = alleTageWavg.length ? alleTageWavg[alleTageWavg.length - 1].gewicht_kg : null;
     const letztesDatum = alleTage.length ? alleTage[alleTage.length - 1].datum : null;
-    const heute = new Date().toISOString().slice(0, 10);
+    const heute = heuteLokal();
     const heuteNochKeinWert = letztesDatum !== heute;
     const heroWavg = alleTageWavg.map(t => t.w_avg).filter(v => v != null);
     let heroTrend = null;

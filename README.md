@@ -10,7 +10,7 @@ Sessions ohne weiteren Kontext weiterarbeiten können.
 > ## Aktueller Stand (2026-10-19)
 >
 > **v1 ist funktional fertig & abgenommen. Design-/UX-Feintuning ABGESCHLOSSEN.**
-> Backlog Commits 1–4 vollständig umgesetzt (siehe `docs/BACKLOG.md`); Commits 5+6 (Prio 99) offen.
+> Backlog Commits 1–4 vollständig umgesetzt (siehe `docs/BACKLOG.md`); Commits 5–8 (Prio 99) offen.
 >
 > **Zusätzliche Änderungen (2026-10-19, SW v60):**
 > - Übersicht: „Heute noch kein Wert erfasst"-Pille von Amber → Blau (Option C, `pill.akzent`)
@@ -53,8 +53,8 @@ Sessions ohne weiteren Kontext weiterarbeiten können.
 >   **Vollbild-Modus** (Querformat automatisch, oder manuell per Icon; Schließen per X).
 >
 > Design-Specs liegen in `docs/specs/`. Mockups (Wegwerf, HTML) in `mockups/`.
-> Der laufende Feintuning-Stand (detailliert) steht in
-> **[`docs/FEINTUNING-FORTSCHRITT.md`](docs/FEINTUNING-FORTSCHRITT.md)**.
+> Arbeitsweise & Technik-Merkposten (Entwickler-Ebene) stehen in
+> **[`docs/ENTWICKLER-NOTIZEN.md`](docs/ENTWICKLER-NOTIZEN.md)**.
 
 ## App-Konzept (Ziel)
 
@@ -106,7 +106,7 @@ Gesamtverlust, BMI-Zieltabelle.
 ### Funktionsumfang v1 (voll inkl. Charts)
 
 > Dies beschreibt den v1-Konzeptstand. Der aktuelle (feingetunte) Stand pro Screen steht im
-> Status-Block oben bzw. in `docs/FEINTUNING-FORTSCHRITT.md`. Insbesondere: Zielgewicht +
+> Status-Block oben. Insbesondere: Zielgewicht +
 > Zwischenziele sind inzwischen **im Profil frei einstellbar** (BMI oder kg), und das Dashboard hat
 > einen **Zeitfilter**.
 

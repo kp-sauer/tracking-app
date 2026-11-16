@@ -1,0 +1,162 @@
+# Design-Spec: Urlaubs-Erkenntnisse & Nutzungs-Feedback (Sammel-Runde)
+
+> **Status:** Entwurf, mit dem Nutzer durchgesprochen (2026-11-16). Sammelt die Anforderungen/Bugfixes
+> aus Urlaubs- und Alltagsnutzung. Noch keine Umsetzung gestartet — diese Spec hält die abgestimmten
+> Entscheidungen und die Umsetzungsreihenfolge fest.
+>
+> Zugehörige Arbeitsliste: [`../BACKLOG.md`](../BACKLOG.md) (Abschnitt „Sammel-Runde 2026-11-16").
+> Arbeitsweise & Technik-Merkposten: [`../ENTWICKLER-NOTIZEN.md`](../ENTWICKLER-NOTIZEN.md).
+
+## Überblick
+
+Acht Punkte aus der realen Nutzung (u. a. eine Reise nach Palau, UTC+9). Zwei davon sind Bugs, der
+Rest sind Feature-/Design-Verbesserungen. Die Nummerierung des Nutzers war eine lose Aufzählung pro
+Bereich (keine Priorität außer „99 = niedrig“).
+
+| Kürzel | Bereich | Thema | Art |
+|---|---|---|---|
+| **TZ** | global | Zeitzonen-Bug: „heute“ wird aus UTC statt lokal abgeleitet | 🐞 Bug |
+| **C-Tage** | Charts | Tage-Filter um 30 & 60 ergänzen | ✨ klein |
+| **C-Frei** | Charts | Neuer Filter „Frei“ (Von/Bis-Datumsauswahl) | ✨ neu |
+| **C-Pick** | Charts | Wertepicker/Tooltip zeigt im Hochformat falsche Punkte; Ereignisse ins Popover | 🐞 Bug + ✨ |
+| **V-Farbe** | Verlauf | Ereignis-Chips blau (Rand), Medikamenten-Chips grau | 🎨 CSS |
+| **V-Jahr** | Verlauf | Jahr-Filter oben (schnelles Springen) | ✨ neu |
+| **Ü-Min** | Übersicht | Minimum als grüner Punkt auf Linie + KPI-Kachel | ✨ |
+| **P-Aequiv** | Profil | kg/BMI-Äquivalent immer unterhalb des Eingabewerts | 🎨 Layout |
+
+---
+
+## TZ — Zeitzonen-Bug (verifiziert)
+
+**Symptom (Nutzer):** In Palau (UTC+9) wurde morgens um 7 Uhr auf Eingabe-, Übersichts- und
+Verlauf-Screen noch der Vortag als „heute“ angezeigt; der aktuelle Tag galt als fehlend. Datum musste
+manuell korrigiert werden.
+
+**Root Cause (am 2026-11-16 deterministisch reproduziert):** Der heutige Kalendertag wird über
+`new Date().toISOString().slice(0, 10)` abgeleitet. `toISOString()` liefert **UTC**. Östlich von UTC
+(DE +1, Palau +9) ist das lokale Datum nach Mitternacht bzw. bis morgens bereits einen Tag weiter als
+UTC → die App schlägt den Vortag vor.
+
+Belegt mit System-TZ Europe/Berlin: Zeitpunkt lokal 28.10. 00:30 (= 27.10. 23:30 UTC) →
+`toISOString()` ergibt `2026-10-27` (falsch), lokale Ableitung ergibt `2026-10-28` (richtig). In Palau
+betrifft dasselbe Phänomen den ganzen Morgen statt nur die Minuten nach Mitternacht.
+
+**Betroffene Stellen (verifiziert):**
+- `app/js/screens/eingabe.js:8` — `heuteIso()` (Vorschlagsdatum, „Heute“-Pille, Zukunfts-Sperre)
+- `app/js/screens/dashboard.js:68` — „Heute noch kein Wert erfasst“-Logik
+- `app/js/screens/verlauf.js:42` — „heute“-Markierung (blauer Ring)
+- `app/js/screens/profil.js:17` — Altersberechnung (Stichtag heute; harmlos, aber gleicher Bug)
+
+**NICHT anfassen:** `datumPlusTage` (eingabe.js:11) und alle `Date.UTC(...)` in
+`calc.js`/`schema.js`/`felder.js`/`verlauf.js`. Das ist reine Datums-Arithmetik auf bereits-ISO-Strings
+(Tag±n, Wochentag, KW) und zeitzonen-unabhängig korrekt. Ein „Fix“ dort würde Logik brechen.
+
+**Lösung (abgestimmt, Option 1 „lokales Datum“):** Zentraler Helper, kein Zeitstempel, keine
+Datenmodell-Änderung:
+```js
+function heuteLokal(d = new Date()) {
+  const p = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+```
+Die 4 Aufrufstellen auf den Helper umstellen. Ablageort anhand der bestehenden Importe wählen
+(Kandidat `felder.js` oder `calc.js`), damit kein Zyklus entsteht.
+
+**Verworfen (Option 2):** Zusätzlicher Zeitstempel mit Zeitzone/UTC pro Eintrag. Begründung: trägt
+nichts zur Fehlerbehebung bei, Nutzen heute nicht sichtbar, Altdaten hätten den Stempel ohnehin nicht.
+Bleibt als spätere additive Idee möglich (siehe Backlog „Spätere Ideen“).
+
+**Tests:** Reiner `heuteLokal`-Helper gegen fixe Zeitpunkte (Datumsgrenze), plus Regressionsnachweis,
+dass die UTC-Arithmetik-Funktionen unverändert bleiben.
+
+---
+
+## C-Tage — Charts: Tage-Filter 30 & 60
+
+Heute bietet die Tage-Pill-Zeile `90 · 180 · +Eigene` (`charts.js:53–56`). Ergänzen auf
+`30 · 60 · 90 · 180 · +Eigene`. Rein additive, lokale Änderung an `kontextHtml()` + Klick-Handler.
+
+## C-Frei — Charts: Filter „Frei“ (Von/Bis)
+
+Neues 4. Segment neben „Gesamt · Jahr · Tage“: **„Frei“**. Blendet zwei `datumsPicker` (Von/Bis) ein.
+- **Vorbelegung:** maximal möglicher Zeitraum = erster bis letzter Datenpunkt (also identisch zu
+  „Gesamt“ als Ausgangswert).
+- **Grenzen:** Von darf nicht vor dem ersten, Bis nicht nach dem letzten Datenpunkt liegen; Von ≤ Bis.
+- Nutzt den bekannten Rädchen-`datumsPicker` aus `felder.js`.
+
+**Abhängigkeit:** Ein 4. Segment verbreitert die Segmented-Control → genau der Umbruch-Fall, den
+Commit 7 (dynamisch grau/blau) löst. Deshalb mit C-Tage und Commit 7 **in einer Phase** umsetzen
+(einmal an der Filterleiste arbeiten).
+
+## C-Pick — Charts: Wertepicker/Tooltip-Bug + Ereignisse im Popover (niedrige Prio, ans Ende)
+
+**Symptom:** Außerhalb des Vollbilds markiert der Cursor „zufällige“ Punkte abseits der Linie; soll nur
+den Gewichtswerten folgen. Zusatzwunsch: stattgefundene Ereignisse im Tooltip/Popover anzeigen.
+
+**Verdacht (noch nicht fix-reif):** Im Hochformat wird der Plot evtl. vor finaler Flächenbreite
+gezeichnet; das `requestAnimationFrame`-Nachmessen existiert nur im Vollbild (`charts.js:240`) → Pixel-
+↔-Datenpunkt-Zuordnung des Cursors stimmt nicht. **Vor dem Fix im Browser reproduzieren**
+(systematisches Debugging), nicht blind patchen. Ereignis-Anzeige ist ein Feature obendrauf, sinnvoll
+zusammen mit dem Fix.
+
+---
+
+## V-Farbe — Verlauf: Chip-Farben
+
+- **Ereignis-Chips:** blau mit **Rand** (blaue Schrift/Rand auf hellem Grund, NICHT voll gefüllt).
+  Signalisiert dezent „klickbar“ (Ereignis-Chips öffnen das Bearbeiten-Overlay), ohne wie ein aktiver
+  Button zu wirken.
+- **Medikamenten-Chips:** grau (= „nur Info“, aktuell nicht klickbar).
+
+**Begründung / Konflikt gelöst:** Ursprungswunsch war „grün“, aber grün = „Abnahme/gut“ im Design-
+System → Verwechslungsgefahr mit grünen Abnahme-Werten im selben Eintrag. Blau/grau trennt sauber und
+ist sogar semantisch konsistenter (blau = klickbar, grau = Info).
+
+**Spätere Wechselwirkung:** Commit 5 macht Medikamenten-Chips klickbar → dann dort prüfen, ob die
+Medikament-Chips doch ein Klick-Signal brauchen. V-Farbe zuerst ist unkritisch.
+
+## V-Jahr — Verlauf: Jahr-Filter oben
+
+Horizontale Leiste oben im Verlauf: `Alle · 2024 · 2025 · 2026 …` (horizontal scrollbar bei vielen
+Jahren). Tipp auf ein Jahr filtert die Monatsgruppen auf dieses Jahr; danach kurz zum Monat scrollen.
+Default = „Alle“ (= heutiger Zustand). Zweck: schnelles Springen zu einem Zeitpunkt (z. B. Nov 2025)
+ohne langes Scrollen. Konsistent mit dem Zeitfilter in Übersicht/Charts.
+
+---
+
+## Ü-Min — Übersicht: Minimum als Punkt
+
+Aktuell-Minimum-Gewicht als auffälliger Punkt **auf der Dashboard-Sparkline** darstellen, und denselben
+Punkt als Marker **neben dem Label der Min-KPI-Kachel** (spart Text/Label).
+
+**Farbe: grün** (nicht rot). Begründung / Konflikt gelöst: Das Minimum ist das niedrigste Gewicht =
+etwas Gutes; der Charts-Code markiert Min bereits grün (`--gut`), Max rot. „Min = rot“ würde Übersicht
+und Charts widersprechen. Grün hält die Farbsprache stimmig.
+
+## P-Aequiv — Profil: kg/BMI-Äquivalent unterhalb
+
+In den Ziel-Editoren (Zielgewicht + Zwischenziele) steht der abgeleitete Äquivalenzwert (kg bzw. BMI)
+je nach Eingabe mal ein-, mal zweizeilig → wirkt unruhig. Lösung: den Äquivalenzwert **immer** in einer
+eigenen Zeile **unterhalb** des Eingabefelds anzeigen (konsistentes Layout, kein Umbruch-Zufall).
+
+**Verwandtschaft:** betrifft dasselbe ein-/zweizeilige Verhalten im Profil wie Commit 7. Gut zusammen
+mit den kleinen visuellen Fixes umzusetzen.
+
+---
+
+## Umsetzungsreihenfolge (abgestimmt)
+
+Prinzip: Bugs zuerst (Datenkorrektheit), dann alles bündeln, was dieselbe UI-Fläche anfasst, dann
+schnelle visuelle Wins, dann Komfort/niedrige Prio.
+
+- **Phase A — Bug zuerst:** TZ (Zeitzonen-Fix).
+- **Phase B — Charts-Filterleiste am Stück:** C-Tage + C-Frei + **Backlog Commit 7** (dynamisch
+  grau/blau) — alle fassen dieselbe Leiste an.
+- **Phase C — kleine visuelle Fixes:** V-Farbe + Ü-Min + P-Aequiv.
+- **Phase D — Verlauf-Navigation:** V-Jahr.
+- **Phase E — restlicher Backlog (niedrige Prio):** Commit 5 (Medikament bearbeiten),
+  Commit 6 (Swipe-Navigation), Commit 8 (In-App-Splash).
+- **Phase F — ganz ans Ende (niedrige Prio):** C-Pick (Charts-Tooltip-Bug + Ereignisse im Popover).
+
+Jede Phase: Mockup wo visuell sinnvoll → Umsetzung (TDD wo testbar, subagent-getrieben) → Browser-Check
+über `localhost:8000/test/`. Push durch den Nutzer via GitHub Desktop.

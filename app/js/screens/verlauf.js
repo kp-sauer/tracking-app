@@ -3,6 +3,7 @@ import { ereignisseAmTag, aktualisiereEreignis, entferneEreignis } from '../erei
 import { MONATE, formatiereDatum, formatiereDatumKurz, datumsPicker } from '../felder.js';
 import { EINGABE_KATEGORIEN, istEingabeKategorie } from '../schema.js';
 import { icon } from '../icons.js';
+import { heuteLokal } from '../calc.js';
 
 const WTAG = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
 
@@ -39,7 +40,7 @@ export function renderVerlauf(container, ctx) {
   const aufsteigend = nachDatumSortiert(daten);     // chronologisch (für Differenzen)
   const diffs = vortagesDifferenzen(aufsteigend);
   const absteigend = [...aufsteigend].reverse();    // neueste zuerst (Anzeige)
-  const heute = new Date().toISOString().slice(0, 10);
+  const heute = heuteLokal();
 
   if (absteigend.length === 0) {
     container.innerHTML = `<div class="verlauf-leer">Noch keine Einträge.</div>`;
@@ -184,7 +185,7 @@ export function renderVerlauf(container, ctx) {
     for (const b of katSeg.children) b.classList.toggle('aktiv', b.dataset.v === katWahl);
   }
 
-  const heuteIso = new Date().toISOString().slice(0, 10);
+  const heuteIso = heuteLokal();
   const evVon = datumsPicker(container.querySelector('#v-ev-von'), heuteIso, () => {}, formatiereDatumKurz);
   const evBis = datumsPicker(container.querySelector('#v-ev-bis'), heuteIso, () => {}, formatiereDatumKurz);
 

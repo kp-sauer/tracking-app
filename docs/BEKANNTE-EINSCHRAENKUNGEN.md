@@ -1,12 +1,16 @@
-# Bekannte Einschränkungen (v1)
+# v1-Abnahme — Historie
 
-Dieses Dokument sammelt bewusst ins Feintuning verschobene Punkte. Keiner davon
-ist ein Blocker für die v1-Abnahme. Es dient als Backlog für die nächste Runde.
+> **Rolle dieser Datei:** Abnahme-Protokoll von v1. Hält den damals **kritischen, inzwischen
+> behobenen** Punkt mit Nachweis fest (Commit + Tests). Kein lebendes Backlog.
+>
+> **Offene Punkte stehen heute woanders:** laufende Arbeitspakete in
+> [`BACKLOG.md`](BACKLOG.md), bewusst vertagte Feintuning-Reste + Technik-Merkposten in
+> [`ENTWICKLER-NOTIZEN.md`](ENTWICKLER-NOTIZEN.md). Produkt-/Statusüberblick: [`../README.md`](../README.md).
 
-## Behobener kritischer Punkt (zur Nachverfolgung)
+## Behobener kritischer Punkt
 
 - **Welt-Trennung Test/Produktiv — BEHOBEN.** Test- und Produktivdaten liegen
-  jetzt in physisch getrennten IndexedDB-Datenbanken: `db.js dbName(welt)` liefert
+  in physisch getrennten IndexedDB-Datenbanken: `db.js dbName(welt)` liefert
   für die Test-Welt den eigenen Namen `tracking-app-test`, sonst den Standard
   `tracking-app`. Zusätzlich blockiert `backup.js pruefeImport` einen Import aus
   einer fremden Welt hart (`welt_mismatch`), und `wendeImportAn` behält immer die
@@ -14,19 +18,16 @@ ist ein Blocker für die v1-Abnahme. Es dient als Backlog für die nächste Rund
   Produktiv-DB gelangen. Abgedeckt durch Tests in `tests/db.test.js` und
   `tests/backup.test.js`. (Commit 91d3c04)
 
-## Offene Punkte fürs Feintuning
+## Nachtrag zu den früheren „offenen Punkten"
 
-1. **Service-Worker unter `/test/` ohne Offline-Cache.** Die SW-Registrierung
-   schlägt unter `/test/` fehl (404 auf `/test/sw.js`) und wird in `main.js` per
-   `.catch()` still abgefangen. Folge: Die Test-Welt läuft ohne Offline-Cache.
-   Für die Produktiv-Welt funktioniert der Service Worker. Bewusst akzeptiert.
+Die drei bei der v1-Abnahme hier notierten offenen Punkte sind seither aufgelöst oder umgezogen:
 
-2. **Charts: Trendlinie/Balken vereinfacht.** Die Trendlinie und die
-   Ereignis-Balken in `screens/charts.js` sind derzeit vereinfachte Linien.
-   Feintuning (echte Balken/geglättete Trendlinie) ist verschoben.
-
-3. **Import-Erfolgsmeldung verschwindet durch Re-Render.** Nach erfolgreichem
-   Import wird der Status „Import erfolgreich" gesetzt, aber das durch
-   `store.aktualisiere` ausgelöste Re-Render des Profil-Screens überschreibt die
-   Meldung sofort. Der Import selbst wird korrekt angewendet; nur die Bestätigung
-   ist flüchtig. Kosmetisch, verschoben.
+1. **Service-Worker unter `/test/` ohne Offline-Cache** — weiterhin bewusst akzeptiert; dokumentiert
+   als Technik-Merkposten in `ENTWICKLER-NOTIZEN.md` (SW registriert nur unter `/`, nicht `/test/`).
+2. **Charts: Trendlinie/Balken vereinfacht** — ✅ erledigt. Die Charts wurden 2026-10-16 neu gebaut
+   (uPlot); die Trendlinie ist jetzt eine echte lineare Regression (`lineareTrend` in `calc.js`,
+   getestet in `tests/calc.test.js`). Die alte „vereinfachte Linie / Ereignis-Balken" existiert
+   nicht mehr.
+3. **Import-Erfolgsmeldung verschwindet durch Re-Render** — weiterhin offen (kosmetisch); geführt als
+   vertagter Feintuning-Rest in `ENTWICKLER-NOTIZEN.md` (zusammen mit dem analogen Profil-Statusmeldung-
+   Punkt, zu lösen beim Backup-Detailtest).

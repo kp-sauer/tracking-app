@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { bmi, zielgewicht, lineareTrend } from '../app/js/calc.js';
+import { bmi, zielgewicht, lineareTrend, heuteLokal } from '../app/js/calc.js';
 
 test('bmi: aktuelles Gewicht 95.9 bei 1.75 m ≈ 31.31 (Excel-Wert)', () => {
   assert.ok(Math.abs(bmi(95.9, 1.75) - 31.31) < 0.01);
@@ -118,4 +118,19 @@ test('lineareTrend: überspringt null-Werte, wertet aber über alle Indizes aus'
 test('lineareTrend: < 2 echte Punkte → Array aus null', () => {
   assert.deepEqual(lineareTrend([5]), [null]);
   assert.deepEqual(lineareTrend([null, 7, null]), [null, null, null]);
+});
+
+// ---- heuteLokal ----
+
+test('heuteLokal: liefert das LOKALE Datum (nicht UTC) für einen Zeitpunkt, der lokal/UTC auf verschiedene Tage fällt', () => {
+  // 28.10.2026 00:30 LOKAL. In +1/+9-Zonen würde toISOString() daraus den 27. machen.
+  assert.equal(heuteLokal(new Date(2026, 9, 28, 0, 30, 0)), '2026-10-28');
+});
+
+test('heuteLokal: Format immer YYYY-MM-DD mit führenden Nullen', () => {
+  assert.equal(heuteLokal(new Date(2026, 0, 5)), '2026-01-05');
+});
+
+test('heuteLokal: Default-Argument liefert gültigen YYYY-MM-DD-String', () => {
+  assert.match(heuteLokal(), /^\d{4}-\d{2}-\d{2}$/);
 });

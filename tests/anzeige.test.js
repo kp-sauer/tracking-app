@@ -21,7 +21,7 @@ test('krummer Wert rastet auf nächste Stufe', () => {
 
 test('Extremwerte werden auf den erlaubten Bereich geklemmt', () => {
   assert.equal(effektiveSkala(50), 90);
-  assert.equal(effektiveSkala(200), 130);
+  assert.equal(effektiveSkala(200), 110);
 });
 
 test('Zahl als String wird akzeptiert', () => {

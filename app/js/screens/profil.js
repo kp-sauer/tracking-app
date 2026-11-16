@@ -1,7 +1,7 @@
 import { baueExport, pruefeImport, wendeImportAn } from '../backup.js';
 import { geschlechtSegment, datumsPicker } from '../felder.js';
 import { effektiveSkala, SKALA_STUFEN } from '../theme.js';
-import { alter, zielInKg, zielInBmi, DEFAULT_ZIEL } from '../calc.js';
+import { alter, zielInKg, zielInBmi, DEFAULT_ZIEL, heuteLokal } from '../calc.js';
 import { nachDatumSortiert } from '../db.js';
 import { icon } from '../icons.js';
 
@@ -14,7 +14,7 @@ export function renderProfil(container, ctx) {
   const letztesBackup = daten.letztes_backup
     ? new Date(daten.letztes_backup).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })
     : '–';
-  const heute = new Date().toISOString().slice(0, 10);
+  const heute = heuteLokal();
   const alterText = p.geburtsdatum ? `${alter(p.geburtsdatum, heute)} Jahre` : '–';
 
   container.innerHTML = `
@@ -254,7 +254,7 @@ export function renderProfil(container, ctx) {
   container.querySelector('#pr-export').addEventListener('click', async () => {
     const exp = baueExport(ctx.store.get());
     const blob = new Blob([JSON.stringify(exp, null, 2)], { type: 'application/json' });
-    const name = `backup_${exp.welt}_${new Date().toISOString().slice(0,10)}.json`;
+    const name = `backup_${exp.welt}_${heuteLokal()}.json`;
     const datei = new File([blob], name, { type: 'application/json' });
     if (navigator.canShare?.({ files: [datei] })) {
       try { await navigator.share({ files: [datei] }); await ctx.store.aktualisiere(d => ({ ...d, letztes_backup: new Date().toISOString() }), { undobar: false }); return; } catch { /* Download-Fallback */ }

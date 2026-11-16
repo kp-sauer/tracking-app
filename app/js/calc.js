@@ -63,6 +63,13 @@ function parseIso(iso) {
   return new Date(Date.UTC(j, m - 1, t));
 }
 
+// Heutiges Datum im LOKALEN Kalender als "YYYY-MM-DD". Bewusst NICHT über
+// toISOString() (das ist UTC und schlägt östlich von UTC morgens den Vortag vor).
+export function heuteLokal(d = new Date()) {
+  const p = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
 // Vollendete Jahre zwischen Geburtsdatum und Stichtag.
 export function alter(geburtsIso, stichtagIso) {
   const g = parseIso(geburtsIso);

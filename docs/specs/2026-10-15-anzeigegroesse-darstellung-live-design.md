@@ -1,7 +1,7 @@
 # Design: Anzeigegröße + Darstellung live schalten
 
 > **Status:** Entwurf, vom Nutzer abschnittsweise bestätigt (2026-10-15). Teil des laufenden
-> Design-/UX-Feintunings (siehe `FEINTUNING-FORTSCHRITT.md`). Nächster Schritt nach Freigabe
+> Design-/UX-Feintunings (siehe `docs/ENTWICKLER-NOTIZEN.md`). Nächster Schritt nach Freigabe
 > dieser Spec: Implementierungsplan (writing-plans).
 
 ## Problem & Hintergrund

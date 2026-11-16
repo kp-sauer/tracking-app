@@ -1,7 +1,7 @@
 # Ereignisse im Verlauf bearbeiten & löschen
 
 > Design-Spec, 2026-10-16. Schließt den bekannten offenen Punkt „Ereignisse einzeln
-> löschen" (siehe `docs/FEINTUNING-FORTSCHRITT.md`, Offener Rest #4). Mockup:
+> löschen" (siehe `docs/ENTWICKLER-NOTIZEN.md`, Offener Rest #4). Mockup:
 > `mockups/10-ereignis-bearbeiten.html`.
 
 ## Problem

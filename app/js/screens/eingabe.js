@@ -4,8 +4,9 @@ import { datumsPicker, formatiereDatum } from '../felder.js';
 import { letzterGewichtVor, letztesMedikament, dosisIndex } from '../db.js';
 import { datumAusHash } from '../router.js';
 import { icon } from '../icons.js';
+import { heuteLokal } from '../calc.js';
 
-function heuteIso() { return new Date().toISOString().slice(0, 10); }
+function heuteIso() { return heuteLokal(); }
 
 // Verschiebt ein ISO-Datum um `delta` Tage (UTC-basiert, zeitzonensicher).
 function datumPlusTage(iso, delta) {
