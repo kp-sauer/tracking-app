@@ -317,20 +317,25 @@ export function renderCharts(container, ctx) {
     }
 
     // Touch-Cursor: uPlot v1.6.31 bindet NUR Maus-Events, keine Touch-Events. Auf dem
-    // Handy folgt der Cursor dem Finger dadurch nicht (Ziehen tot) und sitzt versetzt
-    // (uPlots gecachtes Rect stimmt nicht). Eigener Handler über dokumentierte uPlot-API:
-    // Finger-X frisch relativ zur Zeichenfläche (.u-over) rechnen und plot.setCursor
-    // setzen → korrekte Position UND Scrubbing beim Ziehen. passive:false + preventDefault,
-    // damit das horizontale Ziehen nicht die Seite scrollt.
+    // Handy folgt der Cursor dem Finger dadurch nicht (Ziehen tot) und sitzt versetzt.
+    // Eigener Handler über dokumentierte uPlot-API: Finger-Position frisch relativ zur
+    // Zeichenfläche (.u-over) rechnen und plot.setCursor setzen → korrekte Position UND
+    // Scrubbing beim Ziehen. passive:false + preventDefault, damit horizontales Ziehen
+    // nicht die Seite scrollt.
+    // WICHTIG (Anzeigegröße): Die App skaliert das UI via document.documentElement.zoom.
+    // getBoundingClientRect() liefert GEZOOMTE Pixel, uPlot erwartet aber seine internen,
+    // UNGEZOOMTEN Koordinaten → sonst wächst der Versatz zur Seite hin (Skalierungsfehler).
+    // Korrektur mit dem Faktor offsetWidth(ungezoomt) / rect.width(gezoomt).
     const over = host.querySelector('.u-over');
     if (over) {
       const ausTouch = (ev) => {
         if (!plot || !ev.touches || ev.touches.length === 0) return;
         const t = ev.touches[0];
         const rect = over.getBoundingClientRect();
-        const left = t.clientX - rect.left;
-        const top = t.clientY - rect.top;
-        if (left < 0 || left > rect.width) { plot.setCursor({ left: -10, top: -10 }); return; }
+        const skala = rect.width ? over.offsetWidth / rect.width : 1;  // 1/zoom
+        const left = (t.clientX - rect.left) * skala;
+        const top = (t.clientY - rect.top) * skala;
+        if (left < 0 || left > over.offsetWidth) { plot.setCursor({ left: -10, top: -10 }); return; }
         ev.preventDefault();
         plot.setCursor({ left, top });
       };
