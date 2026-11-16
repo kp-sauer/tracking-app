@@ -1,7 +1,19 @@
 // Cacht die App-Shell für Offline-Betrieb. Version kommt zentral aus js/version.js
 // (importScripts, da klassischer Worker) → EINE Quelle für UI und Cache-Name.
+//
+// WICHTIG beim Versionswechsel: NEBEN js/version.js MUSS auch die BUILD-Zeile unten
+// hochgezählt werden! Der Browser installiert einen neuen Service Worker nur, wenn sich
+// die Datei sw.js SELBST byteweise ändert. Da der Cache-Name hier via importScripts aus
+// version.js kommt, bliebe sw.js sonst unverändert → kein SW-Update → alte Version klebt
+// fest (war ein realer Bug: v63→v70 kamen nie am Gerät an). Die BUILD-Zeile erzwingt den
+// Byte-Unterschied. Sie MUSS mit js/version.js übereinstimmen.
+const BUILD = '70';
 importScripts('js/version.js');
 const CACHE = 'tracking-shell-v' + self.APP_VERSION;
+// Selbstkontrolle: fällt auf, wenn beim Deploy nur eine der beiden Stellen hochgezählt wurde.
+if (BUILD !== self.APP_VERSION) {
+  console.warn('[sw] BUILD (' + BUILD + ') != APP_VERSION (' + self.APP_VERSION + ') — version.js und sw.js-BUILD müssen übereinstimmen.');
+}
 const SHELL = [
   '.', 'index.html', 'css/app.css',
   'js/main.js', 'js/world.js', 'js/theme.js', 'js/router.js', 'js/icons.js', 'js/felder.js', 'js/version.js',
