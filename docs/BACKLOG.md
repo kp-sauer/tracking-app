@@ -44,9 +44,9 @@ Priorisierte Liste nach Session 2026-10-17. Abarbeitung in Commit-Paketen.
 
 ---
 
-## Commit 6 — Swipe-Navigation (Prio 99, später)
+## Commit 6 — Swipe-Navigation (✅ erledigt 2026-11-16, siehe Phase E unten)
 
-- [ ] **[USABILITY]** Wischen zwischen den 4 Screens (Übersicht ↔ Eingabe ↔ Charts ↔ Verlauf) via touchstart/touchend
+- [x] **[USABILITY]** Wischen zwischen den 4 Screens (Übersicht ↔ Eingabe ↔ Charts ↔ Verlauf) via touchstart/touchend
 
 ---
 
@@ -116,7 +116,13 @@ Priorisierte Liste nach Session 2026-10-17. Abarbeitung in Commit-Paketen.
 
 - [ ] **(= Commit 5)** [VERLAUF] Medikamenten-Chips per Doppelklick bearbeitbar (Popup analog Ereignis).
   Beim Umsetzen: Wechselwirkung mit V-Farbe prüfen (grauer Chip wird dann klickbar).
-- [ ] **(= Commit 6)** [USABILITY] Swipe-Navigation zwischen den 4 Screens.
+- [x] **(= Commit 6)** [USABILITY] Swipe-Navigation zwischen den 4 Screens. **ERLEDIGT (2026-11-16):**
+  Kette `Übersicht → Eingabe → Charts → Verlauf → Profil` (Profil zusätzlich in der Swipe-Kette,
+  bleibt über das Icon erreichbar), beide Richtungen, Ränder stoppen (kein Wrap), hartes Umschalten.
+  Neues Modul `app/js/swipe.js` (reine `swipeRichtung`/`nachbarScreen` + DOM-Verdrahtung
+  `installiereSwipe`); Ausschlusszonen `.u-over/.tage-pills/.jahr-leiste/.datum-picker`; Onboarding
+  ausgenommen. 16 Tests, Browser-verifiziert. **Geräte-Abnahme durch Nutzer noch offen.** Spec:
+  `specs/2026-11-16-swipe-navigation-design.md`.
 - [ ] **(= Commit 8)** [UX] In-App-Splash-Screen (Mockup-Runde ausstehend).
 
 ## Phase F — Charts Touch-Cursor ✅

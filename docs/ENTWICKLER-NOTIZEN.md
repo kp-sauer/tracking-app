@@ -187,6 +187,21 @@ Im Store (`store.js`, nutzt reine `undo.js`): Snapshot-Stacks im Speicher (NICHT
   versetzt → app-weit auf SVG via `icon()` umgestellt (2026-10-16: Stepper, Chevrons, Trend-Pfeile,
   Ziel-Haken). Zentrierung von Icon-Buttons braucht Spezifität `#screen button.<klasse>` (siehe
   Spezifitätsfalle oben), sonst erbt die generische Regel padding → Icon rechtsbündig.
+- **Swipe-Navigation** (seit 2026-11-16, Backlog Commit 6): Modul `app/js/swipe.js`. Reine,
+  getestete Funktionen `nachbarScreen(aktuell, richtung)` (Kette `SWIPE_REIHENFOLGE =
+  dashboard→eingabe→charts→verlauf→profil`, Ränder stoppen, kein Wrap) und `swipeRichtung(start, ende,
+  schwellen?)` (Schwellen `SWIPE_SCHWELLEN`: >50px, |dx|≥2|dy|, <500ms, Einzelfinger). DOM-Verdrahtung
+  `installiereSwipe(#screen, {aktuellerScreen, navigiere, aktiv})` — Bubble-Phase, `passive:true`, NIE
+  `preventDefault` (vertikales Scrollen bleibt). **Profil ist in der Swipe-Kette** (letztes Glied),
+  obwohl es NICHT in der Tab-Leiste steht — über das Profil-Icon weiter erreichbar. Navigiert über das
+  bestehende `navigiere()`/`location.hash` (hartes Umschalten, keine Animation). Gate `aktiv()` =
+  `!!profil` → kein Swipe im Onboarding. **Ausschlusszonen** `SWIPE_AUSSCHLUSS =
+  [.u-over, .tage-pills, .jahr-leiste, .datum-picker]` (eine Stelle für alle horizontalen
+  Interaktionszonen — bei neuen hier ergänzen): Start der Geste in einer Zone via `closest()` → Swipe
+  verworfen, damit Chart-Scrubbing/Pill-Scroll/Datums-Rädchen nicht kollidieren. `main.js` nutzt eine
+  gemeinsame `aktiverScreen()`-Hilfsfunktion für render() UND Swipe (gleiche Screen-Sicht). **Merke:**
+  Der DOM-Teil ist bewusst NICHT unit-getestet (Projekt testet keinen DOM); echte Abnahme am Gerät —
+  Playwright-Touch bildet Android nicht zuverlässig ab (vgl. Charts-Touch-Falle oben).
 - Mockups liegen in `mockups/` (git-ignoriert, als HTML, vom Nutzer bewusst behalten — NIE löschen):
   01-dashboard, 02-spacing-kopf, 03-profil, 04-geschlecht-datum, 05-anzeigegroesse (+ -2/-4-optionen),
   06-uebersicht, 07-zeitfilter, 08-eingabe (A/B-Vergleich), 08-1-eingabe (Variante A verfeinert),

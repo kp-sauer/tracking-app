@@ -5,6 +5,7 @@ import { routeAusHash } from './router.js';
 import { icon } from './icons.js';
 import { ErstelleStore, indexedDbPersistenz } from './store.js';
 import { screens } from './screens/index.js';
+import { installiereSwipe } from './swipe.js';
 
 const welt = aktuelleWelt();
 if (welt === 'test') {
@@ -61,12 +62,18 @@ function skalaAnwenden() {
 
 function navigiere(screen) { location.hash = '#/' + screen; }
 
+// Aktueller Screen aus Hash + Onboarding-Fallback. Eine Quelle für render() UND Swipe,
+// damit beide garantiert denselben Screen sehen.
+function aktiverScreen() {
+  if (!store.get().profil) return 'onboarding';
+  return routeAusHash(location.hash);
+}
+
 function render() {
   themeAnwenden();
   skalaAnwenden();
   const daten = store.get();
-  let screen = routeAusHash(location.hash);
-  if (!daten.profil) screen = 'onboarding';
+  const screen = aktiverScreen();
 
   const titelEl = document.getElementById('titel');
   if (titelEl) titelEl.textContent = SCREEN_TITEL[screen] ?? 'tracking-app';
@@ -90,5 +97,12 @@ globalThis.addEventListener('hashchange', render);
 
 await store.laden();
 render();
+
+// Swipe-Navigation zwischen den Screens (nur wenn ein Profil existiert → nicht im Onboarding).
+installiereSwipe(document.getElementById('screen'), {
+  aktuellerScreen: aktiverScreen,
+  navigiere,
+  aktiv: () => !!store.get().profil
+});
 
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
