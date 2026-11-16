@@ -13,6 +13,11 @@ export const EINGABE_KATEGORIEN = Object.freeze([
 
 export const PRAEPARATE = Object.freeze(['MJ', 'OZ', 'WG']);
 
+// Dosis-Stufen je Präparat (mg). Zentral, da Eingabe- UND Verlauf-Screen sie brauchen.
+export const DOSIS_LISTE = Object.freeze({
+  MJ: [2.5, 5, 7.5, 10, 12.5, 15], OZ: [0.25, 0.5, 1, 2], WG: [0.25, 0.5, 1, 1.7, 2.4]
+});
+
 export function istGueltigeKategorie(wert) {
   return KATEGORIEN.includes(wert);
 }

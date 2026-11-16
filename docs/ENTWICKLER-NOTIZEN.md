@@ -202,6 +202,24 @@ Im Store (`store.js`, nutzt reine `undo.js`): Snapshot-Stacks im Speicher (NICHT
   gemeinsame `aktiverScreen()`-Hilfsfunktion für render() UND Swipe (gleiche Screen-Sicht). **Merke:**
   Der DOM-Teil ist bewusst NICHT unit-getestet (Projekt testet keinen DOM); echte Abnahme am Gerät —
   Playwright-Touch bildet Android nicht zuverlässig ab (vgl. Charts-Touch-Falle oben).
+- **Medikament-Chips bearbeiten** (seit 2026-11-16, Backlog Commit 5): Modul `app/js/spritze.js` —
+  reine, immutable Funktionen `istStrukturierteSpritze(spritze)` (= `!!spritze && dosis_mg != null`),
+  `setzeSpritze(tageseintraege, datum, spritze)`, `entferneSpritze(tageseintraege, datum)` (getestet).
+  Die Spritze ist IM Tageseintrag eingebettet (`tageseintraege[datum].spritze`), daher operieren die
+  Funktionen auf der tageseintraege-Map per Datums-Key (nicht auf einem eigenen Array wie Ereignisse).
+  `setzeSpritze` legt bei unbekanntem Tag bewusst KEINEN neuen Tag an (Spritze ohne Gewicht = ungültig).
+  `DOSIS_LISTE` wurde von eingabe.js nach **schema.js** gezogen (neben PRAEPARATE) und in beiden
+  importiert. Im Verlauf: nur STRUKTURIERTE Med-Chips (dosis_mg≠null) sind klickbar (`.chip.med-klick`,
+  data-med, role=button) → Overlay `#v-med-dialog` (Präparat-Segment + Dosis-/Pen-Stepper wie Eingabe) +
+  rote Löschbestätigung `#v-med-del-dialog`; beides über `store.aktualisiere` (undobar). Rohtext-Altdaten
+  („OZ 10/2", kein dosis_mg) bleiben rein informativ (nicht klickbar). **Chip-Rand = klickbar:** Ereignis
+  blauer Rand, Medikament-strukturiert grauer Rand (`--fg-2`), Rohtext randlos. **CSS-Spezifitätsfalle
+  (real aufgetreten!):** Der neue Dialog brauchte EIGENE Regeln `#screen .dialog.med-edit .d-btns
+  button.primär { background:var(--akzent) }` (sonst erbt Speichern das orange `--warn` der generischen
+  Regel) UND einen `.dialog.med-edit`-Layout-Block (sonst haben die `.zeile`-Elemente kein Flex-Layout —
+  `.karte .zeile` greift nicht im Dialog). Analog zu `.dialog.ev-edit`. Chip-Events pro `baue()` verdrahten
+  (Jahr-Filter-Re-Render, s. Phase D). `oeffneMedDialog` muss im `baue()`-Closure sichtbar sein (wie
+  `oeffneEvDialog`).
 - Mockups liegen in `mockups/` (git-ignoriert, als HTML, vom Nutzer bewusst behalten — NIE löschen):
   01-dashboard, 02-spacing-kopf, 03-profil, 04-geschlecht-datum, 05-anzeigegroesse (+ -2/-4-optionen),
   06-uebersicht, 07-zeitfilter, 08-eingabe (A/B-Vergleich), 08-1-eingabe (Variante A verfeinert),

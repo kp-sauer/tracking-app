@@ -38,9 +38,9 @@ Priorisierte Liste nach Session 2026-10-17. Abarbeitung in Commit-Paketen.
 
 ---
 
-## Commit 5 — Verlauf Medikamenten-Bearbeitung (Prio 99, später)
+## Commit 5 — Verlauf Medikamenten-Bearbeitung (✅ erledigt 2026-11-16, siehe Phase E unten)
 
-- [ ] **[VERLAUF]** Medikamenten-Chips per Doppelklick bearbeitbar machen (Popup analog Ereignis-Bearbeiten)
+- [x] **[VERLAUF]** Medikamenten-Chips bearbeitbar machen (Popup analog Ereignis-Bearbeiten)
 
 ---
 
@@ -114,8 +114,12 @@ Priorisierte Liste nach Session 2026-10-17. Abarbeitung in Commit-Paketen.
 
 ## Phase E — restlicher Backlog (Prio 99)
 
-- [ ] **(= Commit 5)** [VERLAUF] Medikamenten-Chips per Doppelklick bearbeitbar (Popup analog Ereignis).
-  Beim Umsetzen: Wechselwirkung mit V-Farbe prüfen (grauer Chip wird dann klickbar).
+- [x] **(= Commit 5)** [VERLAUF] Medikamenten-Chips bearbeitbar (Popup analog Ereignis). **ERLEDIGT
+  (2026-11-16):** strukturierte Med-Chips (mit dosis_mg) per Klick → Overlay Bearbeiten (Präparat/
+  Dosis/Pen) + Löschen (rote Bestätigung), undobar. Rohtext-Altdaten („OZ 10/2") NICHT bearbeitbar.
+  Neues Modul `app/js/spritze.js` (reine Fn + Tests); `DOSIS_LISTE` nach schema.js zentralisiert;
+  klickbarer Chip = grauer Rand (Rand=klickbar: Ereignis blau / Medikament grau / Rohtext randlos).
+  Browser-verifiziert. Spec: `specs/2026-11-16-medikament-bearbeiten-design.md`.
 - [x] **(= Commit 6)** [USABILITY] Swipe-Navigation zwischen den 4 Screens. **ERLEDIGT (2026-11-16):**
   Kette `Übersicht → Eingabe → Charts → Verlauf → Profil` (Profil zusätzlich in der Swipe-Kette,
   bleibt über das Icon erreichbar), beide Richtungen, Ränder stoppen (kein Wrap), hartes Umschalten.

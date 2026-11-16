@@ -1,9 +1,10 @@
-import { nachDatumSortiert, entferneTageseintrag, gruppiereNachMonat, vortagesDifferenzen, datenJahre } from '../db.js';
+import { nachDatumSortiert, entferneTageseintrag, gruppiereNachMonat, vortagesDifferenzen, datenJahre, dosisIndex } from '../db.js';
 import { ereignisseAmTag, aktualisiereEreignis, entferneEreignis } from '../ereignisse.js';
 import { MONATE, formatiereDatum, formatiereDatumKurz, datumsPicker } from '../felder.js';
-import { EINGABE_KATEGORIEN, istEingabeKategorie } from '../schema.js';
+import { EINGABE_KATEGORIEN, istEingabeKategorie, PRAEPARATE, DOSIS_LISTE } from '../schema.js';
 import { icon } from '../icons.js';
 import { heuteLokal } from '../calc.js';
+import { istStrukturierteSpritze, setzeSpritze, entferneSpritze } from '../spritze.js';
 
 const WTAG = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
 
@@ -77,7 +78,11 @@ export function renderVerlauf(container, ctx) {
 
       const chips = [];
       if (t.spritze) {
-        chips.push(`<span class="chip med">${icon('pille')}${medText(t.spritze)}</span>`);
+        const bearbeitbar = istStrukturierteSpritze(t.spritze);
+        const attr = bearbeitbar
+          ? ` med-klick" data-med="${t.datum}" role="button" tabindex="0" title="Medikament bearbeiten`
+          : '';
+        chips.push(`<span class="chip med${attr}">${icon('pille')}${medText(t.spritze)}</span>`);
       }
       for (const ev of ereignisseAmTag(daten.ereignisse, t.datum)) {
         const label = KAT_LABEL[ev.kategorie] || 'Ereignis';
@@ -146,6 +151,31 @@ export function renderVerlauf(container, ctx) {
         <div class="d-btns">
           <button type="button" id="v-ev-del-abbr">Abbrechen</button>
           <button type="button" class="gefahr" id="v-ev-del-ok">Löschen</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="dialog-bg" id="v-med-dialog">
+      <div class="dialog med-edit">
+        <div class="d-titel">Medikament bearbeiten</div>
+        <div class="feld"><label>Präparat</label><div id="v-med-praep"></div></div>
+        <div class="zeile"><label>Dosis</label><div class="ctrl"><span class="num"><button type="button" id="v-med-dosis-minus">${icon('minus')}</button><input id="v-med-dosis" type="text" inputmode="decimal" readonly><button type="button" id="v-med-dosis-plus">${icon('plus')}</button></span><span style="font-size:14px;color:var(--fg-2)">mg</span></div></div>
+        <div class="zeile"><label>Anwendung Nr.</label><div class="ctrl"><span class="num"><button type="button" id="v-med-pen-minus">${icon('minus')}</button><input id="v-med-pen" type="text" inputmode="numeric" readonly><button type="button" id="v-med-pen-plus">${icon('plus')}</button></span></div></div>
+        <div class="d-btns">
+          <button type="button" id="v-med-abbr">Abbrechen</button>
+          <button type="button" class="primär" id="v-med-ok">Speichern</button>
+        </div>
+        <div class="loeschen-zeile"><button type="button" id="v-med-del">${MUELL_ICON}Medikament löschen</button></div>
+      </div>
+    </div>
+
+    <div class="dialog-bg" id="v-med-del-dialog">
+      <div class="dialog">
+        <div class="d-titel">Medikament löschen?</div>
+        <div class="d-text" id="v-med-del-text"></div>
+        <div class="d-btns">
+          <button type="button" id="v-med-del-abbr">Abbrechen</button>
+          <button type="button" class="gefahr" id="v-med-del-ok">Löschen</button>
         </div>
       </div>
     </div>`;
@@ -256,6 +286,106 @@ export function renderVerlauf(container, ctx) {
     ctx.store.aktualisiere(d => ({ ...d, ereignisse: entferneEreignis(d.ereignisse, id) }));
   });
 
+  // ---- Medikament-Overlay (bearbeiten/löschen) ----
+  const medDialog = container.querySelector('#v-med-dialog');
+  const medDelDialog = container.querySelector('#v-med-del-dialog');
+  const medPraepHost = container.querySelector('#v-med-praep');
+  const medDosisFeld = container.querySelector('#v-med-dosis');
+  const medPenFeld = container.querySelector('#v-med-pen');
+  let aktMedDatum = null, praepWahl = 'MJ', dosisIdx = 0;
+
+  // Präparat-Segment aufbauen
+  const medPraepSeg = document.createElement('div');
+  medPraepSeg.className = 'seg';
+  medPraepSeg.style.justifyContent = 'flex-start';
+  for (const p of PRAEPARATE) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.textContent = p; b.dataset.v = p;
+    b.addEventListener('click', () => {
+      praepWahl = p;
+      dosisIdx = Math.min(dosisIdx, DOSIS_LISTE[praepWahl].length - 1);
+      markiereMedPraep();
+      zeichneMedDosis();
+    });
+    medPraepSeg.appendChild(b);
+  }
+  medPraepHost.appendChild(medPraepSeg);
+
+  function markiereMedPraep() {
+    for (const b of medPraepSeg.children) b.classList.toggle('aktiv', b.dataset.v === praepWahl);
+  }
+  function zeichneMedDosis() {
+    medDosisFeld.value = fmtKg(DOSIS_LISTE[praepWahl][dosisIdx]).replace('.', ',');
+  }
+
+  function oeffneMedDialog(datum) {
+    const sp = ctx.store.get().tageseintraege[datum]?.spritze;
+    if (!istStrukturierteSpritze(sp)) return;
+    aktMedDatum = datum;
+    praepWahl = PRAEPARATE.includes(sp.praeparat) ? sp.praeparat : 'MJ';
+    dosisIdx = dosisIndex(DOSIS_LISTE[praepWahl], sp.dosis_mg);
+    medPenFeld.value = String(sp.pen_anwendung || 1);
+    markiereMedPraep();
+    zeichneMedDosis();
+    medDialog.classList.add('auf');
+  }
+
+  container.querySelector('#v-med-abbr').addEventListener('click', () => {
+    aktMedDatum = null;
+    medDialog.classList.remove('auf');
+  });
+
+  container.querySelector('#v-med-ok').addEventListener('click', () => {
+    if (!aktMedDatum) return;
+    const neu = {
+      praeparat: praepWahl,
+      dosis_mg: DOSIS_LISTE[praepWahl][dosisIdx],
+      pen_anwendung: parseInt(medPenFeld.value, 10) || null,
+      historie_rohtext: null,
+    };
+    const datum = aktMedDatum;
+    medDialog.classList.remove('auf');
+    aktMedDatum = null;
+    ctx.store.aktualisiere(d => ({ ...d, tageseintraege: setzeSpritze(d.tageseintraege, datum, neu) }));
+  });
+
+  container.querySelector('#v-med-dosis-minus').addEventListener('click', () => {
+    dosisIdx = Math.max(0, dosisIdx - 1);
+    zeichneMedDosis();
+  });
+  container.querySelector('#v-med-dosis-plus').addEventListener('click', () => {
+    dosisIdx = Math.min(DOSIS_LISTE[praepWahl].length - 1, dosisIdx + 1);
+    zeichneMedDosis();
+  });
+  container.querySelector('#v-med-pen-minus').addEventListener('click', () => {
+    medPenFeld.value = String(Math.max(1, (parseInt(medPenFeld.value, 10) || 1) - 1));
+  });
+  container.querySelector('#v-med-pen-plus').addEventListener('click', () => {
+    medPenFeld.value = String((parseInt(medPenFeld.value, 10) || 0) + 1);
+  });
+
+  container.querySelector('#v-med-del').addEventListener('click', () => {
+    if (!aktMedDatum) return;
+    container.querySelector('#v-med-del-text').innerHTML =
+      `<b>${praepWahl} ${fmtKg(DOSIS_LISTE[praepWahl][dosisIdx]).replace('.', ',')} mg</b> (${formatiereDatum(aktMedDatum)}) wird vom Tag entfernt. Das Gewicht bleibt erhalten.`;
+    medDialog.classList.remove('auf');
+    medDelDialog.classList.add('auf');
+  });
+
+  container.querySelector('#v-med-del-abbr').addEventListener('click', () => {
+    aktMedDatum = null;
+    medDelDialog.classList.remove('auf');
+  });
+
+  container.querySelector('#v-med-del-ok').addEventListener('click', () => {
+    const datum = aktMedDatum;
+    medDialog.classList.remove('auf');
+    medDelDialog.classList.remove('auf');
+    aktMedDatum = null;
+    if (!datum) return;
+    ctx.store.aktualisiere(d => ({ ...d, tageseintraege: entferneSpritze(d.tageseintraege, datum) }));
+  });
+
   // ---- Zeilen-Interaktion ----
   for (const zeile of container.querySelectorAll('.v-tag')) {
     const datum = zeile.dataset.datum;
@@ -279,6 +409,12 @@ export function renderVerlauf(container, ctx) {
       });
       chip.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); oeffneEvDialog(chip.dataset.ev); }
+      });
+    }
+    for (const chip of zeile.querySelectorAll('.chip.med-klick')) {
+      chip.addEventListener('click', (e) => { e.stopPropagation(); oeffneMedDialog(chip.dataset.med); });
+      chip.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); oeffneMedDialog(chip.dataset.med); }
       });
     }
   }

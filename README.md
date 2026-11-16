@@ -11,16 +11,21 @@ Sessions ohne weiteren Kontext weiterarbeiten können.
 >
 > **v1 ist funktional fertig & abgenommen. Design-/UX-Feintuning ABGESCHLOSSEN.**
 > Backlog Commits 1–4 vollständig umgesetzt; danach Sammel-Runde 2026-11-16 (Urlaubs-/Nutzungs-Feedback,
-> siehe `docs/BACKLOG.md`): **Phasen A + B + C + D + F erledigt**; aus Phase E ist **Commit 6
-> (Swipe-Navigation) umgesetzt** (Geräte-Abnahme durch Nutzer noch offen), offen bleiben nur noch
-> **Commit 5** (Medikament-Chips bearbeiten) und **Commit 8** (In-App-Splash).
+> siehe `docs/BACKLOG.md`): **Phasen A + B + C + D + F erledigt**; aus Phase E sind **Commit 6
+> (Swipe-Navigation) und Commit 5 (Medikament-Chips bearbeiten) umgesetzt**, offen bleibt nur noch
+> **Commit 8** (In-App-Splash).
 >
-> **Neueste Änderungen (2026-11-16, aktuell v71):**
+> **Neueste Änderungen (2026-11-16, aktuell v72):**
+> - **Medikament-Chips bearbeiten (Phase E / Commit 5):** strukturierte Medikament-Chips im Verlauf
+>   öffnen per Klick ein Overlay zum Bearbeiten (Präparat/Dosis/Anwendung Nr.) und Löschen (analog
+>   Ereignis-Chip), undobar. Importierte Rohtext-Medikamente („OZ 10/2") bleiben rein informativ.
+>   Klickbare Chips erhalten einen grauen Rand (Rand = klickbar). Neues Modul `app/js/spritze.js`.
 > - **Swipe-Navigation (Phase E / Commit 6):** horizontales Wischen wechselt den Screen in der Kette
 >   `Übersicht → Eingabe → Charts → Verlauf → Profil` (Profil zusätzlich in der Swipe-Kette, weiterhin
 >   über das Icon erreichbar), beide Richtungen, Ränder stoppen, hartes Umschalten. Neues Modul
->   `app/js/swipe.js`; Chart-/Pill-/Datums-Zonen vom Swipe ausgenommen; im Onboarding aus. Browser
->   verifiziert — Geräte-Abnahme steht noch aus.
+>   `app/js/swipe.js`; Chart-/Pill-/Datums-Zonen vom Swipe ausgenommen; im Onboarding aus.
+>
+> **Frühere Änderungen (2026-11-16, Version zentral in `app/js/version.js`):**
 >
 > **Frühere Änderungen (2026-11-16, Version zentral in `app/js/version.js`):**
 > - **Zeitzonen-Bug behoben:** „heute" wird jetzt aus dem LOKALEN Gerätedatum abgeleitet (Helper

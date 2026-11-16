@@ -494,6 +494,19 @@ body > #kopf, body > #screen { max-width: 480px; margin-left: auto; margin-right
    .ev-edit höher als #screen .dialog .d-btns button.primär (Zeile darüber). */
 #screen .dialog.ev-edit .d-btns button.primär { background:var(--akzent); border-color:var(--akzent); }
 
+/* Medikament-Overlay: analog ev-edit — etwas breiter, links-bündiges Formular. */
+.dialog.med-edit { max-width: 340px; text-align: left; }
+.dialog.med-edit .d-titel { text-align: center; }
+.dialog.med-edit .feld { margin-bottom: 14px; }
+.dialog.med-edit .feld > label { display:block; font-size:12px; font-weight:600; color:var(--fg-2); margin-bottom:6px; }
+/* .zeile/.ctrl im Dialog: Label links, Control rechts (spiegelt .karte .zeile + .karte .zeile .ctrl) */
+.dialog.med-edit .zeile { display:flex; align-items:center; justify-content:space-between; gap:var(--sp-3); padding:var(--sp-3) 0; }
+.dialog.med-edit .zeile + .zeile { border-top:1px solid var(--rand); }
+.dialog.med-edit .zeile > label { font-size:15px; font-weight:500; color:var(--fg); white-space:nowrap; }
+.dialog.med-edit .zeile .ctrl { flex:1; display:flex; justify-content:flex-end; align-items:center; gap:4px; color:var(--fg-2); }
+/* Speichern im Med-Overlay = BLAU (--akzent), analog ev-edit. */
+#screen .dialog.med-edit .d-btns button.primär { background:var(--akzent); border-color:var(--akzent); }
+
 /* Löschen als dezente rote Textzeile UNTER den Haupt-Buttons.
    #screen-Präfix nötig: sonst überschreibt die generische `#screen button`-Regel
    (ID-Spezifität) die rote Textfarbe → Button würde fälschlich blau. */
@@ -541,6 +554,10 @@ body > #kopf, body > #screen { max-width: 480px; margin-left: auto; margin-right
 .v-chips .chip svg { width:11px; height:11px; }
 /* Medikament = neutraler grauer Default, etwas dunkler als surface-2 (sonst kaum sichtbar). */
 .v-chips .chip.med { background:var(--rand); color:var(--fg-2); }
+/* Strukturierte Medikament-Chips sind klickbar: sichtbarer Rand mit --fg-2 (ausreichend Kontrast
+   in hell: #6b7280 auf #e5e5ea; dunkel: #a1a1aa auf #38383a). Kein --akzent: Blau ist für Ereignisse reserviert. */
+.v-chips .chip.med-klick { border-color: var(--fg-2); cursor: pointer; }
+.v-chips .chip.med-klick:active { opacity: .7; }
 /* Ereignis = blau mit Rand, ungefüllt (signalisiert klickbar). */
 .v-chips .chip.ev { color:var(--akzent); background:transparent; border-color:var(--akzent); }
 

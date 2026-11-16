@@ -1,4 +1,4 @@
-import { PRAEPARATE, EINGABE_KATEGORIEN, istEingabeKategorie, istGueltigesDatum } from '../schema.js';
+import { PRAEPARATE, DOSIS_LISTE, EINGABE_KATEGORIEN, istEingabeKategorie, istGueltigesDatum } from '../schema.js';
 import { neuesEreignis, ereignislageAmTag, setzeTagesereignis } from '../ereignisse.js';
 import { datumsPicker, formatiereDatum } from '../felder.js';
 import { letzterGewichtVor, letztesMedikament, dosisIndex } from '../db.js';
@@ -26,7 +26,6 @@ function kurzDatum(iso) {
 }
 
 const KAT_LABEL = { urlaub: 'Urlaub', feiertag_fest: 'Fest', krankheit: 'Krankheit', wiesn: 'Wiesn', sonstiges: 'Sonst' };
-const DOSIS_LISTE = { MJ: [2.5, 5, 7.5, 10, 12.5, 15], OZ: [0.25, 0.5, 1, 2], WG: [0.25, 0.5, 1, 1.7, 2.4] };
 
 // Modulweites Flag für die Erfolgs-Pille, damit sie den globalen Re-Render überlebt.
 // main.js ruft bei jedem store.aktualisiere() render() auf → #screen wird komplett neu
