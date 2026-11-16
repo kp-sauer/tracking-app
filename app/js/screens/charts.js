@@ -316,31 +316,31 @@ export function renderCharts(container, ctx) {
       });
     }
 
-    // Touch-Cursor: uPlot v1.6.31 bindet NUR Maus-Events, keine Touch-Events. Auf dem
-    // Handy folgt der Cursor dem Finger dadurch nicht (Ziehen tot) und sitzt versetzt.
-    // Eigener Handler über dokumentierte uPlot-API: Finger-Position frisch relativ zur
-    // Zeichenfläche (.u-over) rechnen und plot.setCursor setzen → korrekte Position UND
-    // Scrubbing beim Ziehen. passive:false + preventDefault, damit horizontales Ziehen
-    // nicht die Seite scrollt.
-    // WICHTIG (Anzeigegröße): Die App skaliert das UI via document.documentElement.zoom.
-    // getBoundingClientRect() liefert GEZOOMTE Pixel, uPlot erwartet aber seine internen,
-    // UNGEZOOMTEN Koordinaten → sonst wächst der Versatz zur Seite hin (Skalierungsfehler).
-    // Korrektur mit dem Faktor offsetWidth(ungezoomt) / rect.width(gezoomt).
-    const over = host.querySelector('.u-over');
-    if (over) {
-      const ausTouch = (ev) => {
-        if (!plot || !ev.touches || ev.touches.length === 0) return;
-        const t = ev.touches[0];
-        const rect = over.getBoundingClientRect();
-        const skala = rect.width ? over.offsetWidth / rect.width : 1;  // 1/zoom
-        const left = (t.clientX - rect.left) * skala;
-        const top = (t.clientY - rect.top) * skala;
-        if (left < 0 || left > over.offsetWidth) { plot.setCursor({ left: -10, top: -10 }); return; }
-        ev.preventDefault();
-        plot.setCursor({ left, top });
-      };
-      over.addEventListener('touchstart', ausTouch, { passive: false });
-      over.addEventListener('touchmove', ausTouch, { passive: false });
+    // Touch-Interaktion in der NORMALANSICHT: uPlot v1.6.31 hat keinen Touch-Support, der
+    // Tooltip/Cursor liegt auf dem echten Gerät daneben (positionsabhängiger Versatz, u.a.
+    // wegen UI-Zoom). Zwei Fix-Versuche am echten Android gescheitert → Workaround: Ein
+    // sauberer TAP auf die Chart-Fläche öffnet den Vollbild-Modus, wo Cursor + Scrubbing
+    // nachweislich korrekt sind. „Sauber" = kurz getippt, kaum bewegt → ein vertikaler
+    // Scroll-Wisch oder langes Halten öffnet NICHT versehentlich Vollbild.
+    if (!vollbild) {
+      const tapZiel = host.querySelector('.u-over') || host;
+      let sx = 0, sy = 0, st = 0, verworfen = false;
+      // Capture-Phase: uPlot könnte Touch-Events in der Bubble-Phase abfangen → wir hören
+      // vorher mit (capture:true). passive:true, da wir nichts preventDefaulten (Scrollen bleibt).
+      tapZiel.addEventListener('touchstart', (ev) => {
+        if (!ev.touches || ev.touches.length !== 1) { verworfen = true; return; }
+        const t = ev.touches[0]; sx = t.clientX; sy = t.clientY; st = Date.now(); verworfen = false;
+      }, { passive: true, capture: true });
+      tapZiel.addEventListener('touchmove', (ev) => {
+        const t = ev.touches && ev.touches[0]; if (!t) return;
+        if (Math.abs(t.clientX - sx) > 12 || Math.abs(t.clientY - sy) > 12) verworfen = true;
+      }, { passive: true, capture: true });
+      tapZiel.addEventListener('touchend', () => {
+        if (verworfen || Date.now() - st > 400) return;  // Wisch/Halten → kein Vollbild
+        vollbild = true;
+        document.body.classList.toggle('chart-vollbild', true);
+        baue();
+      }, { passive: true, capture: true });
     }
   }
 

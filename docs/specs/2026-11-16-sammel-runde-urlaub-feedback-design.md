@@ -108,15 +108,20 @@ gecachten Zeichenflächen-Rect (`getBoundingClientRect` wird in uPlot nur bei sc
 (Offset ~56px; Cursor bewegt sich beim Ziehen gar nicht). Ein erster Versuch mit `plot.syncRect()`
 griff NICHT (uPlot holt das Rect danach nicht erneut) → verworfen.
 
-**Lösung (abgestimmt): eigener Touch-Handler** auf der Chart-Fläche, über dokumentierte uPlot-API
-(kein Eingriff in die minifizierte Vendor-Datei): `touchstart`/`touchmove` berechnen
-`left = touch.clientX − over.getBoundingClientRect().left` (immer frisch → kein Offset) und rufen
-`plot.setCursor({left, top})`. Das behebt BEIDES: korrekte Position UND Folgen beim Ziehen, direkt in
-der Normalansicht. Der zuvor erwogene „Tap→Vollbild"-Workaround wird damit überflüssig (bleibt als
-Rückfallplan, falls der Handler auf echtem Android wider Erwarten nicht rund läuft).
-Verifikation im Browser (Touch-Emulation) + final auf echtem Android durch den Nutzer.
+**Lösung (final, nach 2 gescheiterten Fix-Versuchen am echten Gerät): „Tap → Vollbild"-Workaround.**
+Der eigene Touch-Handler (Rect-frisch + Zoom-Faktor-Korrektur) sah in der Playwright-Touch-Emulation
+jeweils korrekt aus, lag aber auf dem echten Android weiter daneben (die Emulation bildet das reale
+Touch-/Zoom-Verhalten nicht ab). Deshalb den Touch-Handler ganz entfernt und stattdessen: In der
+Normalansicht öffnet ein **sauberer Tap** (kurz, kaum Bewegung — vertikales Scrollen/Halten löst NICHT
+aus) auf die Chart-Fläche den **Vollbild-Modus**, wo Cursor/Tooltip und Scrubbing nachweislich korrekt
+sind (vom Nutzer bestätigt). Zurück aus dem Vollbild wie bisher über das X-/Vollbild-Icon. Kein Tooltip
+mehr in der Normalansicht — bewusst, da dort fummelig und fehlerhaft.
 
-Ereignis-im-Popover (ursprünglicher Zusatzwunsch): zurückgestellt; erst den Touch-Cursor stabil.
+Ereignis-im-Popover (ursprünglicher Zusatzwunsch): weiterhin zurückgestellt.
+
+Lehre (Merkposten): uPlot v1.6.31 hat keinen Touch-Support; Touch-Cursor-Fixes lassen sich in der
+Browser-Emulation NICHT verlässlich verifizieren — nur am echten Gerät. Daher Workaround statt Kampf
+mit Vendor-Interna.
 
 ---
 
