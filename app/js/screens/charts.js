@@ -341,6 +341,28 @@ export function renderCharts(container, ctx) {
         document.body.classList.toggle('chart-vollbild', true);
         baue();
       }, { passive: true, capture: true });
+    } else {
+      // Touch-Cursor NUR im Vollbild: uPlot v1.6.31 kennt keine Touch-Events → der Finger
+      // bewegt die Auswahl sonst nicht (kein Scrubbing). Eigener Handler über die uPlot-API
+      // plot.setCursor: Finger-Position frisch relativ zur Zeichenfläche rechnen → Position
+      // korrekt UND Ziehen folgt dem Finger. (Im Vollbild vom Nutzer als korrekt bestätigt;
+      // die Zoom-Skala-Korrektur offsetWidth/rect.width ist dort i.d.R. 1, schadet aber nicht.)
+      const over = host.querySelector('.u-over');
+      if (over) {
+        const ausTouch = (ev) => {
+          if (!plot || !ev.touches || ev.touches.length === 0) return;
+          const t = ev.touches[0];
+          const rect = over.getBoundingClientRect();
+          const skala = rect.width ? over.offsetWidth / rect.width : 1;
+          const left = (t.clientX - rect.left) * skala;
+          const top = (t.clientY - rect.top) * skala;
+          if (left < 0 || left > over.offsetWidth) { plot.setCursor({ left: -10, top: -10 }); return; }
+          ev.preventDefault();
+          plot.setCursor({ left, top });
+        };
+        over.addEventListener('touchstart', ausTouch, { passive: false });
+        over.addEventListener('touchmove', ausTouch, { passive: false });
+      }
     }
   }
 
