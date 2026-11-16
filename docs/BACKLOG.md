@@ -119,12 +119,20 @@ Priorisierte Liste nach Session 2026-10-17. Abarbeitung in Commit-Paketen.
 - [ ] **(= Commit 6)** [USABILITY] Swipe-Navigation zwischen den 4 Screens.
 - [ ] **(= Commit 8)** [UX] In-App-Splash-Screen (Mockup-Runde ausstehend).
 
-## Phase F — ganz ans Ende (Prio 99)
+## Phase F — Charts Touch-Cursor ✅
 
-- [ ] **[CHARTS]** Wertepicker/Tooltip zeigt im **Hochformat** falsche/zufällige Punkte (nur Vollbild
-  korrekt); soll nur Gewichtswerten folgen. **Erst im Browser reproduzieren** (Verdacht: Plot-Größe vor
-  finalem Layout gezeichnet, rAF-Nachmessung nur im Vollbild), dann fixen. Zusatz: stattgefundene
-  **Ereignisse im Popover** anzeigen.
+- [x] **[CHARTS]** Touch-Cursor/Tooltip lag auf dem Gerät daneben (positionsabhängiger Versatz) und
+  Ziehen funktionierte nicht. **Root Cause:** uPlot v1.6.31 bindet keine Touch-Events; zusätzlich
+  verfälscht der UI-`zoom` (Anzeigegröße) die Koordinaten. Zwei direkte Fix-Versuche am eigenen
+  Touch-Handler scheiterten am echten Android (Emulation ≠ Gerät). **Lösung (umgesetzt & am Gerät
+  bestätigt):** Normalansicht = sauberer **Tap → Vollbild** (Scroll/Halten löst nicht aus); im
+  **Vollbild** ein eigener Touch-Handler (`plot.setCursor`, Zoom-korrigiert) → Antippen UND Ziehen
+  folgen dem Finger. „Ereignisse im Popover" bewusst zurückgestellt.
+- [x] **[PWA, Bugfix nebenbei]** Seit der Versions-Zentralisierung (v63) änderte sich `sw.js` bei
+  Versionswechseln nicht mehr byteweise → der Browser installierte KEINEN neuen Service Worker →
+  Updates kamen am Gerät nie an (v63–v69 klebten fest). **Fix:** literale `BUILD`-Zeile in `sw.js`, die
+  beim Deploy mit `version.js` hochgezählt wird (+ Selbstkontroll-Warnung bei Abweichung). **Neue
+  Deploy-Routine: BEIDE hochzählen — `app/js/version.js` UND `BUILD` in `app/sw.js`.**
 
 ---
 

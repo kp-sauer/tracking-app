@@ -11,7 +11,8 @@ Sessions ohne weiteren Kontext weiterarbeiten können.
 >
 > **v1 ist funktional fertig & abgenommen. Design-/UX-Feintuning ABGESCHLOSSEN.**
 > Backlog Commits 1–4 vollständig umgesetzt; danach Sammel-Runde 2026-11-16 (Urlaubs-/Nutzungs-Feedback,
-> siehe `docs/BACKLOG.md`): **Phasen A + B + C + D erledigt**, Phasen E–F offen (Prio 99).
+> siehe `docs/BACKLOG.md`): **Phasen A + B + C + D + F erledigt**, nur noch **Phase E** offen (Prio 99:
+> Medikament-Chips bearbeiten, Swipe-Navigation, In-App-Splash).
 >
 > **Neueste Änderungen (2026-11-16, Version zentral in `app/js/version.js`):**
 > - **Zeitzonen-Bug behoben:** „heute" wird jetzt aus dem LOKALEN Gerätedatum abgeleitet (Helper
@@ -26,6 +27,13 @@ Sessions ohne weiteren Kontext weiterarbeiten können.
 >   über die volle Breite mit Symbolen (♂/♀/⚥), auf schmalen Displays gekürzt.
 > - **Verlauf-Navigation (Phase D):** Jahr-Filter oben (`Alle · 2026 · 2025 · …`, scrollbar) filtert die
 >   Monatsgruppen aufs gewählte Jahr — schnelles Springen zu einem Zeitpunkt.
+> - **Charts Touch-Bedienung (Phase F):** In der Normalansicht öffnet ein Tap den Vollbild-Modus; dort
+>   folgen Punktauswahl und Tooltip dem Finger auch beim Ziehen. (Hintergrund: die Chart-Lib unterstützt
+>   kein Touch — in der Normalansicht lag der Cursor daneben; Vollbild ist der zuverlässige Weg.)
+> - **PWA-Update-Fix:** Service-Worker-Updates kamen seit v63 nicht mehr am Gerät an, weil sich `sw.js`
+>   bei Versionswechseln nicht mehr änderte. Behoben über eine mitwandernde `BUILD`-Zeile in `sw.js`.
+>   **Deploy-Routine jetzt: Version an ZWEI Stellen hochzählen — `app/js/version.js` UND `BUILD` in
+>   `app/sw.js`.**
 > - **Versionsanzeige:** dezente Fußzeile **„WeightLog v<nr>"** im Profil (beide Welten). Version kommt
 >   zentral aus `app/js/version.js` und bestimmt zugleich den Service-Worker-Cache-Namen.
 >

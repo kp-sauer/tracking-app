@@ -73,13 +73,28 @@ Im Store (`store.js`, nutzt reine `undo.js`): Snapshot-Stacks im Speicher (NICHT
 > für Konsistenz mit dem Profil; falls gewünscht beim nächsten Feintuning auf Mockup-Grau umstellbar.
 
 ## Technik-Merkposten
-- **App-Version zentral in `app/js/version.js`** (seit 2026-11-16): nur `globalThis.APP_VERSION = '<nr>';`.
-  Beim Deploy NUR diese Zahl hochzählen → UI-Fußzeile im Profil („WeightLog v<nr>") UND SW-Cache-Name
-  (`tracking-shell-v<nr>`) ziehen automatisch nach. sw.js lädt sie per `importScripts('js/version.js')`,
-  main.js per Seiteneffekt-`import`. **Fallstrick (im Browser verifiziert):** version.js darf KEIN
-  `export`-Statement enthalten — ein klassischer Service Worker (kein `type:module`) wirft bei
-  `importScripts` auf eine Datei mit `export` „Unexpected token 'export'". Deshalb bewusst nur
-  `globalThis.…`, kein Export. (Früher war der Cache-Name hart in sw.js — NICHT mehr dort editieren.)
+- **App-Version: beim Deploy ZWEI Stellen hochzählen** (seit 2026-11-16, korrigiert nach SW-Bug):
+  `app/js/version.js` (`globalThis.APP_VERSION = '<nr>';`) UND `BUILD` in `app/sw.js` — beide müssen
+  GLEICH sein (sw.js hat eine Selbstkontroll-Warnung bei Abweichung). version.js speist UI-Fußzeile
+  („WeightLog v<nr>") und SW-Cache-Name (`tracking-shell-v<nr>`); sw.js lädt sie per
+  `importScripts('js/version.js')`, main.js per Seiteneffekt-`import`.
+  - **Fallstrick 1 (verifiziert):** version.js darf KEIN `export` enthalten — klassischer SW (kein
+    `type:module`) wirft bei `importScripts` sonst „Unexpected token 'export'". Nur `globalThis.…`.
+  - **Fallstrick 2 — der SW-Update-Bug (realer Vorfall v63–v69!):** Der Browser installiert einen neuen
+    Service Worker NUR, wenn sich `sw.js` SELBST byteweise ändert. Als der Cache-Name via `importScripts`
+    aus version.js kam, blieb sw.js bei Versionswechseln unverändert → KEIN SW-Update → alte Version klebte
+    am Gerät fest (am Server lag längst die neue). Deshalb die literale `BUILD`-Zeile in sw.js: sie erzwingt
+    den Byte-Unterschied. Darum MUSS BUILD mit hochgezählt werden. (Früher war der Cache-Name hart in sw.js
+    → änderte sich automatisch; mit der Zentralisierung ging dieser Nebeneffekt verloren.)
+- **Charts Touch-Cursor (uPlot v1.6.31 hat KEINEN Touch-Support)** (seit 2026-11-16, Phase F): Auf dem
+  Gerät folgt der Cursor dem Finger nicht und liegt versetzt. Zwei Fix-Versuche an einem eigenen
+  Touch-Handler für die Normalansicht scheiterten am echten Android (u.a. UI-`zoom` verfälscht die
+  Koordinaten; Playwright-Touch-Emulation bildet das Gerät NICHT zuverlässig ab → nur am Gerät testen!).
+  **Gelöste Lösung:** Normalansicht = sauberer **Tap → Vollbild** (touchstart/-move/-end in Capture-Phase,
+  Bewegung <12px & Dauer <400ms, sonst kein Auslösen → Scrollen bleibt möglich). Im **Vollbild** ein
+  eigener Touch-Handler (`plot.setCursor`, Position frisch aus `.u-over`-Rect, Zoom-Korrektur
+  `offsetWidth/rect.width`) → Antippen UND Ziehen folgen dem Finger. Handler wird in `zeichnePlot()` je
+  nach `vollbild`-Zustand gehängt und verschwindet mit dem alten `.u-over` beim Re-Draw (kein Leak).
 - **Zeitzonen/„heute" IMMER lokal, nie UTC** (seit 2026-11-16): `heuteLokal()` in calc.js nutzt
   `getFullYear/getMonth/getDate` (lokale Datums-Komponenten). NICHT `new Date().toISOString().slice(0,10)`
   — das ist UTC und schlägt östlich von UTC (DE +1, Palau +9) morgens auf den Vortag um (realer Bug im
