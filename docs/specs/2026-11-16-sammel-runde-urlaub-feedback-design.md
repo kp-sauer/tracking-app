@@ -94,16 +94,29 @@ beschreibt das „Was“ besser als „Frei“ und vermeidet die Doppelung mit d
 Commit 7 (dynamisch grau/blau) löst. Deshalb mit C-Tage und Commit 7 **in einer Phase** umsetzen
 (einmal an der Filterleiste arbeiten).
 
-## C-Pick — Charts: Wertepicker/Tooltip-Bug + Ereignisse im Popover (niedrige Prio, ans Ende)
+## C-Pick — Charts: Touch-Cursor-Bug (Position + Ziehen)
 
-**Symptom:** Außerhalb des Vollbilds markiert der Cursor „zufällige“ Punkte abseits der Linie; soll nur
-den Gewichtswerten folgen. Zusatzwunsch: stattgefundene Ereignisse im Tooltip/Popover anzeigen.
+**Symptom:** Außerhalb des Vollbilds markiert der Cursor bei Touch Punkte abseits der Berührung; zudem
+folgt die Auswahl beim Ziehen mit dem Finger NICHT (man muss jedes Mal neu tippen).
 
-**Verdacht (noch nicht fix-reif):** Im Hochformat wird der Plot evtl. vor finaler Flächenbreite
-gezeichnet; das `requestAnimationFrame`-Nachmessen existiert nur im Vollbild (`charts.js:240`) → Pixel-
-↔-Datenpunkt-Zuordnung des Cursors stimmt nicht. **Vor dem Fix im Browser reproduzieren**
-(systematisches Debugging), nicht blind patchen. Ereignis-Anzeige ist ein Feature obendrauf, sinnvoll
-zusammen mit dem Fix.
+**Root Cause (2026-11-16 verifiziert, inkl. uPlot-Quellcode-Analyse):** uPlot v1.6.31 (unser Vendor-
+Build) bindet **nur Maus-Events** (`mousedown/mousemove/mouseup/dblclick`), **keine** Touch-Events.
+Auf Touch-Geräten liefert der Browser synthetische Maus-Events — aber (a) mit einem veralteten/falschen
+gecachten Zeichenflächen-Rect (`getBoundingClientRect` wird in uPlot nur bei scroll/resize invalidiert)
+→ konstanter X-Offset ≈ Breite der Y-Achse + Padding; und (b) nur beim Absetzen, nicht kontinuierlich
+→ kein Scrubbing. Mit der Maus fiel der Offset kaum auf. Im Browser mit Touch-Emulation reproduziert
+(Offset ~56px; Cursor bewegt sich beim Ziehen gar nicht). Ein erster Versuch mit `plot.syncRect()`
+griff NICHT (uPlot holt das Rect danach nicht erneut) → verworfen.
+
+**Lösung (abgestimmt): eigener Touch-Handler** auf der Chart-Fläche, über dokumentierte uPlot-API
+(kein Eingriff in die minifizierte Vendor-Datei): `touchstart`/`touchmove` berechnen
+`left = touch.clientX − over.getBoundingClientRect().left` (immer frisch → kein Offset) und rufen
+`plot.setCursor({left, top})`. Das behebt BEIDES: korrekte Position UND Folgen beim Ziehen, direkt in
+der Normalansicht. Der zuvor erwogene „Tap→Vollbild"-Workaround wird damit überflüssig (bleibt als
+Rückfallplan, falls der Handler auf echtem Android wider Erwarten nicht rund läuft).
+Verifikation im Browser (Touch-Emulation) + final auf echtem Android durch den Nutzer.
+
+Ereignis-im-Popover (ursprünglicher Zusatzwunsch): zurückgestellt; erst den Touch-Cursor stabil.
 
 ---
 

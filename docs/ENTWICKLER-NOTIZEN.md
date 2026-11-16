@@ -100,6 +100,14 @@ Im Store (`store.js`, nutzt reine `undo.js`): Snapshot-Stacks im Speicher (NICHT
   real erst bei ~320px. Im Onboarding sitzt das Segment schon in einem vollbreiten `<div>` → dort keine
   Sonderbehandlung nötig. (Merke: bei `flex:1`-Buttons ist `offsetWidth` die geflexte, NICHT die
   benötigte Breite — Umbruch/Abschneiden immer per `scrollWidth` bzw. `offsetTop`-Zeilen prüfen.)
+- **Verlauf Jahr-Filter + Re-Render** (seit 2026-11-16, Phase D): `renderVerlauf` baut jetzt über eine
+  innere `baue()`-Funktion (wie dashboard.js/charts.js) und re-rendert bei Jahr-Klick → ALLE Events
+  (Lösch-/Ereignis-Dialoge, Chip-Klicks, Edit/Delete, Zeilen-Klick) werden pro `baue()` neu verdrahtet.
+  Jahr-Leiste `.jahr-leiste` (Pills, `overflow-x:auto`, `scrollbar` versteckt), Jahre ABSTEIGEND
+  (`datenJahre(daten).reverse()`), „Alle" zuerst/Default. **Wichtig:** `vortagesDifferenzen` immer auf den
+  GESAMTdaten rechnen, nur die Anzeige-Liste aufs Jahr filtern (sonst springt die Differenz des ersten
+  gefilterten Tages). **`datenJahre` lebt jetzt zentral in `db.js`** (war doppelt in dashboard.js +
+  charts.js) — von dort importieren, NICHT neu lokal definieren.
 - SW-Cache-Name wird bei jeder CSS/JS-Änderung hochgezählt — **ab 2026-11-16 zentral über `version.js`**
   (siehe oben), nicht mehr direkt in app/sw.js.
 - **Charts-Vollbild-Höhe (gelöst):** Die uPlot-Höhe im Vollbild NICHT fest aus `window.innerHeight`

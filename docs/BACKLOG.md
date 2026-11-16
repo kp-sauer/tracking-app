@@ -104,10 +104,13 @@ Priorisierte Liste nach Session 2026-10-17. Abarbeitung in Commit-Paketen.
   **Geschlecht-Icons IMMER** vor dem Label (♂ / ♀ / ⚥ U+26A5 für Divers). Dynamische Kurzform (M/W/D)
   greift per ResizeObserver nur noch als Fallback bei sehr schmalen Displays (~320px).
 
-## Phase D — Verlauf-Navigation
+## Phase D — Verlauf-Navigation ✅
 
-- [ ] **[VERLAUF]** Jahr-Filter oben: `Alle · 2024 · 2025 · … ` (horizontal scrollbar), filtert
-  Monatsgruppen aufs Jahr; Default „Alle“. Zweck: schnelles Springen zu einem Zeitpunkt.
+- [x] **[VERLAUF]** Jahr-Filter oben: `Alle · 2026 · 2025 · … ` (Jahre absteigend, horizontal scrollbar),
+  filtert Monatsgruppen aufs Jahr; Default „Alle“. Pill-Stil wie Charts-Tage-Pills. `renderVerlauf` auf
+  `baue()`-Re-Render umgestellt (Dialoge/Chips/Edit/Undo überleben den Re-Render). `vortagesDifferenzen`
+  weiter auf GESAMTdaten, nur die Anzeige wird gefiltert. **Zusätzlich:** `datenJahre` nach db.js
+  zentralisiert (war doppelt in dashboard.js + charts.js), von allen dreien importiert, getestet.
 
 ## Phase E — restlicher Backlog (Prio 99)
 

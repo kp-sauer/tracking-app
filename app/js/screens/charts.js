@@ -315,6 +315,28 @@ export function renderCharts(container, ctx) {
         }
       });
     }
+
+    // Touch-Cursor: uPlot v1.6.31 bindet NUR Maus-Events, keine Touch-Events. Auf dem
+    // Handy folgt der Cursor dem Finger dadurch nicht (Ziehen tot) und sitzt versetzt
+    // (uPlots gecachtes Rect stimmt nicht). Eigener Handler über dokumentierte uPlot-API:
+    // Finger-X frisch relativ zur Zeichenfläche (.u-over) rechnen und plot.setCursor
+    // setzen → korrekte Position UND Scrubbing beim Ziehen. passive:false + preventDefault,
+    // damit das horizontale Ziehen nicht die Seite scrollt.
+    const over = host.querySelector('.u-over');
+    if (over) {
+      const ausTouch = (ev) => {
+        if (!plot || !ev.touches || ev.touches.length === 0) return;
+        const t = ev.touches[0];
+        const rect = over.getBoundingClientRect();
+        const left = t.clientX - rect.left;
+        const top = t.clientY - rect.top;
+        if (left < 0 || left > rect.width) { plot.setCursor({ left: -10, top: -10 }); return; }
+        ev.preventDefault();
+        plot.setCursor({ left, top });
+      };
+      over.addEventListener('touchstart', ausTouch, { passive: false });
+      over.addEventListener('touchmove', ausTouch, { passive: false });
+    }
   }
 
   // Segmented-Control dynamisch grau (kompakt/einzeilig) vs. blau (Umbruch).

@@ -11,7 +11,7 @@ Sessions ohne weiteren Kontext weiterarbeiten können.
 >
 > **v1 ist funktional fertig & abgenommen. Design-/UX-Feintuning ABGESCHLOSSEN.**
 > Backlog Commits 1–4 vollständig umgesetzt; danach Sammel-Runde 2026-11-16 (Urlaubs-/Nutzungs-Feedback,
-> siehe `docs/BACKLOG.md`): **Phasen A + B + C erledigt**, Phasen D–F offen.
+> siehe `docs/BACKLOG.md`): **Phasen A + B + C + D erledigt**, Phasen E–F offen (Prio 99).
 >
 > **Neueste Änderungen (2026-11-16, Version zentral in `app/js/version.js`):**
 > - **Zeitzonen-Bug behoben:** „heute" wird jetzt aus dem LOKALEN Gerätedatum abgeleitet (Helper
@@ -24,6 +24,8 @@ Sessions ohne weiteren Kontext weiterarbeiten können.
 >   Übersicht „Weg zum Ziel" zeigt das erreichte Minimum als grünen Punkt (auch an der Min-KPI-Kachel);
 >   Profil-Ziele zeigen den kg/BMI-Äquivalenzwert immer in eigener Zeile darunter; Geschlecht-Auswahl
 >   über die volle Breite mit Symbolen (♂/♀/⚥), auf schmalen Displays gekürzt.
+> - **Verlauf-Navigation (Phase D):** Jahr-Filter oben (`Alle · 2026 · 2025 · …`, scrollbar) filtert die
+>   Monatsgruppen aufs gewählte Jahr — schnelles Springen zu einem Zeitpunkt.
 > - **Versionsanzeige:** dezente Fußzeile **„WeightLog v<nr>"** im Profil (beide Welten). Version kommt
 >   zentral aus `app/js/version.js` und bestimmt zugleich den Service-Worker-Cache-Namen.
 >
