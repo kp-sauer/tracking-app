@@ -1,5 +1,5 @@
 import { dashboardModell } from '../kpi.js';
-import { nachDatumSortiert, imZeitfenster } from '../db.js';
+import { nachDatumSortiert, imZeitfenster, datenJahre } from '../db.js';
 import { wAvgSerie, zielInKg, DEFAULT_ZIEL, zielgewicht, heuteLokal } from '../calc.js';
 import { icon } from '../icons.js';
 
@@ -43,10 +43,6 @@ export function sparklinePunkte(werte, breite, hoehe, minVor, maxVor) {
     punkte.push(x.toFixed(1) + ',' + y.toFixed(1));
   }
   return punkte.join(' ');
-}
-
-function datenJahre(daten) {
-  return [...new Set(nachDatumSortiert(daten).map(t => +t.datum.slice(0, 4)))].sort();
 }
 
 export function renderDashboard(container, ctx) {

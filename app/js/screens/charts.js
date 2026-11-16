@@ -1,4 +1,4 @@
-import { nachDatumSortiert, imZeitfenster } from '../db.js';
+import { nachDatumSortiert, imZeitfenster, datenJahre } from '../db.js';
 import { wAvgSerie, lineareTrend, zielInKg, DEFAULT_ZIEL } from '../calc.js';
 import { datumsPicker, formatiereDatumKurz } from '../felder.js';
 import { icon } from '../icons.js';
@@ -12,10 +12,6 @@ export function chartSerien(tage) {
   const wavg = tage.map(t => t.w_avg);
   const trend = lineareTrend(gewicht);
   return { x, gewicht, wavg, trend };
-}
-
-function datenJahre(daten) {
-  return [...new Set(nachDatumSortiert(daten).map(t => +t.datum.slice(0, 4)))].sort();
 }
 
 // Feste Tage-Stufen der Pills; "+" (eigene) gilt als aktiv, wenn filter.tage keine davon ist.

@@ -89,16 +89,20 @@ Priorisierte Liste nach Session 2026-10-17. Abarbeitung in Commit-Paketen.
   grauer Container, bei Umbruch → blaue Umrandung. Im Browser auf schmal (375px) + breit verifiziert.
   (Geschlecht-Chips M/W/D: NICHT Teil von Phase B — siehe Phase C / Profil.)
 
-## Phase C — kleine visuelle Fixes
+## Phase C — kleine visuelle Fixes ✅
 
-- [ ] **[VERLAUF]** Chip-Farben: **Ereignis blau (Rand, nicht gefüllt)**, **Medikament grau**.
+- [x] **[VERLAUF]** Chip-Farben: **Ereignis blau (Rand, nicht gefüllt)**, **Medikament grau**
+  (Hintergrund `--rand`, nach Gerätetest einen Tick dunkler als `--surface-2`, sonst kaum sichtbar).
   (Ursprungswunsch „grün“ verworfen — grün = Abnahme/gut, Verwechslungsgefahr.)
-- [ ] **[ÜBERSICHT]** Aktuelles **Minimum als grüner Punkt** auf der Sparkline + gleicher grüner Punkt
-  neben dem Label der Min-KPI-Kachel. (Grün, nicht rot — konsistent mit „niedrig = gut“ & Chart.)
-- [ ] **[PROFIL]** kg/BMI-Äquivalent in den Ziel-Editoren **immer unterhalb** des Eingabefelds (eigene
-  Zeile), statt mal ein-, mal zweizeilig.
-- [ ] **[PROFIL]** Geschlecht-Chips bei wenig Platz als **M / W / D** (+ ggf. Geschlecht-Icons) abkürzen
-  (nutzt dieselbe dynamische seg-Mechanik wie Phase B; aus Phase B hierher verschoben, da Profil-Thema).
+- [x] **[ÜBERSICHT]** Aktuelles **Minimum als grüner Punkt** — NICHT auf der Sparkline, sondern auf dem
+  **„Weg zum Ziel“-Balken** (via `markerPos`, ohne Text-Label) + gleich großer grüner Punkt neben dem
+  Label der Min-KPI-Kachel (11px, identisch zum Balken-Marker). Grün = „niedrig = gut“.
+- [x] **[PROFIL]** kg/BMI-Äquivalent in den Ziel-Editoren **immer unterhalb** des Eingabefelds (eigene
+  Zeile, rechtsbündig, `flex-basis:100%`) — in allen 4 Ziel-Editoren.
+- [x] **[PROFIL]** Geschlecht-Chips: Zeile auf **volle Breite** umgebaut (Label oben, Chips darüber die
+  ganze Kartenbreite, Muster wie `zeile-datum`) → „Männlich/Weiblich/Divers“ passt auf gängigen Handys.
+  **Geschlecht-Icons IMMER** vor dem Label (♂ / ♀ / ⚥ U+26A5 für Divers). Dynamische Kurzform (M/W/D)
+  greift per ResizeObserver nur noch als Fallback bei sehr schmalen Displays (~320px).
 
 ## Phase D — Verlauf-Navigation
 

@@ -41,6 +41,12 @@ export function letztesMedikament(daten, datumIso) {
   return { praeparat: s.praeparat, dosis_mg: s.dosis_mg, pen_anwendung: s.pen_anwendung };
 }
 
+// Eindeutige Datenjahre (als Zahl) aus allen Tageseinträgen, AUFSTEIGEND sortiert.
+// Leere Daten → []. Zentral hier, genutzt von Dashboard, Charts und Verlauf.
+export function datenJahre(daten) {
+  return [...new Set(nachDatumSortiert(daten).map(t => +t.datum.slice(0, 4)))].sort();
+}
+
 // Gruppiert eine Tagesliste (wie von nachDatumSortiert, hier i.d.R. ABSTEIGEND/neueste
 // zuerst übergeben) nach Kalendermonat. Reihenfolge der Gruppen und der Tage INNERHALB
 // einer Gruppe entspricht der Eingabereihenfolge (keine Umsortierung). Liefert

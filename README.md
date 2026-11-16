@@ -11,7 +11,7 @@ Sessions ohne weiteren Kontext weiterarbeiten können.
 >
 > **v1 ist funktional fertig & abgenommen. Design-/UX-Feintuning ABGESCHLOSSEN.**
 > Backlog Commits 1–4 vollständig umgesetzt; danach Sammel-Runde 2026-11-16 (Urlaubs-/Nutzungs-Feedback,
-> siehe `docs/BACKLOG.md`): **Phase A + B erledigt**, Phasen C–F offen.
+> siehe `docs/BACKLOG.md`): **Phasen A + B + C erledigt**, Phasen D–F offen.
 >
 > **Neueste Änderungen (2026-11-16, Version zentral in `app/js/version.js`):**
 > - **Zeitzonen-Bug behoben:** „heute" wird jetzt aus dem LOKALEN Gerätedatum abgeleitet (Helper
@@ -20,6 +20,10 @@ Sessions ohne weiteren Kontext weiterarbeiten können.
 > - **Charts-Filter erweitert:** Tage-Pills `30 · 60 · 90 · 180 · +`; neues Segment **„Zeitraum"**
 >   (freie Von/Bis-Auswahl, Von/Bis-Picker öffnen gemeinsam); Filter-Segmentleiste schaltet dynamisch
 >   zwischen grauem Container (einzeilig) und blauer Umrandung (Umbruch) — der frühere Commit 7.
+> - **Kleine visuelle Fixes (Phase C):** Verlauf-Chips (Ereignis blau mit Rand, Medikament grau);
+>   Übersicht „Weg zum Ziel" zeigt das erreichte Minimum als grünen Punkt (auch an der Min-KPI-Kachel);
+>   Profil-Ziele zeigen den kg/BMI-Äquivalenzwert immer in eigener Zeile darunter; Geschlecht-Auswahl
+>   über die volle Breite mit Symbolen (♂/♀/⚥), auf schmalen Displays gekürzt.
 > - **Versionsanzeige:** dezente Fußzeile **„WeightLog v<nr>"** im Profil (beide Welten). Version kommt
 >   zentral aus `app/js/version.js` und bestimmt zugleich den Service-Worker-Cache-Namen.
 >

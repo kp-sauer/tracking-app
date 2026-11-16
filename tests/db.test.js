@@ -33,7 +33,20 @@ test('nachDatumSortiert liefert aufsteigend sortierte [{datum, ...}]', () => {
   assert.equal(liste[0].gewicht_kg, 99);
 });
 
-import { gruppiereNachMonat, vortagesDifferenzen } from '../app/js/db.js';
+import { gruppiereNachMonat, vortagesDifferenzen, datenJahre } from '../app/js/db.js';
+
+test('datenJahre: leere Daten → []', () => {
+  assert.deepEqual(datenJahre(leereDaten('test')), []);
+});
+
+test('datenJahre: eindeutige Jahre, aufsteigend sortiert', () => {
+  let d = leereDaten('test');
+  d = setzeTageseintrag(d, '2025-03-10', { gewicht_kg: 90 });
+  d = setzeTageseintrag(d, '2024-11-01', { gewicht_kg: 91 });
+  d = setzeTageseintrag(d, '2026-01-05', { gewicht_kg: 89 });
+  d = setzeTageseintrag(d, '2025-07-20', { gewicht_kg: 90 });
+  assert.deepEqual(datenJahre(d), [2024, 2025, 2026]);
+});
 
 test('gruppiereNachMonat gruppiert nach Monat, erhält Reihenfolge', () => {
   const tage = [

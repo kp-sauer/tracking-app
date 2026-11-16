@@ -123,10 +123,13 @@ Medikament-Chips doch ein Klick-Signal brauchen. V-Farbe zuerst ist unkritisch.
 
 ## V-Jahr — Verlauf: Jahr-Filter oben
 
-Horizontale Leiste oben im Verlauf: `Alle · 2024 · 2025 · 2026 …` (horizontal scrollbar bei vielen
-Jahren). Tipp auf ein Jahr filtert die Monatsgruppen auf dieses Jahr; danach kurz zum Monat scrollen.
-Default = „Alle“ (= heutiger Zustand). Zweck: schnelles Springen zu einem Zeitpunkt (z. B. Nov 2025)
+Horizontale Leiste oben im Verlauf: `Alle · 2026 · 2025 · 2024 …` (Jahre **absteigend**, neueste zuerst;
+horizontal scrollbar bei vielen Jahren). Tipp auf ein Jahr filtert die Monatsgruppen auf dieses Jahr;
+danach kurz zum Monat scrollen. Default = „Alle“ (= heutiger Zustand). Aktives Jahr im Pill-Stil der
+Charts-Tage-Pills (blau mit Rand). Zweck: schnelles Springen zu einem Zeitpunkt (z. B. Nov 2025)
 ohne langes Scrollen. Konsistent mit dem Zeitfilter in Übersicht/Charts.
+Mockup: `mockups/15-verlauf-jahrfilter.html`. Technik: `datenJahre` wird nach db.js zentralisiert
+(war doppelt in dashboard.js + charts.js) und von allen dreien genutzt.
 
 ---
 

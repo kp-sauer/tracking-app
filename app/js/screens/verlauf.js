@@ -1,4 +1,4 @@
-import { nachDatumSortiert, entferneTageseintrag, gruppiereNachMonat, vortagesDifferenzen } from '../db.js';
+import { nachDatumSortiert, entferneTageseintrag, gruppiereNachMonat, vortagesDifferenzen, datenJahre } from '../db.js';
 import { ereignisseAmTag, aktualisiereEreignis, entferneEreignis } from '../ereignisse.js';
 import { MONATE, formatiereDatum, formatiereDatumKurz, datumsPicker } from '../felder.js';
 import { EINGABE_KATEGORIEN, istEingabeKategorie } from '../schema.js';
@@ -36,9 +36,14 @@ function medText(spritze) {
 }
 
 export function renderVerlauf(container, ctx) {
+  // Jahr-Filter-Zustand: 'alle' oder eine Jahreszahl. Bei Jahr-Klick wird baue()
+  // erneut aufgerufen (analog dashboard.js/charts.js), das HTML + Events neu setzt.
+  let jahrFilter = 'alle';
+
+  function baue() {
   const daten = ctx.store.get();
   const aufsteigend = nachDatumSortiert(daten);     // chronologisch (für Differenzen)
-  const diffs = vortagesDifferenzen(aufsteigend);
+  const diffs = vortagesDifferenzen(aufsteigend);   // auf GESAMTdaten, nie filtern
   const absteigend = [...aufsteigend].reverse();    // neueste zuerst (Anzeige)
   const heute = heuteLokal();
 
@@ -47,7 +52,19 @@ export function renderVerlauf(container, ctx) {
     return;
   }
 
-  const gruppen = gruppiereNachMonat(absteigend);
+  // Jahr-Leiste: "Alle" + Datenjahre ABSTEIGEND (neueste zuerst).
+  const jahre = datenJahre(daten).reverse();
+  const jahrBtns = [`<button data-jahr="alle"${jahrFilter === 'alle' ? ' class="aktiv"' : ''}>Alle</button>`]
+    .concat(jahre.map(j => `<button data-jahr="${j}"${String(jahrFilter) === String(j) ? ' class="aktiv"' : ''}>${j}</button>`))
+    .join('');
+  const jahrLeisteHtml = `<div class="jahr-leiste">${jahrBtns}</div>`;
+
+  // Nur die ANZEIGE filtern (Differenzen bleiben auf den Gesamtdaten berechnet).
+  const anzeige = jahrFilter === 'alle'
+    ? absteigend
+    : absteigend.filter(t => t.datum.slice(0, 4) === String(jahrFilter));
+
+  const gruppen = gruppiereNachMonat(anzeige);
   const html = gruppen.map(g => {
     const anzahl = g.tage.length;
     const zusatz = anzahl === 1 ? '1 Eintrag' : `${anzahl} Einträge`;
@@ -89,11 +106,11 @@ export function renderVerlauf(container, ctx) {
 
     return `<div class="v-monat"><span>${MONATE[g.monat - 1]} ${g.jahr}</span><span class="v-zusatz">${zusatz}</span></div>
       <section class="karte v-karte">${zeilen}</section>`;
-  }).join('');
+  }).join('') || `<div class="verlauf-leer">Keine Einträge in diesem Jahr.</div>`;
 
   const MUELL_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
 
-  container.innerHTML = html + `
+  container.innerHTML = jahrLeisteHtml + html + `
     <div class="dialog-bg" id="v-dialog">
       <div class="dialog">
         <div class="d-titel">Eintrag löschen?</div>
@@ -265,4 +282,16 @@ export function renderVerlauf(container, ctx) {
       });
     }
   }
+
+  // ---- Jahr-Filter: Klick setzt den Zustand und baut neu auf ----
+  for (const b of container.querySelectorAll('.jahr-leiste button')) {
+    b.addEventListener('click', () => {
+      const j = b.dataset.jahr;
+      jahrFilter = j === 'alle' ? 'alle' : +j;
+      baue();
+    });
+  }
+  }
+
+  baue();
 }

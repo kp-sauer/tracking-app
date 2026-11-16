@@ -91,6 +91,15 @@ Im Store (`store.js`, nutzt reine `undo.js`): Snapshot-Stacks im Speicher (NICHT
   `TAGE_STUFEN`). Die seg-Leiste schaltet dynamisch `.seg-kompakt` (grau, einzeilig) ↔ blaue Umrandung
   (Umbruch) per ResizeObserver; im Nicht-kompakt-Zustand `flex-wrap:wrap`. In der Zeitraum-Ansicht öffnen
   Von/Bis-Picker GEMEINSAM (zentraler Capture-Klick, der den datumsPicker-Einzel-Toggle unterdrückt).
+- **Geschlecht-Segment volle Breite** (seit 2026-11-16, Phase C): Die Geschlecht-Zeile im Profil nutzt
+  das `zeile-datum`-Muster (`.zeile-geschlecht` + `flex-wrap:wrap`, Label oben, `.seg-voll` über die
+  volle Kartenbreite darunter) — NICHT die enge rechte `.ctrl`-Spalte (dort wurde immer gekürzt, auch
+  auf dem Handy). Die drei Chips: `flex:1 1 0; min-width:0;` auf `.seg` mit `flex-wrap:nowrap` → teilen
+  sich die Zeile zu Dritteln, brechen NIE um. `geschlechtSegment` (felder.js) zeigt die Geschlecht-Icons
+  (♂/♀/⚥) IMMER vor dem Label; der ResizeObserver tauscht nur noch langes Label ↔ Kürzel (M/W/D), greift
+  real erst bei ~320px. Im Onboarding sitzt das Segment schon in einem vollbreiten `<div>` → dort keine
+  Sonderbehandlung nötig. (Merke: bei `flex:1`-Buttons ist `offsetWidth` die geflexte, NICHT die
+  benötigte Breite — Umbruch/Abschneiden immer per `scrollWidth` bzw. `offsetTop`-Zeilen prüfen.)
 - SW-Cache-Name wird bei jeder CSS/JS-Änderung hochgezählt — **ab 2026-11-16 zentral über `version.js`**
   (siehe oben), nicht mehr direkt in app/sw.js.
 - **Charts-Vollbild-Höhe (gelöst):** Die uPlot-Höhe im Vollbild NICHT fest aus `window.innerHeight`
