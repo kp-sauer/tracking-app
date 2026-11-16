@@ -38,7 +38,7 @@ export function formatiereDatumKurz(iso) {
 
 const GESCHLECHT_OPTIONEN = [['m','Männlich','M'],['w','Weiblich','W'],['divers','Divers','D']];
 
-// Inline-SVG-Icons (Feather-Stil, stroke=currentColor) für den gekürzten Zustand.
+// Inline-SVG-Icons (Feather-Stil, stroke=currentColor) — IMMER vor dem Label (lang wie kurz).
 // Divers hat kein Feather-Icon → Unicode ⚥ (U+26A5) als Text.
 const GESCHLECHT_ICON = {
   m: '<svg class="ico" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10" cy="14" r="5"/><line x1="13.5" y1="10.5" x2="19" y2="5"/><polyline points="15 5 19 5 19 9"/></svg>',
@@ -77,11 +77,12 @@ export function geschlechtSegment(host, wert, onChange) {
   }
   host.appendChild(seg);
 
-  // Setzt alle Buttons ausgeschrieben bzw. gekürzt (Icon + Kürzel).
+  // Setzt alle Buttons: Icon IMMER davor, Label entweder lang (Männlich…) oder gekürzt (M/W/D).
   function renderModus(kurz) {
     for (const b of buttons) {
-      if (kurz) b.innerHTML = (GESCHLECHT_ICON[b.dataset.v] || '') + b.dataset.kurz;
-      else b.textContent = b.dataset.lang;
+      const ikon = GESCHLECHT_ICON[b.dataset.v] || '';
+      const text = kurz ? b.dataset.kurz : b.dataset.lang;
+      b.innerHTML = ikon + '<span class="gs-text">' + text + '</span>';
     }
   }
   // Misst, ob die ausgeschriebenen Labels einzeilig passen; sonst kürzen.

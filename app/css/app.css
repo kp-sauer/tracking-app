@@ -288,7 +288,7 @@ body > #kopf, body > #screen { max-width: 480px; margin-left: auto; margin-right
 .kpi-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 .kpi-tile { background:var(--surface); border-radius:var(--radius-s); padding:16px; box-shadow:var(--schatten); }
 .kpi-tile .k-label { font-size:12px; color:var(--fg-2); font-weight:600; display:flex; align-items:center; gap:5px; }
-.kpi-tile .k-label .min-dot { width:9px; height:9px; border-radius:999px; background:var(--gut); display:inline-block; flex:none; }
+.kpi-tile .k-label .min-dot { width:11px; height:11px; border-radius:999px; background:var(--gut); border:2px solid var(--surface); box-sizing:border-box; display:inline-block; flex:none; }
 .kpi-tile .k-wert { font-size:24px; font-weight:700; letter-spacing:-.02em; margin-top:6px; }
 .kpi-tile .k-wert.positiv { color:var(--gut); }
 .kpi-tile .k-sub { font-size:12px; color:var(--fg-3); margin-top:2px; }
@@ -372,6 +372,15 @@ body > #kopf, body > #screen { max-width: 480px; margin-left: auto; margin-right
    Zeile 1 = Label + Heute-Chip (via .zeile-datum > label, bereits oben).
    Zeile 2 = .datum-nav: Chevrons links/rechts, Datum-Pill zentriert. */
 .karte .zeile-datum .datum-nav { width:100%; display:flex; align-items:center; justify-content:center; gap:4px; padding:var(--sp-1) 0 var(--sp-2); }
+
+/* Geschlecht-Zeile: Label oben, Segment über die volle Kartenbreite darunter
+   (Muster wie .zeile-datum). So haben die drei Chips Platz für die langen Labels;
+   die dynamische Kurzform (M/W/⚥D) greift nur noch als Fallback auf sehr schmalen Displays. */
+.karte .zeile-geschlecht { flex-wrap:wrap; }
+.karte .zeile-geschlecht > label { width:100%; }
+.karte .zeile-geschlecht .seg-voll { width:100%; padding:var(--sp-1) 0 var(--sp-2); }
+.karte .zeile-geschlecht .seg-voll .seg { display:flex; width:100%; flex-wrap:nowrap; }
+.karte .zeile-geschlecht .seg-voll .seg button { flex:1 1 0; min-width:0; justify-content:center; }
 
 /* Tag-vor/zurück-Pfeile in der Datumszeile (dezent, kein eigener Block). */
 /* Tag-vor/zurück-Pfeile: reine Icon-Tap-Flächen, KEIN Rahmen/Hintergrund (nur Hover-Echo).
@@ -525,7 +534,8 @@ body > #kopf, body > #screen { max-width: 480px; margin-left: auto; margin-right
    Ereignis (blauer Rand) exakt gleich hoch bleiben (kein Layout-Sprung). */
 .v-chips .chip { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600; padding:2px 8px; border-radius:999px; background:var(--surface-2); color:var(--fg-2); border:1px solid transparent; }
 .v-chips .chip svg { width:11px; height:11px; }
-/* Medikament = neutraler grauer Default (keine Sonderregel nötig). */
+/* Medikament = neutraler grauer Default, etwas dunkler als surface-2 (sonst kaum sichtbar). */
+.v-chips .chip.med { background:var(--rand); color:var(--fg-2); }
 /* Ereignis = blau mit Rand, ungefüllt (signalisiert klickbar). */
 .v-chips .chip.ev { color:var(--akzent); background:transparent; border-color:var(--akzent); }
 

@@ -27,7 +27,7 @@ export function renderProfil(container, ctx) {
     <div class="abschnitt">Stammdaten</div>
     <section class="karte">
       <div class="zeile"><label>Körpergröße</label><div class="ctrl"><input id="pr-groesse" type="number" step="0.01" min="1" max="2.5" value="${p.koerpergroesse_m}"> m</div></div>
-      <div class="zeile"><label>Geschlecht</label><div class="ctrl"><span id="pr-geschlecht"></span></div></div>
+      <div class="zeile zeile-geschlecht"><label>Geschlecht</label><div class="seg-voll"><span id="pr-geschlecht"></span></div></div>
       <div class="zeile zeile-datum"><label>Geburtsdatum</label><div class="ctrl"><span id="pr-geburt"></span></div></div>
       <div class="zeile"><label>Alter</label><div class="ctrl"><span class="readonly" id="pr-alter">${alterText}</span></div></div>
     </section>
