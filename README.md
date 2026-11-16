@@ -7,12 +7,23 @@ Sessions ohne weiteren Kontext weiterarbeiten können.
 > **Projektziel:** siehe Abschnitt [App-Konzept](#app-konzept-ziel) weiter unten. Der Daten-Kontext
 > (Analyse der Excel) ist vollständig erfasst und bleibt als Referenz unten stehen.
 
-> ## Aktueller Stand (2026-10-19)
+> ## Aktueller Stand (2026-11-16)
 >
 > **v1 ist funktional fertig & abgenommen. Design-/UX-Feintuning ABGESCHLOSSEN.**
-> Backlog Commits 1–4 vollständig umgesetzt (siehe `docs/BACKLOG.md`); Commits 5–8 (Prio 99) offen.
+> Backlog Commits 1–4 vollständig umgesetzt; danach Sammel-Runde 2026-11-16 (Urlaubs-/Nutzungs-Feedback,
+> siehe `docs/BACKLOG.md`): **Phase A + B erledigt**, Phasen C–F offen.
 >
-> **Zusätzliche Änderungen (2026-10-19, SW v60):**
+> **Neueste Änderungen (2026-11-16, Version zentral in `app/js/version.js`):**
+> - **Zeitzonen-Bug behoben:** „heute" wird jetzt aus dem LOKALEN Gerätedatum abgeleitet (Helper
+>   `heuteLokal`), nicht mehr aus UTC — behebt den Urlaubs-Fehler (in Palau wurde morgens der Vortag
+>   vorgeschlagen).
+> - **Charts-Filter erweitert:** Tage-Pills `30 · 60 · 90 · 180 · +`; neues Segment **„Zeitraum"**
+>   (freie Von/Bis-Auswahl, Von/Bis-Picker öffnen gemeinsam); Filter-Segmentleiste schaltet dynamisch
+>   zwischen grauem Container (einzeilig) und blauer Umrandung (Umbruch) — der frühere Commit 7.
+> - **Versionsanzeige:** dezente Fußzeile **„WeightLog v<nr>"** im Profil (beide Welten). Version kommt
+>   zentral aus `app/js/version.js` und bestimmt zugleich den Service-Worker-Cache-Namen.
+>
+> **Frühere Änderungen (2026-10-19, SW v60):**
 > - Übersicht: „Heute noch kein Wert erfasst"-Pille von Amber → Blau (Option C, `pill.akzent`)
 > - PWA-Name: `tracking-app` → **WeightLog** (Produktiv) / **WeightLog [TEST]** (Test) in beiden `manifest.webmanifest`
 >

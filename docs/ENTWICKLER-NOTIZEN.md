@@ -73,8 +73,26 @@ Im Store (`store.js`, nutzt reine `undo.js`): Snapshot-Stacks im Speicher (NICHT
 > für Konsistenz mit dem Profil; falls gewünscht beim nächsten Feintuning auf Mockup-Grau umstellbar.
 
 ## Technik-Merkposten
-- SW-Cache-Name wird bei jeder CSS/JS-Änderung hochgezählt (aktuell `tracking-shell-v60` in
-  app/sw.js) — zum Cache-Bust.
+- **App-Version zentral in `app/js/version.js`** (seit 2026-11-16): nur `globalThis.APP_VERSION = '<nr>';`.
+  Beim Deploy NUR diese Zahl hochzählen → UI-Fußzeile im Profil („WeightLog v<nr>") UND SW-Cache-Name
+  (`tracking-shell-v<nr>`) ziehen automatisch nach. sw.js lädt sie per `importScripts('js/version.js')`,
+  main.js per Seiteneffekt-`import`. **Fallstrick (im Browser verifiziert):** version.js darf KEIN
+  `export`-Statement enthalten — ein klassischer Service Worker (kein `type:module`) wirft bei
+  `importScripts` auf eine Datei mit `export` „Unexpected token 'export'". Deshalb bewusst nur
+  `globalThis.…`, kein Export. (Früher war der Cache-Name hart in sw.js — NICHT mehr dort editieren.)
+- **Zeitzonen/„heute" IMMER lokal, nie UTC** (seit 2026-11-16): `heuteLokal()` in calc.js nutzt
+  `getFullYear/getMonth/getDate` (lokale Datums-Komponenten). NICHT `new Date().toISOString().slice(0,10)`
+  — das ist UTC und schlägt östlich von UTC (DE +1, Palau +9) morgens auf den Vortag um (realer Bug im
+  Urlaub). Gegenbeispiel-Merker: reine Datums-ARITHMETIK auf schon-ISO-Strings (Tag±n, Wochentag, KW) nutzt
+  weiterhin bewusst `Date.UTC(...)` (zeitzonen-unabhängig korrekt) — die NICHT auf lokal umstellen.
+- **Charts-Zeitfilter „zeitraum"** (seit 2026-11-16): `imZeitfenster(tage, {modus:'zeitraum', von, bis})`
+  filtert `von ≤ datum ≤ bis` (ISO-Lexikografie), Fallback auf alle Tage wenn von/bis fehlt. Das
+  Charts-Segment ist jetzt `Gesamt · Jahr · Tage · Zeitraum`; Tage-Pills `30·60·90·180·+` (Konstante
+  `TAGE_STUFEN`). Die seg-Leiste schaltet dynamisch `.seg-kompakt` (grau, einzeilig) ↔ blaue Umrandung
+  (Umbruch) per ResizeObserver; im Nicht-kompakt-Zustand `flex-wrap:wrap`. In der Zeitraum-Ansicht öffnen
+  Von/Bis-Picker GEMEINSAM (zentraler Capture-Klick, der den datumsPicker-Einzel-Toggle unterdrückt).
+- SW-Cache-Name wird bei jeder CSS/JS-Änderung hochgezählt — **ab 2026-11-16 zentral über `version.js`**
+  (siehe oben), nicht mehr direkt in app/sw.js.
 - **Charts-Vollbild-Höhe (gelöst):** Die uPlot-Höhe im Vollbild NICHT fest aus `window.innerHeight`
   rechnen (riet falsch → Chart zu hoch, Karte zu schmal, Overflow nach unten, Serien-Chips ins
   Diagramm gedrückt/unbenutzbar — v. a. auf breitem Desktop-Querformat). Lösung: Höhe aus dem real

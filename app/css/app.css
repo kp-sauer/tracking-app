@@ -227,6 +227,11 @@ body > #kopf, body > #screen { max-width: 480px; margin-left: auto; margin-right
 .seg-ikon button, #screen .seg-ikon button { min-width:38px; padding:4px 10px; display:grid; place-items:center; }
 .seg-ikon .aa { font-weight:700; line-height:1; }
 
+/* Geschlecht-Segment: im gekürzten Zustand Icon/⚥ + Kürzel nebeneinander zentriert. */
+.seg-geschlecht button, #screen .seg-geschlecht button { display:inline-flex; align-items:center; justify-content:center; gap:5px; white-space:nowrap; }
+.seg-geschlecht .ico { width:15px; height:15px; flex:none; }
+.seg-geschlecht .gs-uni { font-size:15px; line-height:1; }
+
 /* Zeitfilter (Übersicht): Segmented + inline Jahr-Stepper / Tage-Pills + Eigene-Zahlenfeld. */
 .filter { display:flex; flex-direction:column; gap:0; }
 .filterzeile { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
@@ -258,7 +263,9 @@ body > #kopf, body > #screen { max-width: 480px; margin-left: auto; margin-right
 .ziel-eingabe .ctrl-voll { display:flex; align-items:center; gap:var(--sp-3); justify-content:flex-end; flex-wrap:wrap; width:100%; }
 /* Harmonisiert: Typ-Segmented links neben dem Zahlenfeld (Haupt- und Zwischenziele gleich). */
 .ctrl-ziel { display:flex; align-items:center; gap:var(--sp-2); justify-content:flex-end; flex-wrap:wrap; }
-.ziel-abgeleitet { font-size:14px; color:var(--fg-2); font-weight:600; }
+/* Der abgeleitete kg/BMI-Wert IMMER in einer eigenen Zeile UNTERHALB der Eingabe
+   (flex-basis:100% erzwingt den Umbruch), rechtsbündig wie die Eingabe-Zeile. */
+.ziel-abgeleitet { font-size:14px; color:var(--fg-2); font-weight:600; flex-basis:100%; text-align:right; }
 .zw-info { padding-top:var(--sp-2); }
 .zw-info .erkl { font-size:12px; color:var(--fg-3); }
 
@@ -280,7 +287,8 @@ body > #kopf, body > #screen { max-width: 480px; margin-left: auto; margin-right
 
 .kpi-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 .kpi-tile { background:var(--surface); border-radius:var(--radius-s); padding:16px; box-shadow:var(--schatten); }
-.kpi-tile .k-label { font-size:12px; color:var(--fg-2); font-weight:600; }
+.kpi-tile .k-label { font-size:12px; color:var(--fg-2); font-weight:600; display:flex; align-items:center; gap:5px; }
+.kpi-tile .k-label .min-dot { width:9px; height:9px; border-radius:999px; background:var(--gut); display:inline-block; flex:none; }
 .kpi-tile .k-wert { font-size:24px; font-weight:700; letter-spacing:-.02em; margin-top:6px; }
 .kpi-tile .k-wert.positiv { color:var(--gut); }
 .kpi-tile .k-sub { font-size:12px; color:var(--fg-3); margin-top:2px; }
@@ -306,6 +314,9 @@ body > #kopf, body > #screen { max-width: 480px; margin-left: auto; margin-right
 .marker-who .who-label.rechts { left:0; transform:none; }
 .marker-who.erreicht { background:var(--gut); }
 .marker-who.erreicht .who-label { color:var(--gut); }
+/* Minimum = gefüllter grüner Punkt mit dünnem Rand in --surface (hebt sich von der
+   blauen Füllung ab). Kein Label (würde mit BMI/Zwischenziel-Labels kollidieren). */
+.marker-min { width:11px; height:11px; border-radius:999px; background:var(--gut); border:2px solid var(--surface); box-sizing:border-box; }
 .m-label svg, .who-label svg { width:1em; height:1em; vertical-align:-0.1em; }
 .ziel-fuss { display:flex; justify-content:space-between; font-size:13px; color:var(--fg-2); }
 .ziel-fuss b { color:var(--fg); }
@@ -510,10 +521,13 @@ body > #kopf, body > #screen { max-width: 480px; margin-left: auto; margin-right
 .v-mitte .diff.ab { color:var(--gut); }
 .v-mitte .diff.zu { color:var(--schlecht); }
 .v-chips { display:flex; gap:6px; flex-wrap:wrap; }
-.v-chips .chip { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600; padding:2px 8px; border-radius:999px; background:var(--surface-2); color:var(--fg-2); }
+/* Basis-Chip trägt einen TRANSPARENTEN 1px-Rand, damit Medikament (grau) und
+   Ereignis (blauer Rand) exakt gleich hoch bleiben (kein Layout-Sprung). */
+.v-chips .chip { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600; padding:2px 8px; border-radius:999px; background:var(--surface-2); color:var(--fg-2); border:1px solid transparent; }
 .v-chips .chip svg { width:11px; height:11px; }
-.v-chips .chip.med { color:var(--akzent); background:var(--akzent-weich); }
-.v-chips .chip.ev { color:var(--warn); background:color-mix(in srgb, var(--warn) 14%, transparent); }
+/* Medikament = neutraler grauer Default (keine Sonderregel nötig). */
+/* Ereignis = blau mit Rand, ungefüllt (signalisiert klickbar). */
+.v-chips .chip.ev { color:var(--akzent); background:transparent; border-color:var(--akzent); }
 
 /* Aktionen rechts */
 .v-aktionen { display:flex; gap:2px; }

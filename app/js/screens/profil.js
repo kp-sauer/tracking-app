@@ -64,7 +64,7 @@ export function renderProfil(container, ctx) {
       <p class="status" id="pr-status" role="status" hidden></p>
     </div></section>
 
-    <div class="pr-version">v${globalThis.APP_VERSION ?? '?'}</div>`;
+    <div class="pr-version">WeightLog v${globalThis.APP_VERSION ?? '?'}</div>`;
 
   // Komponenten initialisieren
   const geschlecht = geschlechtSegment(container.querySelector('#pr-geschlecht'), p.geschlecht);

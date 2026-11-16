@@ -132,12 +132,16 @@ ohne langes Scrollen. Konsistent mit dem Zeitfilter in Übersicht/Charts.
 
 ## Ü-Min — Übersicht: Minimum als Punkt
 
-Aktuell-Minimum-Gewicht als auffälliger Punkt **auf der Dashboard-Sparkline** darstellen, und denselben
-Punkt als Marker **neben dem Label der Min-KPI-Kachel** (spart Text/Label).
+Aktuell-Minimum-Gewicht als auffälliger Punkt **auf dem „Weg zum Ziel"-Balken** (NICHT auf der
+Sparkline — Korrektur 2026-11-16) an der Minimum-Position (via bestehender `markerPos()`-Logik), und
+denselben Punkt als Marker **neben dem Label der Min-KPI-Kachel** (spart Text/Label).
 
-**Farbe: grün** (nicht rot). Begründung / Konflikt gelöst: Das Minimum ist das niedrigste Gewicht =
-etwas Gutes; der Charts-Code markiert Min bereits grün (`--gut`), Max rot. „Min = rot“ würde Übersicht
-und Charts widersprechen. Grün hält die Farbsprache stimmig.
+**Design-Entscheidungen (2026-11-16):**
+- **Gefüllter** grüner Punkt (mit dünnem Rand in Surface-Farbe, damit er sich von der blauen
+  Balken-Füllung abhebt). Kein „Ring".
+- **Kein Text-Label am Balken** — würde mit den BMI-/Zwischenziel-Labels kollidieren. Die Verbindung
+  stellt der identische grüne Punkt an der „Minimum"-KPI-Kachel darüber her.
+- **Farbe grün** (nicht rot): Minimum = niedrigstes Gewicht = gut; konsistent mit Chart (`--gut`).
 
 ## P-Aequiv — Profil: kg/BMI-Äquivalent unterhalb
 
@@ -147,6 +151,15 @@ eigenen Zeile **unterhalb** des Eingabefelds anzeigen (konsistentes Layout, kein
 
 **Verwandtschaft:** betrifft dasselbe ein-/zweizeilige Verhalten im Profil wie Commit 7. Gut zusammen
 mit den kleinen visuellen Fixes umzusetzen.
+
+## P-Geschlecht — Profil: Geschlecht-Chips M/W/D bei wenig Platz (2026-11-16)
+
+Die Geschlecht-Segmented-Control (`geschlechtSegment` in felder.js) zeigt „Männlich/Weiblich/Divers“.
+Bei wenig Platz auf **M / W / D mit Icon** kürzen (dynamisch per ResizeObserver, wie die Charts-Leiste
+in Phase B):
+- M = ♂-Symbol (Feather-Stil: Kreis + diagonaler Pfeil), W = ♀-Symbol (Kreis + Kreuz unten),
+  D = **⚥** (U+26A5, androgyn) + Buchstabe „D“.
+- Ausgeschrieben, solange einzeilig Platz ist; sonst gekürzt.
 
 ---
 

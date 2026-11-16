@@ -130,6 +130,11 @@ export function renderDashboard(container, ctx) {
         marker.push({ pos, typ: 'who', erreicht, label: 'BMI ' + schwelle });
       }
     }
+    // Minimum-Marker (grüner Punkt, OHNE Label — würde mit BMI/Zwischenziel-Labels
+    // kollidieren): Position des niedrigsten je erreichten Gewichts, nur wenn zwischen
+    // Start und Ziel.
+    const minPos = markerPos(m.min?.gewicht_kg);
+    if (minPos != null) marker.push({ pos: minPos, typ: 'min' });
 
     // Kontext-Steuerung (Jahr-Stepper / Tage-Pills)
     let kontext = '';
@@ -181,7 +186,7 @@ export function renderDashboard(container, ctx) {
         <div class="kpi-tile"><div class="k-label">BMI</div><div class="k-wert">${r2(m.bmi)}</div><div class="k-sub">${bmiKlasse(m.bmi)}</div></div>
         <div class="kpi-tile"><div class="k-label">${m.verlustTitel ?? 'Verloren'}</div><div class="k-wert ${m.verlust != null && m.verlust >= 0 ? 'positiv' : ''}">${m.verlust == null ? '–' : (m.verlust >= 0 ? '−' : '+') + Math.abs(m.verlust).toFixed(1).replace('.', ',') + ' kg'}</div></div>
         <div class="kpi-tile"><div class="k-label">Maximum</div><div class="k-wert">${kg(m.max?.gewicht_kg)}</div><div class="k-sub">${m.max?.datum ?? '–'}</div></div>
-        <div class="kpi-tile"><div class="k-label">Minimum</div><div class="k-wert">${kg(m.min?.gewicht_kg)}</div><div class="k-sub">${m.min?.datum ?? '–'}</div></div>
+        <div class="kpi-tile"><div class="k-label"><span class="min-dot"></span>Minimum</div><div class="k-wert">${kg(m.min?.gewicht_kg)}</div><div class="k-sub">${m.min?.datum ?? '–'}</div></div>
       </section>
 
       <section class="ziel-karte">
@@ -190,6 +195,8 @@ export function renderDashboard(container, ctx) {
           <span class="fuell" style="width:${proz ?? 0}%"></span>
           ${marker.map(mk => mk.typ === 'eigen'
             ? `<span class="marker marker-eigen ${mk.erreicht ? 'erreicht' : ''}" style="left:${mk.pos}%"><span class="m-label ${mk.pos > 72 ? 'links' : ''}">${mk.erreicht ? icon('check') + ' ' : ''}${mk.label}</span></span>`
+            : mk.typ === 'min'
+            ? `<span class="marker marker-min" style="left:${mk.pos}%" aria-label="Minimum"></span>`
             : `<span class="marker marker-who ${mk.erreicht ? 'erreicht' : ''}" style="left:${mk.pos}%" aria-label="${mk.label}"><span class="who-label ${mk.pos > 85 ? 'links' : mk.pos < 15 ? 'rechts' : ''}">${mk.erreicht ? icon('check') + ' ' : ''}${mk.label}</span></span>`
           ).join('')}
         </div>

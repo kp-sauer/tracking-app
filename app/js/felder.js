@@ -36,21 +36,36 @@ export function formatiereDatumKurz(iso) {
   return `${tag}. ${MONATE_KURZ[monat - 1]} ${jahr}`;
 }
 
-const GESCHLECHT_OPTIONEN = [['m','Männlich'],['w','Weiblich'],['divers','Divers']];
+const GESCHLECHT_OPTIONEN = [['m','Männlich','M'],['w','Weiblich','W'],['divers','Divers','D']];
+
+// Inline-SVG-Icons (Feather-Stil, stroke=currentColor) für den gekürzten Zustand.
+// Divers hat kein Feather-Icon → Unicode ⚥ (U+26A5) als Text.
+const GESCHLECHT_ICON = {
+  m: '<svg class="ico" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10" cy="14" r="5"/><line x1="13.5" y1="10.5" x2="19" y2="5"/><polyline points="15 5 19 5 19 9"/></svg>',
+  w: '<svg class="ico" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="9" r="5"/><line x1="12" y1="14" x2="12" y2="21"/><line x1="9" y1="18" x2="15" y2="18"/></svg>',
+  divers: '<span class="gs-uni">⚥</span>',
+};
 
 // ---- Segmented-Control fürs Geschlecht ----
 // Rendert in `host` ein Segmented-Control. wert = 'm'|'w'|'divers'. onChange(neuerWert) callback.
+// Darstellung dynamisch: bei genug Platz ausgeschriebene Labels, bei wenig Platz auf
+// M/W/D + Icon gekürzt (per ResizeObserver, analog zu charts.js `beobachteSeg`).
 // Liefert ein Objekt mit getWert().
 export function geschlechtSegment(host, wert, onChange) {
+  // Vorherigen Observer dieses Hosts aufräumen (kein Leak bei Neu-Render).
+  if (host._gsObserver) { host._gsObserver.disconnect(); host._gsObserver = null; }
   host.innerHTML = '';
   const seg = document.createElement('div');
-  seg.className = 'seg';
+  seg.className = 'seg seg-geschlecht';
   let aktuell = GESCHLECHT_OPTIONEN.some(([v]) => v === wert) ? wert : 'm';
-  for (const [v, label] of GESCHLECHT_OPTIONEN) {
+  const buttons = [];
+  for (const [v, label, kurz] of GESCHLECHT_OPTIONEN) {
     const b = document.createElement('button');
     b.type = 'button';
-    b.textContent = label;
     b.dataset.v = v;
+    b.dataset.lang = label;
+    b.dataset.kurz = kurz;
+    b.textContent = label;
     if (v === aktuell) b.classList.add('aktiv');
     b.addEventListener('click', () => {
       aktuell = v;
@@ -58,8 +73,36 @@ export function geschlechtSegment(host, wert, onChange) {
       onChange?.(v);
     });
     seg.appendChild(b);
+    buttons.push(b);
   }
   host.appendChild(seg);
+
+  // Setzt alle Buttons ausgeschrieben bzw. gekürzt (Icon + Kürzel).
+  function renderModus(kurz) {
+    for (const b of buttons) {
+      if (kurz) b.innerHTML = (GESCHLECHT_ICON[b.dataset.v] || '') + b.dataset.kurz;
+      else b.textContent = b.dataset.lang;
+    }
+  }
+  // Misst, ob die ausgeschriebenen Labels einzeilig passen; sonst kürzen.
+  function messen() {
+    renderModus(false);
+    const styles = getComputedStyle(seg);
+    const gap = parseFloat(styles.columnGap || styles.gap || '0') || 0;
+    let summe = 0;
+    for (const b of buttons) summe += b.offsetWidth;
+    summe += gap * (buttons.length - 1);
+    const passt = summe <= seg.clientWidth + 0.5;
+    if (!passt) renderModus(true);
+  }
+  if (typeof ResizeObserver !== 'undefined') {
+    messen();
+    host._gsObserver = new ResizeObserver(messen);
+    host._gsObserver.observe(host);
+  } else {
+    renderModus(false);
+  }
+
   return { getWert: () => aktuell };
 }
 

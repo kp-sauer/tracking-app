@@ -70,22 +70,24 @@ Priorisierte Liste nach Session 2026-10-17. Abarbeitung in Commit-Paketen.
 > [`specs/2026-11-16-sammel-runde-urlaub-feedback-design.md`](specs/2026-11-16-sammel-runde-urlaub-feedback-design.md).
 > Reihenfolge in Phasen; die bestehenden Commits 5–8 sind in die Phasen eingeordnet.
 
-## Phase A — Bug zuerst
+## Phase A — Bug zuerst ✅
 
-- [ ] **[TZ / global]** Zeitzonen-Bug: „heute“ wird aus UTC (`toISOString`) statt lokal abgeleitet → in
-  Palau (UTC+9) morgens Vortag vorgeschlagen. **Root Cause verifiziert (2026-11-16).** Fix: zentraler
-  Helper `heuteLokal()` (lokale Datums-Komponenten), 4 Aufrufstellen umstellen (`eingabe.js:8`,
-  `dashboard.js:68`, `verlauf.js:42`, `profil.js:17`). `Date.UTC`-Arithmetik NICHT anfassen. Kein
-  Zeitstempel, keine Datenmodell-Änderung.
+- [x] **[TZ / global]** Zeitzonen-Bug: „heute“ wurde aus UTC (`toISOString`) statt lokal abgeleitet → in
+  Palau (UTC+9) morgens Vortag vorgeschlagen. **ERLEDIGT (2026-11-16):** zentraler Helper `heuteLokal()`
+  in calc.js (lokale Datums-Komponenten), alle **6** Aufrufstellen umgestellt (eingabe.js, dashboard.js,
+  verlauf.js ×2, profil.js ×2 inkl. Backup-Dateiname). `Date.UTC`-Arithmetik unangetastet. 3 neue Tests.
+  Im Browser mit emulierter Palau-Zeitzone verifiziert.
 
-## Phase B — Charts-Filterleiste am Stück (fasst alles dieselbe Leiste an)
+## Phase B — Charts-Filterleiste am Stück ✅
 
-- [ ] **[CHARTS]** Tage-Filter um **30 & 60** ergänzen → `30 · 60 · 90 · 180 · +Eigene`.
-- [ ] **[CHARTS]** Neuer Filter **„Frei“** (4. Segment): Von/Bis via bekanntem `datumsPicker`,
-  vorbelegt mit max. Zeitraum (erster–letzter Datenpunkt), Grenzen = Datenrand, Von ≤ Bis.
-- [ ] **[ÜBERALL] (= bisheriger Commit 7)** `.seg-kompakt` dynamisch per ResizeObserver: einzeilig →
-  grauer Hintergrund-Container, bei Umbruch → dünne blaue Umrandung; reagiert auf Gerätedrehung.
-  Zusatz-Idee: Geschlecht-Chips bei wenig Platz als **M / W / D** (+ ggf. Geschlecht-Icons) abkürzen.
+- [x] **[CHARTS]** Tage-Filter um **30 & 60** ergänzt → `30 · 60 · 90 · 180 · +`. „Eigene Anzahl“ → **„Anzahl Tage“**.
+- [x] **[CHARTS]** Neuer Filter **„Zeitraum“** (4. Segment; Begriff statt „Frei“): Von/Bis via `datumsPicker`,
+  vorbelegt mit max. Zeitraum (erster–letzter Datenpunkt), Grenzen = Datenrand, Von ≤ Bis. Reine Funktion
+  `imZeitfenster(…, modus:'zeitraum')` getestet. **Feinschliff:** Klick auf Von ODER Bis öffnet/schließt
+  BEIDE Picker gemeinsam (ein Tap statt zwei).
+- [x] **[ÜBERALL] (= bisheriger Commit 7)** `.seg-kompakt` dynamisch per ResizeObserver: einzeilig →
+  grauer Container, bei Umbruch → blaue Umrandung. Im Browser auf schmal (375px) + breit verifiziert.
+  (Geschlecht-Chips M/W/D: NICHT Teil von Phase B — siehe Phase C / Profil.)
 
 ## Phase C — kleine visuelle Fixes
 
@@ -95,6 +97,8 @@ Priorisierte Liste nach Session 2026-10-17. Abarbeitung in Commit-Paketen.
   neben dem Label der Min-KPI-Kachel. (Grün, nicht rot — konsistent mit „niedrig = gut“ & Chart.)
 - [ ] **[PROFIL]** kg/BMI-Äquivalent in den Ziel-Editoren **immer unterhalb** des Eingabefelds (eigene
   Zeile), statt mal ein-, mal zweizeilig.
+- [ ] **[PROFIL]** Geschlecht-Chips bei wenig Platz als **M / W / D** (+ ggf. Geschlecht-Icons) abkürzen
+  (nutzt dieselbe dynamische seg-Mechanik wie Phase B; aus Phase B hierher verschoben, da Profil-Thema).
 
 ## Phase D — Verlauf-Navigation
 
@@ -114,6 +118,16 @@ Priorisierte Liste nach Session 2026-10-17. Abarbeitung in Commit-Paketen.
   korrekt); soll nur Gewichtswerten folgen. **Erst im Browser reproduzieren** (Verdacht: Plot-Größe vor
   finalem Layout gezeichnet, rAF-Nachmessung nur im Vollbild), dann fixen. Zusatz: stattgefundene
   **Ereignisse im Popover** anzeigen.
+
+---
+
+## Zusätzlich umgesetzt (außerhalb der Phasen)
+
+- [x] **[PROFIL] Versionsanzeige** (2026-11-16, Nutzer-Wunsch): dezente Fußzeile **„WeightLog v<nr>“**
+  unten im Profil (beide Welten, `--fg-3`). Quelle = zentrale `app/js/version.js` (`globalThis.APP_VERSION`,
+  **kein** `export` → per `importScripts` auch vom klassischen SW lesbar). sw.js leitet den Cache-Namen
+  daraus ab (`'tracking-shell-v' + APP_VERSION`). **Folge für den Workflow:** Version künftig NUR in
+  `version.js` hochzählen — UI-Fußzeile UND SW-Cache ziehen automatisch nach (nicht mehr sw.js editieren).
 
 ---
 
