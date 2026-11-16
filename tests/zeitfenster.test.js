@@ -54,3 +54,19 @@ test('unbekannter/fehlender Modus fällt auf gesamt zurück', () => {
   assert.deepEqual(imZeitfenster(tage, {}), tage);
   assert.deepEqual(imZeitfenster(tage, { modus: 'quatsch' }), tage);
 });
+
+test('zeitraum filtert inklusive der Grenzen (von/bis)', () => {
+  const r = imZeitfenster(tage, { modus: 'zeitraum', von: '2025-06-15', bis: '2026-10-10' });
+  assert.deepEqual(r.map(t => t.datum), ['2025-06-15', '2026-01-01', '2026-10-10']);
+});
+
+test('zeitraum mit Fenster außerhalb der Daten gibt leeres Ergebnis', () => {
+  const r = imZeitfenster(tage, { modus: 'zeitraum', von: '2027-01-01', bis: '2027-12-31' });
+  assert.deepEqual(r, []);
+});
+
+test('zeitraum fällt bei fehlendem von/bis auf gesamt zurück', () => {
+  assert.deepEqual(imZeitfenster(tage, { modus: 'zeitraum', von: '2026-01-01' }), tage);
+  assert.deepEqual(imZeitfenster(tage, { modus: 'zeitraum', bis: '2026-01-01' }), tage);
+  assert.deepEqual(imZeitfenster(tage, { modus: 'zeitraum' }), tage);
+});

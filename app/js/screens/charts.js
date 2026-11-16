@@ -1,5 +1,6 @@
 import { nachDatumSortiert, imZeitfenster } from '../db.js';
 import { wAvgSerie, lineareTrend, zielInKg, DEFAULT_ZIEL } from '../calc.js';
+import { datumsPicker, formatiereDatumKurz } from '../felder.js';
 import { icon } from '../icons.js';
 
 // Pure Aufbereitung: X = UTC-Sekunden (uPlot-Konvention), Gewicht, W-AVG, Trend.
@@ -17,6 +18,9 @@ function datenJahre(daten) {
   return [...new Set(nachDatumSortiert(daten).map(t => +t.datum.slice(0, 4)))].sort();
 }
 
+// Feste Tage-Stufen der Pills; "+" (eigene) gilt als aktiv, wenn filter.tage keine davon ist.
+const TAGE_STUFEN = [30, 60, 90, 180];
+
 // Serien-Definitionen: key steuert Sichtbarkeit, Farbe folgt den Chart-Tokens.
 const SERIEN = [
   { key: 'gewicht', label: 'Gewicht', farbe: 'var(--chart-linie)' },
@@ -30,10 +34,20 @@ export function renderCharts(container, ctx) {
   const jahrMax = jahre.length ? jahre[jahre.length - 1] : new Date().getUTCFullYear();
   const jahrMin = jahre.length ? jahre[0] : jahrMax;
   // Zustand: Zeitfilter (wie Dashboard) + welche Serien sichtbar sind + Vollbild.
-  const filter = { modus: 'gesamt', jahr: jahrMax, tage: 90 };
+  const filter = { modus: 'gesamt', jahr: jahrMax, tage: 90, von: null, bis: null };
   const sichtbar = { gewicht: true, wavg: true, trend: false, ziel: false };
   let vollbild = false;
   let plot = null;
+  let segObserver = null;
+  // Von/Bis-Picker-Instanzen (nur im Zeitraum-Modus gerendert).
+  let vonPicker = null, bisPicker = null;
+
+  // Erster/letzter Datenpunkt der sortierten Gesamtdaten (für Zeitraum-Grenzen).
+  function datenGrenzen() {
+    const alle = nachDatumSortiert(ctx.store.get());
+    if (!alle.length) return null;
+    return { erster: alle[0].datum, letzter: alle[alle.length - 1].datum };
+  }
 
   // CSS-Variablen zur Laufzeit auflösen (uPlot braucht konkrete Farben, keine var()).
   function farbe(cssVar) {
@@ -49,11 +63,16 @@ export function renderCharts(container, ctx) {
         <button data-step="1" ${filter.jahr >= jahrMax ? 'disabled' : ''}>${icon('chevron-rechts')}</button></span>`;
     }
     if (filter.modus === 'tage') {
-      const istEigene = ![90, 180].includes(filter.tage);
-      return `<span class="tage-pills">
-        <button class="tp ${filter.tage === 90 ? 'aktiv' : ''}" data-tage="90">90</button>
-        <button class="tp ${filter.tage === 180 ? 'aktiv' : ''}" data-tage="180">180</button>
-        <button class="tp ${istEigene ? 'aktiv' : ''}" data-tage="eigene">+ Eigene</button></span>`;
+      const istEigene = !TAGE_STUFEN.includes(filter.tage);
+      const pills = TAGE_STUFEN.map(n =>
+        `<button class="tp ${filter.tage === n ? 'aktiv' : ''}" data-tage="${n}">${n}</button>`
+      ).join('');
+      return `<span class="tage-pills">${pills}<button class="tp ${istEigene ? 'aktiv' : ''}" data-tage="eigene">+</button></span>`;
+    }
+    if (filter.modus === 'zeitraum') {
+      return `<span class="zeitraum-pills">
+        <span class="zr-feld"><label>Von</label><span id="ch-zr-von"></span></span>
+        <span class="zr-feld"><label>Bis</label><span id="ch-zr-bis"></span></span></span>`;
     }
     return '';
   }
@@ -74,14 +93,15 @@ export function renderCharts(container, ctx) {
             <button data-m="gesamt" class="${filter.modus === 'gesamt' ? 'aktiv' : ''}">Gesamt</button>
             <button data-m="jahr" class="${filter.modus === 'jahr' ? 'aktiv' : ''}">Jahr</button>
             <button data-m="tage" class="${filter.modus === 'tage' ? 'aktiv' : ''}">Tage</button>
+            <button data-m="zeitraum" class="${filter.modus === 'zeitraum' ? 'aktiv' : ''}">Zeitraum</button>
           </div>
           <button class="ch-voll" id="ch-voll" aria-label="${vollbild ? 'Vollbild verlassen' : 'Vollbild'}">
             ${vollbild ? icon('x') : VOLLBILD_ICON}
           </button>
         </div>
         <div class="charts-kontext-zeile" id="ch-kontext" ${kontextHtml() ? '' : 'hidden'}>${kontextHtml()}</div>
-        <div class="eigene-feld ${filter.modus === 'tage' && ![90,180].includes(filter.tage) ? 'auf' : ''}" id="ch-eigene">
-          <label>Eigene Anzahl</label>
+        <div class="eigene-feld ${filter.modus === 'tage' && !TAGE_STUFEN.includes(filter.tage) ? 'auf' : ''}" id="ch-eigene">
+          <label>Anzahl Tage</label>
           <span class="num">
             <button data-eigene="-1" aria-label="weniger">${icon('minus')}</button>
             <input id="ch-eInput" type="number" min="1" max="3650" value="${filter.tage}">
@@ -92,8 +112,37 @@ export function renderCharts(container, ctx) {
         <div class="serie-chips" id="ch-chips">${chipsHtml()}</div>
         <div class="chart-flaeche" id="ch-plot"></div>
       </section>`;
+    bauVonBisPicker();
     zeichnePlot();
     verdrahte();
+    beobachteSeg();
+  }
+
+  // Rendert im Zeitraum-Modus die Von/Bis-Rädchen-Picker und erzwingt die Grenzen.
+  function bauVonBisPicker() {
+    vonPicker = null; bisPicker = null;
+    if (filter.modus !== 'zeitraum') return;
+    const g = datenGrenzen();
+    if (!g) return;
+    const hostVon = container.querySelector('#ch-zr-von');
+    const hostBis = container.querySelector('#ch-zr-bis');
+    if (!hostVon || !hostBis) return;
+    vonPicker = datumsPicker(hostVon, filter.von, (iso) => {
+      // Von clampen: nicht vor erstem Datenpunkt, nicht nach Bis.
+      let v = iso < g.erster ? g.erster : iso;
+      if (v > filter.bis) v = filter.bis;
+      filter.von = v;
+      if (v !== iso) vonPicker.setWert(v);
+      zeichnePlot();
+    }, formatiereDatumKurz);
+    bisPicker = datumsPicker(hostBis, filter.bis, (iso) => {
+      // Bis clampen: nicht nach letztem Datenpunkt, nicht vor Von.
+      let v = iso > g.letzter ? g.letzter : iso;
+      if (v < filter.von) v = filter.von;
+      filter.bis = v;
+      if (v !== iso) bisPicker.setWert(v);
+      zeichnePlot();
+    }, formatiereDatumKurz);
   }
 
   function zeichnePlot() {
@@ -252,10 +301,49 @@ export function renderCharts(container, ctx) {
     }
   }
 
+  // Segmented-Control dynamisch grau (kompakt/einzeilig) vs. blau (Umbruch).
+  // Mess-Trick: Im Nicht-kompakt-Zustand ist flex-wrap:wrap erlaubt. Wir prüfen, ob
+  // die Buttons in EINER Zeile Platz hätten, indem wir ihre Breiten summieren und mit
+  // der verfügbaren Leistenbreite vergleichen. Passen alle → seg-kompakt (grau),
+  // sonst Klasse entfernen (blaue Umrandung, darf umbrechen).
+  function beobachteSeg() {
+    if (segObserver) { segObserver.disconnect(); segObserver = null; }
+    const seg = container.querySelector('#ch-seg');
+    if (!seg || typeof ResizeObserver === 'undefined') return;
+    const messen = () => {
+      // Temporär kompakt entfernen, um die natürliche (umbrechbare) Breite zu messen.
+      seg.classList.remove('seg-kompakt');
+      const buttons = [...seg.children];
+      if (!buttons.length) return;
+      const styles = getComputedStyle(seg);
+      const gap = parseFloat(styles.columnGap || styles.gap || '0') || 0;
+      let summe = 0;
+      for (const b of buttons) summe += b.offsetWidth;
+      summe += gap * (buttons.length - 1);
+      // Passt alles einzeilig in die verfügbare Breite? → grau/kompakt.
+      const passt = summe <= seg.clientWidth + 0.5;
+      seg.classList.toggle('seg-kompakt', passt);
+    };
+    messen();
+    segObserver = new ResizeObserver(messen);
+    // Die Leiste (Elternbreite) bestimmt den verfügbaren Platz.
+    const leiste = seg.closest('.charts-leiste') || seg;
+    segObserver.observe(leiste);
+  }
+
   function verdrahte() {
     container.querySelector('#ch-seg').addEventListener('click', (e) => {
       const b = e.target.closest('button'); if (!b) return;
-      filter.modus = b.dataset.m; baue();
+      filter.modus = b.dataset.m;
+      // Beim ersten Wechsel auf "zeitraum" Von/Bis mit erstem/letztem Datenpunkt vorbelegen.
+      if (filter.modus === 'zeitraum') {
+        const g = datenGrenzen();
+        if (g) {
+          if (!filter.von || filter.von < g.erster || filter.von > g.letzter) filter.von = g.erster;
+          if (!filter.bis || filter.bis > g.letzter || filter.bis < g.erster) filter.bis = g.letzter;
+        }
+      }
+      baue();
     });
     const kontext = container.querySelector('#ch-kontext');
     kontext.addEventListener('click', (e) => {
@@ -263,7 +351,7 @@ export function renderCharts(container, ctx) {
       if (b.dataset.step) {
         filter.jahr = Math.max(jahrMin, Math.min(jahrMax, filter.jahr + (+b.dataset.step))); baue();
       } else if (b.dataset.tage) {
-        if (b.dataset.tage === 'eigene') { if ([90, 180].includes(filter.tage)) filter.tage = 120; }
+        if (b.dataset.tage === 'eigene') { if (TAGE_STUFEN.includes(filter.tage)) filter.tage = 120; }
         else filter.tage = +b.dataset.tage;
         baue();
       }
@@ -320,6 +408,7 @@ export function renderCharts(container, ctx) {
       window.removeEventListener('resize', aufResize);
       document.body.classList.remove('chart-vollbild');
       if (plot) { plot.destroy(); plot = null; }
+      if (segObserver) { segObserver.disconnect(); segObserver = null; }
       beobachter.disconnect();
     }
   });

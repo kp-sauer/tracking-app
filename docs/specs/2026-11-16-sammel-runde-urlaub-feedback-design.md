@@ -74,15 +74,21 @@ dass die UTC-Arithmetik-Funktionen unverändert bleiben.
 ## C-Tage — Charts: Tage-Filter 30 & 60
 
 Heute bietet die Tage-Pill-Zeile `90 · 180 · +Eigene` (`charts.js:53–56`). Ergänzen auf
-`30 · 60 · 90 · 180 · +Eigene`. Rein additive, lokale Änderung an `kontextHtml()` + Klick-Handler.
+`30 · 60 · 90 · 180 · +`. **Begriffs-Entscheidung (2026-11-16):** Die bisherige Pill „+ Eigene“ wird
+zum neutralen **„+“**; das aufklappende Feld heißt **„Anzahl Tage“** (statt „Eigene Anzahl“). Rein
+additive, lokale Änderung an `kontextHtml()` + Klick-Handler + Feld-Label.
 
-## C-Frei — Charts: Filter „Frei“ (Von/Bis)
+## C-Frei — Charts: Filter „Zeitraum“ (Von/Bis)
 
-Neues 4. Segment neben „Gesamt · Jahr · Tage“: **„Frei“**. Blendet zwei `datumsPicker` (Von/Bis) ein.
+Neues 4. Segment neben „Gesamt · Jahr · Tage“: **„Zeitraum“** (Begriffs-Entscheidung 2026-11-16 —
+beschreibt das „Was“ besser als „Frei“ und vermeidet die Doppelung mit der B1-Pill). Blendet zwei
+`datumsPicker` (Von/Bis) als Pillen ein.
 - **Vorbelegung:** maximal möglicher Zeitraum = erster bis letzter Datenpunkt (also identisch zu
   „Gesamt“ als Ausgangswert).
 - **Grenzen:** Von darf nicht vor dem ersten, Bis nicht nach dem letzten Datenpunkt liegen; Von ≤ Bis.
 - Nutzt den bekannten Rädchen-`datumsPicker` aus `felder.js`.
+- **Layout (Variante A, abgestimmt):** „Zeitraum“ ist ein gleichwertiges 4. Segment. Schrift bleibt
+  14px (nicht verkleinern). Mockup: `mockups/11-charts-filterleiste.html`.
 
 **Abhängigkeit:** Ein 4. Segment verbreitert die Segmented-Control → genau der Umbruch-Fall, den
 Commit 7 (dynamisch grau/blau) löst. Deshalb mit C-Tage und Commit 7 **in einer Phase** umsetzen

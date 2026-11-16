@@ -80,9 +80,11 @@ export function vortagesDifferenzen(sortierteTageAufsteigend) {
 }
 
 // Filtert eine nach Datum sortierte Tagesliste auf ein Zeitfenster.
-// filter = { modus: 'gesamt'|'jahr'|'tage', jahr?, tage? }.
+// filter = { modus: 'gesamt'|'jahr'|'tage'|'zeitraum', jahr?, tage?, von?, bis? }.
 // 'jahr' = exaktes Kalenderjahr; 'tage' = letzte N Kalendertage RELATIV ZUM LETZTEN
-// Eintrag (nicht zu "heute", da Testumgebung mit historischen Daten); sonst alle.
+// Eintrag (nicht zu "heute", da Testumgebung mit historischen Daten); 'zeitraum' =
+// ISO-Datum von..bis inklusiv (lexikografischer Vergleich, korrekt für YYYY-MM-DD),
+// bei fehlendem von/bis Fallback auf gesamt; sonst alle.
 export function imZeitfenster(sortierteTage, filter = {}) {
   if (!Array.isArray(sortierteTage) || sortierteTage.length === 0) return [];
   if (filter.modus === 'jahr') {
@@ -93,6 +95,10 @@ export function imZeitfenster(sortierteTage, filter = {}) {
     const letztes = tagNummer(sortierteTage[sortierteTage.length - 1].datum);
     const grenze = letztes - (filter.tage - 1);
     return sortierteTage.filter(t => tagNummer(t.datum) >= grenze);
+  }
+  if (filter.modus === 'zeitraum') {
+    if (!filter.von || !filter.bis) return sortierteTage;
+    return sortierteTage.filter(t => t.datum >= filter.von && t.datum <= filter.bis);
   }
   return sortierteTage;
 }

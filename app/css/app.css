@@ -149,7 +149,10 @@ p[role="status"] { font-size: 14px; color: var(--fg-2); margin-top: 12px; }
 .charts-screen { display:flex; flex-direction:column; gap:var(--sp-3); }
 /* Zeile 1: Segmented-Control links, Vollbild-Icon rechts — fix, kein Umbruch. */
 .charts-leiste { display:flex; align-items:center; justify-content:space-between; gap:var(--sp-2); flex-wrap:nowrap; }
-.charts-leiste .seg { flex-wrap:nowrap; }
+/* Die Charts-Seg darf umbrechen (blaue Umrandung), solange sie nicht kompakt ist;
+   erst .seg-kompakt erzwingt einzeilig (nowrap). Umbruch-Erkennung steuert das in JS. */
+.charts-leiste .seg { flex-wrap:wrap; }
+.charts-leiste .seg.seg-kompakt { flex-wrap:nowrap; }
 /* Zeile 2: Kontext (Jahr-Stepper bzw. Tage-Pills) in eigener Zeile. */
 .charts-kontext-zeile { display:flex; align-items:center; }
 .charts-kontext-zeile[hidden] { display:none; }
@@ -235,6 +238,10 @@ body > #kopf, body > #screen { max-width: 480px; margin-left: auto; margin-right
 .tage-pills { display:inline-flex; gap:8px; flex-wrap:wrap; }
 .tp, #screen .tp { border:1px solid var(--rand); background:var(--surface); color:var(--fg); border-radius:999px; padding:8px 15px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; }
 .tp.aktiv, #screen .tp.aktiv { background:var(--akzent); color:#fff; border-color:var(--akzent); }
+/* Zeitraum-Modus: Von/Bis nebeneinander in der Kontext-Zeile. */
+.zeitraum-pills { display:inline-flex; gap:14px; flex-wrap:wrap; align-items:flex-end; }
+.zeitraum-pills .zr-feld { display:flex; flex-direction:column; gap:4px; }
+.zeitraum-pills .zr-feld > label { font-size:12px; font-weight:600; color:var(--fg-2); }
 .eigene-feld { display:none; align-items:center; gap:10px; margin-top:10px; }
 .eigene-feld.auf { display:flex; }
 .eigene-feld label { font-size:14px; color:var(--fg-2); font-weight:600; }
