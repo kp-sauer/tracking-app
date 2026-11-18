@@ -63,6 +63,59 @@ Priorisierte Liste nach Session 2026-10-17. Abarbeitung in Commit-Paketen.
 ---
 ---
 
+# Arbeitspaket: Zwei-Geräte-Pflege via Dropbox-Backup (NEU, 2026-11-18 — in Diskussion, noch NICHT umgesetzt)
+
+> **Session-Übergabe:** Design ABGENOMMEN (2026-11-18), Spec geschrieben:
+> [`specs/2026-11-18-zwei-geraete-dropbox-merge-design.md`](specs/2026-11-18-zwei-geraete-dropbox-merge-design.md).
+> Es wurde noch KEIN Code geändert und KEIN Mockup gebaut; Ist-Zustand `app/js/backup.js` +
+> `app/js/screens/profil.js` gesichtet. Nächster Schritt: Implementierungsplan (writing-plans) → Umsetzung.
+
+## Ausgangswunsch (Nutzer)
+Daten auf ZWEI Geräten pflegen: **~90 % Android** (Hauptgerät), gelegentlich auf Geschäftsreisen
+**iPhone** (Geschäftstelefon). Ursprüngliche Idee war „Backup/Restore über zentrales Git".
+
+## Entscheidungen (2026-11-18, durch Brainstorming geklärt)
+- **Git als Transport VERWORFEN.** Gründe: PWA kann nicht nativ pushen (bräuchte GitHub-REST-API +
+  Schreib-**Token im Browser**, auch auf dem iPhone → Compliance-/Sicherheitsproblem); GitHub Pages
+  ist nur-lesend (statisches CDN); Git nimmt den FACHLICHEN Merge (pro Tag) nicht ab — den macht die
+  App ohnehin selbst (`wendeImportAn`). Viel Komplexität ohne Mehrwert.
+- **Nutzer-Vorgaben (verbindlich):** (a) „Egal wie, Hauptsache reibungslos" — Transportweg ist frei
+  wählbar; (b) **kein Token/Secret auf dem iPhone** → damit scheiden GitHub-API, Gist & alle
+  tokenbasierten Dienste aus; (c) **Dropbox-App liegt bereits auf BEIDEN Geräten**; (d) **denselben
+  Tag auf beiden Geräten ändern = SELTEN** → kein Datenmodell-Umbau, kein `erfasst_am`-Zeitstempel.
+- **Gewählte Lösung:** **Geteilter Dropbox-Ordner + „Merge-first".** Transport = bestehender
+  JSON-Export/-Import über die native Teilen-/Datei-Öffnen-Funktion; die Dropbox-App synct die Datei
+  zwischen den Geräten. **Kein neuer Sync-Code, kein Secret in der App.** Weicht die alte
+  Architektur-Entscheidung „ein Hauptgerät, kein Sync" (README) bewusst auf → dateibasierter
+  Pseudo-Sync, manuell ausgelöst.
+
+## Ist-Zustand Code (gesichtet, `app/js/backup.js`)
+- `baueExport` / `pruefeImport` (Welt-Prüfung hart) / `wendeImportAn(bestand, datei, modus)`.
+- `wendeImportAn` kann bereits `'ersetzen'` UND `'merge'`. **Merge-Semantik aktuell:**
+  Tage = `{...bestand, ...datei}`, Ereignisse per `id` → **bei Kollision gewinnt die DATEI.**
+  ⚠️ Das ist die kritische Stelle: importiert man einen ÄLTEREN Stand, überschreibt er bei einem
+  am selben Tag abweichenden Wert den (neueren) lokalen — zu klären (s. u.).
+
+## Offen für die Umsetzung (Design geklärt, NICHTS davon im Code)
+- [ ] **Reine Logik in `backup.js`:** `analysiereImport(bestand,datei)→{neu,identisch,konflikte}`
+  (tiefer Tageseintrag-Vergleich: Gewicht/Spritze/historie_rohtext) + `wendeMergeAn(bestand,datei,wahl)`
+  mit `wahl: 'datei'|'lokal'` → neuer Bestand + Zählung `{neu,aktualisiert,unveraendert}`. Merge löscht
+  nie lokale Tage. `wendeImportAn(…,'ersetzen')` bleibt. TDD in `tests/backup.test.js`.
+- [ ] **UI in `screens/profil.js`:** natives `confirm()` (Z. 287) raus → 3 Overlays: Import-Modus
+  (Merge empfohlen/vorausgewählt, Ersetzen mit Warnung), Konflikt-Sammel-Dialog (alle Kollisionen,
+  „Alle aus Datei" / „Alle lokal behalten"), Ergebnis-Dialog (bleibt stehen: X neu/Y aktualisiert/Z
+  unverändert). ⚠️ CSS-Spezifitätsfalle `#screen button` → eigene Button-Regeln (wie `.dialog.med-edit`).
+- [ ] **Browser-Check** `localhost:8000/test/`: manipulierte Datei mit erzwungener Kollision; alle 3
+  Dialoge hell+dunkel; Button-Farben messen.
+- [ ] **Alltags-Kurzanleitung** Hin-und-Her (Export→Dropbox→Import/Merge→zurück) — ggf. kurzer App-Hinweis.
+- **Deckt vertagte ENTWICKLER-NOTIZEN-Punkte mit ab:** „Backup-Bereich feintunen" + „Import-Erfolgsmeldung
+  verschwindet durch Re-Render" (Ergebnis-Dialog löst Letzteres).
+- **Methodik:** Implementierungsplan (writing-plans) → Umsetzung (TDD reine Logik, subagent-getrieben) →
+  Browser-Check. Danach Version an ZWEI Stellen hochzählen (`version.js` + `BUILD` in `sw.js`).
+
+---
+---
+
 # Sammel-Runde 2026-11-16 (Urlaubs-Erkenntnisse & Nutzungs-Feedback)
 
 > Acht Punkte aus realer Nutzung (u. a. Reise nach Palau, UTC+9). Vollständige Begründungen,
@@ -125,7 +178,7 @@ Priorisierte Liste nach Session 2026-10-17. Abarbeitung in Commit-Paketen.
   bleibt über das Icon erreichbar), beide Richtungen, Ränder stoppen (kein Wrap), hartes Umschalten.
   Neues Modul `app/js/swipe.js` (reine `swipeRichtung`/`nachbarScreen` + DOM-Verdrahtung
   `installiereSwipe`); Ausschlusszonen `.u-over/.tage-pills/.jahr-leiste/.datum-picker`; Onboarding
-  ausgenommen. 16 Tests, Browser-verifiziert. **Geräte-Abnahme durch Nutzer noch offen.** Spec:
+  ausgenommen. 16 Tests, Browser-verifiziert. **Am Gerät durch Nutzer abgenommen (2026-11-18).** Spec:
   `specs/2026-11-16-swipe-navigation-design.md`.
 - [ ] **(= Commit 8)** [UX] In-App-Splash-Screen (Mockup-Runde ausstehend).
 

@@ -151,7 +151,8 @@ Pure Funktionen per `node:test` (wie `tests/*.test.js`):
 
 - **Browser (Claude, Playwright):** grobe Funktionsprüfung der Verdrahtung —
   Swipe löst Hash-/Screen-Wechsel aus, Ränder stoppen, Onboarding-Gate greift.
-- **Gerät (Nutzer, verbindliche Abnahme):** Die Entwickler-Notizen warnen
+- **Gerät (Nutzer, verbindliche Abnahme):** ✅ **Am Gerät abgenommen (2026-11-18)** — Swipe
+  funktioniert einwandfrei, keine Nachjustierung der Schwellen nötig. (Hintergrund:) Die Entwickler-Notizen warnen
   ausdrücklich, dass Playwright-Touch-Emulation das Android-Verhalten **nicht**
   zuverlässig abbildet (genau an diesem Chart-Touch-Thema gescheitert). Das echte
   Swipe-Gefühl, die Schwellen und vor allem die **Konfliktfreiheit auf der

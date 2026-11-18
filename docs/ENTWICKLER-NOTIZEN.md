@@ -200,8 +200,9 @@ Im Store (`store.js`, nutzt reine `undo.js`): Snapshot-Stacks im Speicher (NICHT
   Interaktionszonen — bei neuen hier ergänzen): Start der Geste in einer Zone via `closest()` → Swipe
   verworfen, damit Chart-Scrubbing/Pill-Scroll/Datums-Rädchen nicht kollidieren. `main.js` nutzt eine
   gemeinsame `aktiverScreen()`-Hilfsfunktion für render() UND Swipe (gleiche Screen-Sicht). **Merke:**
-  Der DOM-Teil ist bewusst NICHT unit-getestet (Projekt testet keinen DOM); echte Abnahme am Gerät —
-  Playwright-Touch bildet Android nicht zuverlässig ab (vgl. Charts-Touch-Falle oben).
+  Der DOM-Teil ist bewusst NICHT unit-getestet (Projekt testet keinen DOM); echte Abnahme am Gerät
+  erfolgt (2026-11-18 vom Nutzer abgenommen, funktioniert super). Playwright-Touch bildet Android
+  nicht zuverlässig ab (vgl. Charts-Touch-Falle oben).
 - **Medikament-Chips bearbeiten** (seit 2026-11-16, Backlog Commit 5): Modul `app/js/spritze.js` —
   reine, immutable Funktionen `istStrukturierteSpritze(spritze)` (= `!!spritze && dosis_mg != null`),
   `setzeSpritze(tageseintraege, datum, spritze)`, `entferneSpritze(tageseintraege, datum)` (getestet).
