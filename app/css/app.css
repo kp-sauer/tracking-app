@@ -580,3 +580,32 @@ body > #kopf, body > #screen { max-width: 480px; margin-left: auto; margin-right
 #screen .dialog.pr-import .d-btns button.gefahr { background: var(--warn); color: #fff; border: none; }
 #screen .dialog.pr-import .pr-konflikt-liste { max-height: 40vh; overflow-y: auto; margin: var(--sp-2) 0; font-size: 14px; }
 #screen .dialog.pr-import .pr-konflikt-liste .zeile-k { display: flex; justify-content: space-between; padding: var(--sp-1) 0; border-bottom: 1px solid var(--rand); }
+
+/* ---- In-App-Splash (Start-Overlay, Variante A: Icon + Wort) ---- */
+#splash {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: var(--sp-4);
+  background: var(--surface); color: var(--fg);
+  opacity: 1; transition: opacity .45s ease;
+}
+#splash.weg { opacity: 0; pointer-events: none; }
+#splash-logo {
+  display: block; width: 104px; height: 104px; border-radius: 24px;
+  box-shadow: 0 8px 24px rgba(37, 99, 235, .28);
+  opacity: 0; transform: translateY(10px) scale(.97);
+  transition: opacity .5s ease, transform .5s ease;
+}
+#splash-wort {
+  font-size: 30px; font-weight: 700; letter-spacing: -.02em; color: var(--fg);
+  opacity: 0; transform: translateY(10px) scale(.97);
+  transition: opacity .5s ease, transform .5s ease; transition-delay: .1s;
+}
+#splash-wort span { color: var(--akzent); }
+/* eingeblendeter Zustand (von main.js gesetzt) */
+#splash.ein #splash-logo,
+#splash.ein #splash-wort { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  #splash, #splash-logo, #splash-wort { transition: none; }
+}

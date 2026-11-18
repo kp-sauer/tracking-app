@@ -56,9 +56,16 @@ Priorisierte Liste nach Session 2026-10-17. Abarbeitung in Commit-Paketen.
 
 ---
 
-## Commit 8 — In-App-Splash-Screen (Prio 99, später)
+## Commit 8 — In-App-Splash-Screen (✅ erledigt 2026-11-18, v74)
 
-- [ ] **[UX]** Eigener In-App-Splash beim Start (ersetzt den langweiligen nativen PWA-Splash): Logo mit abgerundeten Ecken, Fade-in/out-Animation, modern. Design noch offen (Mockup-Runde ausstehend).
+- [x] **[UX]** Eigener In-App-Splash beim Start (ersetzt den langweiligen nativen PWA-Splash): PWA-Icon
+  (abgerundet) + „WeightLog"-Schriftzug, Fade-in/out, Theme-Hintergrund (hell/dunkel). Mockup
+  `mockups/16-splash.html` (Variante A). Umgesetzt: Overlay in beiden `index.html`, Styles in
+  `app.css`, Steuerung in `main.js` (Mindest-Standzeit ~0,7 s, dann aus DOM). **Flackern app-weit
+  behoben** via Inline-`<head>`-Theme-Script + localStorage-Spiegel `wl-theme` (reine Fn
+  `fruehesTheme` in theme.js, getestet). **Titel-Fix mitgenommen:** `<title>` → „WeightLog" /
+  „WeightLog [TEST]". Browser-verifiziert (hell+dunkel, No-Flash, Entfernen aus DOM). Spec:
+  `specs/2026-11-18-in-app-splash-design.md`, Plan: `../plans/2026-11-18-in-app-splash-plan.md`.
 
 ---
 ---
@@ -203,7 +210,12 @@ unberührt. **Merke:** vor destruktiven Browser-Tests immer erst den Bestand exp
   `installiereSwipe`); Ausschlusszonen `.u-over/.tage-pills/.jahr-leiste/.datum-picker`; Onboarding
   ausgenommen. 16 Tests, Browser-verifiziert. **Am Gerät durch Nutzer abgenommen (2026-11-18).** Spec:
   `specs/2026-11-16-swipe-navigation-design.md`.
-- [ ] **(= Commit 8)** [UX] In-App-Splash-Screen (Mockup-Runde ausstehend).
+- [x] **(= Commit 8)** [UX] In-App-Splash-Screen. **ERLEDIGT (2026-11-18, v74):** PWA-Icon +
+  „WeightLog"-Schriftzug, Fade-in/out, Theme-Hintergrund; Overlay in beiden `index.html`, Styles in
+  `app.css`, Steuerung in `main.js` (Mindest-Standzeit ~0,7 s, dann aus DOM). Flackern app-weit
+  behoben via Inline-`<head>`-Script + localStorage-Spiegel `wl-theme` (reine Fn `fruehesTheme`,
+  getestet). Titel-Fix mitgenommen. Browser-verifiziert. Spec:
+  `specs/2026-11-18-in-app-splash-design.md`. **→ Phase E damit vollständig abgeschlossen.**
 
 ## Phase F — Charts Touch-Cursor ✅
 

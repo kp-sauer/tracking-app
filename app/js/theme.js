@@ -21,3 +21,12 @@ export function effektiveSkala(wert) {
   }
   return beste;
 }
+
+// Effektives Start-Theme VOR dem ersten Paint (Inline-<head>-Script).
+// gespeichert: Wert aus localStorage ('hell'|'dunkel'|'system'|null).
+// prefersDark: Boolean aus matchMedia. Unbekannte Werte → wie 'system'.
+export function fruehesTheme(gespeichert, prefersDark) {
+  const wahl = (gespeichert === 'hell' || gespeichert === 'dunkel' || gespeichert === 'system')
+    ? gespeichert : 'system';
+  return effektivesTheme(wahl, prefersDark);
+}

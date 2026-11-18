@@ -248,7 +248,33 @@ Im Store (`store.js`, nutzt reine `undo.js`): Snapshot-Stacks im Speicher (NICHT
   `tageseintraege` + `ereignisse`, aber beim Merge wandern nur Tage (mit Rückfrage) + Ereignisse (per `id`)
   mit; **Profil ist lokal-first** (`bestand.profil ?? datei.profil`) → bleibt pro Gerät. Nutzer bestätigte
   diese Trennung bewusst. Falls Profil künftig mitwandern soll: bewusste Zusatzänderung an `wendeMergeAn`.
+- **In-App-Splash + flackerfreies Start-Theme** (seit 2026-11-18, v74, Backlog Commit 8): Overlay
+  `<div id="splash">` (PWA-Icon `icon-192.png` + „WeightLog"-Wort) als erstes `<body>`-Kind in BEIDEN
+  `index.html`. Styles ans Ende von `app.css` (`#splash` fixed, `z-index:1000`, Hintergrund über
+  Theme-Tokens `--surface`/`--fg` → schaltet hell/dunkel automatisch). Klassen: `#splash.ein` fadet
+  Logo/Wort EIN, `#splash.weg` fadet das ganze Overlay AUS. `main.js` steuert: `performance.now()` +
+  `#splash` holen → per `requestAnimationFrame` Klasse `ein` (rAF nötig, damit der klassenlose
+  Startzustand committed ist und die CSS-Transition zuverlässig feuert) → nach `await store.laden();
+  render()` mit Mindest-Standzeit `MIN_MS=700` (abzüglich bereits verstrichener Zeit) Klasse `weg` →
+  `splash.remove()` bei `transitionend {once:true}` + 600ms-Fallback (für `prefers-reduced-motion`,
+  wo kein `transitionend` feuert). `@media (prefers-reduced-motion: reduce)` schaltet die Transitions
+  aus. **Theme-Flackern-Fix (app-weit, nicht nur Splash):** `data-theme` wurde bisher erst in
+  `render()`→`themeAnwenden()` NACH dem async `store.laden()` gesetzt → im Dunkelmodus blitzte kurz
+  hell auf (beim Splash prominent). Lösung: (1) `themeAnwenden` spiegelt die ROH-Wahl
+  (`'hell'|'dunkel'|'system'`, NICHT effektiv) synchron nach `localStorage['wl-theme']` und setzt
+  `data-theme` jetzt auf `<body>` UND `<html>`. (2) Ein **Inline-`<head>`-Script** (ganz oben, NACH
+  `<meta charset>` — sonst stehen die Umlaut-Kommentare vor der Charset-Deklaration!) liest `wl-theme`,
+  Fallback `prefers-color-scheme`, setzt `data-theme` auf `document.documentElement` VOR dem ersten
+  Paint. (3) Das harte `<body data-theme="hell">` wurde in beiden `index.html` entfernt (sonst
+  überstimmt es den `<html>`-Wert). Reine Entscheidungslogik als getestete Funktion `fruehesTheme(
+  gespeichert, prefersDark)` in theme.js (Tests `tests/theme-frueh.test.js`). **Bewusste Duplizierung
+  (kein Fehler):** das Inline-Script bildet `fruehesTheme` als klassisches Script nach, weil es VOR den
+  ES-Modulen läuft und nicht importieren kann — gleiches Muster wie `sw-strategie.js` ↔ `sw.js`.
+  **Titel-Fix mitgenommen:** `<title>` → „WeightLog" / „WeightLog [TEST]"; in main.js:13 Test-Titel →
+  „WeightLog [TEST]" (der interne `<h1>`-Fallback `'tracking-app'` in main.js bleibt, nie sichtbar).
+  Mockup `mockups/16-splash.html` (Variante A). Nativer iOS-`apple-touch-startup-image` bewusst NICHT
+  gemacht (aufwändig, ein Bild pro Gerätegröße; der In-App-Splash deckt beide Plattformen gleich ab).
 - Mockups liegen in `mockups/` (git-ignoriert, als HTML, vom Nutzer bewusst behalten — NIE löschen):
   01-dashboard, 02-spacing-kopf, 03-profil, 04-geschlecht-datum, 05-anzeigegroesse (+ -2/-4-optionen),
   06-uebersicht, 07-zeitfilter, 08-eingabe (A/B-Vergleich), 08-1-eingabe (Variante A verfeinert),
-  10-ereignis-bearbeiten.
+  10-ereignis-bearbeiten, 16-splash (Variante A: Icon + Wort).

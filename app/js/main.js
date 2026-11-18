@@ -10,7 +10,7 @@ import { installiereSwipe } from './swipe.js';
 const welt = aktuelleWelt();
 if (welt === 'test') {
   const badge = document.getElementById('test-badge'); if (badge) badge.hidden = false;
-  document.title = 'TESTMODUS – tracking-app';
+  document.title = 'WeightLog [TEST]';
 }
 
 const SCREEN_TITEL = { dashboard: 'Übersicht', eingabe: 'Eingabe', charts: 'Charts', verlauf: 'Verlauf', profil: 'Profil', onboarding: 'Willkommen' };
@@ -50,7 +50,11 @@ if (redoBtn) {
 function themeAnwenden() {
   const wahl = store.get().profil?.theme ?? 'system';
   const prefersDark = globalThis.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false;
-  document.body.dataset.theme = effektivesTheme(wahl, prefersDark);
+  const effektiv = effektivesTheme(wahl, prefersDark);
+  document.body.dataset.theme = effektiv;
+  document.documentElement.dataset.theme = effektiv; // deckungsgleich mit Inline-Script (auf <html>)
+  // Spiegel für das Inline-<head>-Script beim nächsten Start (nur die Roh-Wahl, nicht effektiv):
+  try { localStorage.setItem('wl-theme', wahl); } catch { /* localStorage evtl. blockiert → egal */ }
 }
 
 // Anzeigegröße: skaliert die ganze App wie Browser-Zoom (CSS nutzt feste px, daher zoom
@@ -95,8 +99,25 @@ function render() {
 store.abonniere(render);
 globalThis.addEventListener('hashchange', render);
 
+const splashStart = performance.now();
+const splash = document.getElementById('splash');
+// rAF: erst den klassenlosen Startzustand committen, dann 'ein' setzen → CSS-Fade feuert zuverlässig.
+if (splash) requestAnimationFrame(() => splash.classList.add('ein'));
+
 await store.laden();
 render();
+
+// Splash nach Mindest-Standzeit (~0,7 s) ausblenden und aus dem DOM nehmen.
+if (splash) {
+  const MIN_MS = 700;
+  const rest = Math.max(0, MIN_MS - (performance.now() - splashStart));
+  setTimeout(() => {
+    splash.classList.add('weg');
+    const weg = () => splash.remove();
+    splash.addEventListener('transitionend', weg, { once: true });
+    setTimeout(weg, 600); // Fallback, falls transitionend ausbleibt (reduced-motion)
+  }, rest);
+}
 
 // Swipe-Navigation zwischen den Screens (nur wenn ein Profil existiert → nicht im Onboarding).
 installiereSwipe(document.getElementById('screen'), {

@@ -2,15 +2,33 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
+  <script>
+    // Setzt das Theme VOR dem ersten Paint → kein Hell-Aufblitzen im Dunkelmodus.
+    // Liest den localStorage-Spiegel (von main.js gepflegt); Fallback = System.
+    (function () {
+      try {
+        var wahl = localStorage.getItem('wl-theme');
+        var ok = wahl === 'hell' || wahl === 'dunkel' || wahl === 'system';
+        if (!ok) wahl = 'system';
+        var dark = (wahl === 'dunkel') ||
+          (wahl === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.dataset.theme = dark ? 'dunkel' : 'hell';
+      } catch (e) { /* localStorage/matchMedia evtl. blockiert → Default-Theme greift */ }
+    })();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>TESTMODUS – tracking-app</title>
+  <title>WeightLog [TEST]</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="../css/app.css">
   <link rel="stylesheet" href="../vendor/uPlot.min.css">
   <script src="../vendor/uPlot.iife.min.js"></script>
   <meta name="theme-color" content="#ff9800">
 </head>
-<body data-theme="hell">
+<body>
+  <div id="splash" aria-hidden="true">
+    <img id="splash-logo" src="../icons/icon-192.png" alt="" width="104" height="104">
+    <div id="splash-wort">Weight<span>Log</span></div>
+  </div>
   <header id="kopf">
     <div class="kopf-links">
       <h1 id="titel">Übersicht</h1>

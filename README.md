@@ -7,15 +7,30 @@ Sessions ohne weiteren Kontext weiterarbeiten können.
 > **Projektziel:** siehe Abschnitt [App-Konzept](#app-konzept-ziel) weiter unten. Der Daten-Kontext
 > (Analyse der Excel) ist vollständig erfasst und bleibt als Referenz unten stehen.
 
-> ## Aktueller Stand (2026-11-16)
+> ## Aktueller Stand (2026-11-18)
 >
-> **v1 ist funktional fertig & abgenommen. Design-/UX-Feintuning ABGESCHLOSSEN.**
-> Backlog Commits 1–4 vollständig umgesetzt; danach Sammel-Runde 2026-11-16 (Urlaubs-/Nutzungs-Feedback,
-> siehe `docs/BACKLOG.md`): **Phasen A + B + C + D + F erledigt**; aus Phase E sind **Commit 6
-> (Swipe-Navigation) und Commit 5 (Medikament-Chips bearbeiten) umgesetzt**, offen bleibt nur noch
-> **Commit 8** (In-App-Splash).
+> **v1 ist funktional fertig & abgenommen. Design-/UX-Feintuning ABGESCHLOSSEN. Backlog vollständig
+> abgearbeitet.**
+> Backlog Commits 1–4 vollständig umgesetzt; Sammel-Runde 2026-11-16 (Urlaubs-/Nutzungs-Feedback,
+> siehe `docs/BACKLOG.md`): **Phasen A + B + C + D + F erledigt**; aus Phase E sind **Commit 5
+> (Medikament-Chips bearbeiten), Commit 6 (Swipe-Navigation) und Commit 8 (In-App-Splash)** umgesetzt
+> — **Phase E damit vollständig**. Zusätzlich die Zwei-Geräte-Dropbox-Merge-Funktion (v73). Es sind
+> keine offenen Backlog-Punkte mehr vorhanden (nur optionale Kleinigkeiten, siehe `docs/BACKLOG.md`).
 >
-> **Neueste Änderungen (2026-11-16, aktuell v72):**
+> **Neueste Änderungen (2026-11-18, aktuell v74):**
+> - **In-App-Splash (Commit 8):** eigener Start-Splash (PWA-Icon abgerundet + „WeightLog"-Schriftzug),
+>   Fade-in/out, Hintergrund folgt dem Theme (hell/dunkel), kurze Mindest-Standzeit, dann aus dem DOM.
+>   Overlay in beiden `index.html`, Styles in `app.css`, Steuerung in `main.js`. **Flackern app-weit
+>   behoben:** ein Inline-`<head>`-Script setzt `data-theme` vor dem ersten Paint (liest den
+>   localStorage-Spiegel `wl-theme`, Fallback `prefers-color-scheme`); reine Funktion `fruehesTheme`
+>   in `app/js/theme.js` (getestet). Zusätzlich **Titel-Fix:** `<title>` → „WeightLog" (Produktiv) /
+>   „WeightLog [TEST]" (Test). Mockup `mockups/16-splash.html` (Variante A).
+>
+> **Frühere Änderungen (2026-11-18, v73):**
+> - **Zwei-Geräte-Pflege via Dropbox-Merge:** konflikt-bewusster JSON-Import/Merge (`analysiereImport`/
+>   `wendeMergeAn` in `backup.js`), 3 Overlay-Dialoge statt nativem `confirm()`. Am Gerät abgenommen.
+>
+> **Frühere Änderungen (2026-11-16, aktuell v72):**
 > - **Medikament-Chips bearbeiten (Phase E / Commit 5):** strukturierte Medikament-Chips im Verlauf
 >   öffnen per Klick ein Overlay zum Bearbeiten (Präparat/Dosis/Anwendung Nr.) und Löschen (analog
 >   Ereignis-Chip), undobar. Importierte Rohtext-Medikamente („OZ 10/2") bleiben rein informativ.
