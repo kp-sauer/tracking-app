@@ -56,7 +56,7 @@ Priorisierte Liste nach Session 2026-10-17. Abarbeitung in Commit-Paketen.
 
 ---
 
-## Commit 8 — In-App-Splash-Screen (✅ erledigt 2026-11-18, v74)
+## Commit 8 — In-App-Splash-Screen (✅ erledigt 2026-11-18, v74; Nachtrag nativer Android-Splash v75)
 
 - [x] **[UX]** Eigener In-App-Splash beim Start (ersetzt den langweiligen nativen PWA-Splash): PWA-Icon
   (abgerundet) + „WeightLog"-Schriftzug, Fade-in/out, Theme-Hintergrund (hell/dunkel). Mockup
@@ -66,6 +66,14 @@ Priorisierte Liste nach Session 2026-10-17. Abarbeitung in Commit-Paketen.
   `fruehesTheme` in theme.js, getestet). **Titel-Fix mitgenommen:** `<title>` → „WeightLog" /
   „WeightLog [TEST]". Browser-verifiziert (hell+dunkel, No-Flash, Entfernen aus DOM). Spec:
   `specs/2026-11-18-in-app-splash-design.md`, Plan: `../plans/2026-11-18-in-app-splash-plan.md`.
+- [x] **[UX] Nachtrag nativer Android-Splash (v75, 2026-11-18, am Gerät abgenommen):**
+  `background_color` in BEIDEN `manifest.webmanifest` Weiß `#ffffff` → Icon-Blau `#1e88e5`. Android
+  erzeugt vor dem HTML einen eigenen Splash (farbige Fläche + großes Icon, NICHT abschaltbar, Icon
+  nicht entfernbar); mit Blau verschmilzt das Icon mit seiner Fläche statt „Icon auf weißer Platte".
+  `theme_color` unverändert (Produktiv blau, Test orange als Marker). **Merke:** Manifest-
+  `background_color` wird nur beim Installieren gelesen → greift erst nach PWA-**Neuinstallation**
+  (Daten bleiben erhalten, da IndexedDB am Origin; „App-Speicher leeren" vermeiden → löscht Daten).
+  Fallback wäre Dunkel gewesen. Mockup `mockups/17-android-splash.html`.
 
 ---
 ---

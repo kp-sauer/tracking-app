@@ -17,7 +17,19 @@ Sessions ohne weiteren Kontext weiterarbeiten können.
 > — **Phase E damit vollständig**. Zusätzlich die Zwei-Geräte-Dropbox-Merge-Funktion (v73). Es sind
 > keine offenen Backlog-Punkte mehr vorhanden (nur optionale Kleinigkeiten, siehe `docs/BACKLOG.md`).
 >
-> **Neueste Änderungen (2026-11-18, aktuell v74):**
+> **Neueste Änderungen (2026-11-18, aktuell v75):**
+> - **Nativer Android-Splash (Nachtrag zu Commit 8):** `background_color` in beiden
+>   `manifest.webmanifest` von Weiß `#ffffff` → Icon-Blau **`#1e88e5`** gesetzt. Android erzeugt vor
+>   dem HTML-Laden einen eigenen Splash (farbige Fläche + großes Icon, nicht abschaltbar); mit der
+>   blauen Fläche verschmilzt das Icon mit seinem Hintergrund statt als weiße Platte zu wirken. Danach
+>   folgt wie gehabt unser In-App-Splash. `theme_color` bewusst unverändert (Produktiv blau, Test
+>   orange als Marker). Am Gerät abgenommen. **Merke:** Android liest `background_color` NUR beim
+>   Installieren der PWA — ein App-Update über den Service Worker ändert den nativen Splash nicht;
+>   PWA muss vom Startbildschirm **neu installiert** werden (Daten bleiben erhalten, da IndexedDB am
+>   Origin hängt; „Speicher leeren" aber vermeiden — das löscht die Daten). Mockup
+>   `mockups/17-android-splash.html` (Varianten Weiß/Blau/Dunkel; Dunkel = Fallback).
+>
+> **Frühere Änderungen (2026-11-18, v74):**
 > - **In-App-Splash (Commit 8):** eigener Start-Splash (PWA-Icon abgerundet + „WeightLog"-Schriftzug),
 >   Fade-in/out, Hintergrund folgt dem Theme (hell/dunkel), kurze Mindest-Standzeit, dann aus dem DOM.
 >   Overlay in beiden `index.html`, Styles in `app.css`, Steuerung in `main.js`. **Flackern app-weit

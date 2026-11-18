@@ -99,3 +99,24 @@ blitzt daher kurz die helle Fläche auf — beim großflächigen Splash besonder
 - Beim Deploy wie immer Version an ZWEI Stellen gleich hochzählen: `app/js/version.js`
   (`globalThis.APP_VERSION`) UND `BUILD` in `app/sw.js` (v73 → v74). Push macht der Nutzer selbst
   via GitHub Desktop.
+
+## Nachtrag (2026-11-18, v75): nativer Android-Splash
+Nach der Geräte-Abnahme fiel auf: Auf **Android** erscheint vor unserem In-App-Splash kurz der
+**native PWA-Splash** (vom OS erzeugt: `background_color`-Fläche + großes Icon, mittig). Dieser ist
+NICHT abschaltbar und das Icon lässt sich nicht entfernen — steuerbar ist nur die Fläche über
+`background_color` im Manifest. Auf iOS/WebKit tritt das nicht auf (dort kein icon-basierter Splash
+ohne `apple-touch-startup-image`), daher iPhone unauffällig, Android zeigt die Vorstufe.
+
+**Entscheidung (Nutzer):** `background_color` in BEIDEN `manifest.webmanifest` von `#ffffff` →
+**`#1e88e5`** (Icon-Blau = `theme_color` Produktiv = Icon-Hintergrund). So verschmilzt das native
+Icon mit seiner Fläche zu einem Logo-Moment statt „Icon auf weißer Platte". `theme_color` bleibt
+unverändert (Produktiv blau, Test orange `#ff9800` als Marker — das ist die Statusleisten-Tönung,
+eine andere Rolle als die Splash-Fläche). **Fallback** (falls Blau am Gerät nicht überzeugt hätte):
+Dunkel. Mockup `mockups/17-android-splash.html` (Varianten Weiß/Blau/Dunkel).
+
+**Wichtiger Merke (Android-Caching):** `background_color` wird NUR beim Installieren der PWA gelesen.
+Ein App-Update über den Service Worker (neue Version, neuer Code) ändert den nativen Splash NICHT —
+die PWA muss vom Startbildschirm **deinstalliert und neu hinzugefügt** werden. Die Daten bleiben dabei
+erhalten (IndexedDB hängt am Origin, nicht an der Startbildschirm-Verknüpfung); NUR „App-Speicher
+leeren" würde die IndexedDB löschen → vor der Neuinstallation sicherheitshalber JSON-Backup
+exportieren. Am Gerät abgenommen (2026-11-18): nativer Splash jetzt blau.

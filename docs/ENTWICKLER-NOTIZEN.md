@@ -274,7 +274,26 @@ Im Store (`store.js`, nutzt reine `undo.js`): Snapshot-Stacks im Speicher (NICHT
   „WeightLog [TEST]" (der interne `<h1>`-Fallback `'tracking-app'` in main.js bleibt, nie sichtbar).
   Mockup `mockups/16-splash.html` (Variante A). Nativer iOS-`apple-touch-startup-image` bewusst NICHT
   gemacht (aufwändig, ein Bild pro Gerätegröße; der In-App-Splash deckt beide Plattformen gleich ab).
+- **Nativer Android-Splash via `background_color`** (seit 2026-11-18, v75, Nachtrag zu Commit 8):
+  Android/Chromium erzeugt bei installierter PWA VOR dem HTML einen eigenen Splash aus dem Manifest
+  (`background_color`-Fläche + mittiges großes Icon + ggf. Name). **Nicht abschaltbar, Icon nicht
+  entfernbar** — es gibt keinen Manifest-Schalter „nur Fläche, kein Icon" (leeres Icon bräche
+  Startbildschirm/Installierbarkeit). Einziger Hebel = `background_color`. Auf iOS/WebKit tritt der
+  icon-basierte Splash nicht auf (ohne `apple-touch-startup-image` nur Farbfläche) → iPhone
+  unauffällig, Android zeigt die Vorstufe. **Gelöst:** `background_color` in BEIDEN
+  `manifest.webmanifest` Weiß → Icon-Blau `#1e88e5` → Icon verschmilzt mit seiner Fläche. `theme_color`
+  bewusst NICHT geändert (andere Rolle: Statusleisten-Tönung; Produktiv blau, Test orange als Marker).
+  **DEPLOY-FALLE (real aufgetreten!):** `background_color` wird nur beim INSTALLIEREN der PWA gelesen.
+  Ein normales Update über den Service Worker (neue Version/neuer Code) ändert den nativen Splash
+  NICHT — er bleibt am Manifest-Stand der Erstinstallation „eingebrannt". Der neue Wert greift erst
+  nach **Deinstallieren + neu „Zum Startbildschirm hinzufügen"**. Die IndexedDB-Daten überleben das
+  (hängen am Origin, nicht an der Startbildschirm-Verknüpfung) — ABER „App-Speicher leeren" löscht die
+  IndexedDB → vor der Neuinstallation JSON-Backup exportieren. (Der SW selbst cacht
+  `manifest.webmanifest` via network-first, liefert es also online frisch aus — das ist NICHT die
+  Ursache; die Ursache ist Androids Install-Zeitpunkt-Lesen.) Mockup `mockups/17-android-splash.html`
+  (Weiß/Blau/Dunkel; Dunkel wäre der Fallback gewesen).
 - Mockups liegen in `mockups/` (git-ignoriert, als HTML, vom Nutzer bewusst behalten — NIE löschen):
   01-dashboard, 02-spacing-kopf, 03-profil, 04-geschlecht-datum, 05-anzeigegroesse (+ -2/-4-optionen),
   06-uebersicht, 07-zeitfilter, 08-eingabe (A/B-Vergleich), 08-1-eingabe (Variante A verfeinert),
-  10-ereignis-bearbeiten, 16-splash (Variante A: Icon + Wort).
+  10-ereignis-bearbeiten, 16-splash (Variante A: Icon + Wort), 17-android-splash (nativer Splash:
+  Flächenfarbe Weiß/Blau/Dunkel).
