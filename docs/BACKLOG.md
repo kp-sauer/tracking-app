@@ -63,12 +63,13 @@ Priorisierte Liste nach Session 2026-10-17. Abarbeitung in Commit-Paketen.
 ---
 ---
 
-# Arbeitspaket: Zwei-Geräte-Pflege via Dropbox-Backup (NEU, 2026-11-18 — in Diskussion, noch NICHT umgesetzt)
+# Arbeitspaket: Zwei-Geräte-Pflege via Dropbox-Backup ✅ (2026-11-18, umgesetzt in v73)
 
-> **Session-Übergabe:** Design ABGENOMMEN (2026-11-18), Spec geschrieben:
-> [`specs/2026-11-18-zwei-geraete-dropbox-merge-design.md`](specs/2026-11-18-zwei-geraete-dropbox-merge-design.md).
-> Es wurde noch KEIN Code geändert und KEIN Mockup gebaut; Ist-Zustand `app/js/backup.js` +
-> `app/js/screens/profil.js` gesichtet. Nächster Schritt: Implementierungsplan (writing-plans) → Umsetzung.
+> **Session-Übergabe:** UMGESETZT & browser-verifiziert (2026-11-18, v73). Spec:
+> [`specs/2026-11-18-zwei-geraete-dropbox-merge-design.md`](specs/2026-11-18-zwei-geraete-dropbox-merge-design.md),
+> Plan: [`../plans/2026-11-18-zwei-geraete-dropbox-merge-plan.md`](../plans/2026-11-18-zwei-geraete-dropbox-merge-plan.md).
+> Offen bleibt nur die **Alltags-Kurzanleitung** (optional, s. u.) und die **Geräte-Abnahme durch den Nutzer**
+> (echter Dropbox-Hin-und-Her-Flow auf Android/iPhone).
 
 ## Ausgangswunsch (Nutzer)
 Daten auf ZWEI Geräten pflegen: **~90 % Android** (Hauptgerät), gelegentlich auf Geschäftsreisen
@@ -96,22 +97,34 @@ Daten auf ZWEI Geräten pflegen: **~90 % Android** (Hauptgerät), gelegentlich a
   ⚠️ Das ist die kritische Stelle: importiert man einen ÄLTEREN Stand, überschreibt er bei einem
   am selben Tag abweichenden Wert den (neueren) lokalen — zu klären (s. u.).
 
-## Offen für die Umsetzung (Design geklärt, NICHTS davon im Code)
-- [ ] **Reine Logik in `backup.js`:** `analysiereImport(bestand,datei)→{neu,identisch,konflikte}`
-  (tiefer Tageseintrag-Vergleich: Gewicht/Spritze/historie_rohtext) + `wendeMergeAn(bestand,datei,wahl)`
-  mit `wahl: 'datei'|'lokal'` → neuer Bestand + Zählung `{neu,aktualisiert,unveraendert}`. Merge löscht
-  nie lokale Tage. `wendeImportAn(…,'ersetzen')` bleibt. TDD in `tests/backup.test.js`.
-- [ ] **UI in `screens/profil.js`:** natives `confirm()` (Z. 287) raus → 3 Overlays: Import-Modus
-  (Merge empfohlen/vorausgewählt, Ersetzen mit Warnung), Konflikt-Sammel-Dialog (alle Kollisionen,
-  „Alle aus Datei" / „Alle lokal behalten"), Ergebnis-Dialog (bleibt stehen: X neu/Y aktualisiert/Z
-  unverändert). ⚠️ CSS-Spezifitätsfalle `#screen button` → eigene Button-Regeln (wie `.dialog.med-edit`).
-- [ ] **Browser-Check** `localhost:8000/test/`: manipulierte Datei mit erzwungener Kollision; alle 3
-  Dialoge hell+dunkel; Button-Farben messen.
-- [ ] **Alltags-Kurzanleitung** Hin-und-Her (Export→Dropbox→Import/Merge→zurück) — ggf. kurzer App-Hinweis.
-- **Deckt vertagte ENTWICKLER-NOTIZEN-Punkte mit ab:** „Backup-Bereich feintunen" + „Import-Erfolgsmeldung
-  verschwindet durch Re-Render" (Ergebnis-Dialog löst Letzteres).
-- **Methodik:** Implementierungsplan (writing-plans) → Umsetzung (TDD reine Logik, subagent-getrieben) →
-  Browser-Check. Danach Version an ZWEI Stellen hochzählen (`version.js` + `BUILD` in `sw.js`).
+## Umgesetzt (v73, 2026-11-18)
+- [x] **Reine Logik in `backup.js`:** `analysiereImport(bestand,datei)→{neu,identisch,konflikte}`
+  (tiefer Tageseintrag-Vergleich via `JSON.stringify`: Gewicht/Spritze/historie_rohtext) +
+  `wendeMergeAn(bestand,datei,wahl)` mit `wahl: 'datei'|'lokal'` → `{bestand, zaehlung}` mit
+  `zaehlung={neu,aktualisiert,unveraendert}`. Merge löscht nie lokale Tage; Ereignisse per `id`,
+  Profil lokal-first. `wendeImportAn(…,'ersetzen'|'merge')` unverändert. **14 neue Tests** (6+8),
+  gesamt 208/208 grün (`node --test "tests/*.test.js"`).
+- [x] **UI in `screens/profil.js`:** natives `confirm()` ENTFERNT → 3 Overlays: Import-Modus
+  (Merge primär/blau, Ersetzen gefahr/orange mit Warnung, Abbrechen), Konflikt-Sammel-Dialog
+  (Liste `Datum: lokal x → Datei y`, „Alle aus Datei" / „Alle lokal behalten"), Ergebnis-Dialog
+  (bleibt stehen). CSS-Regeln `#screen .dialog.pr-import …` (Spezifitätsfalle umgangen).
+- [x] **Re-Render-Fix (wichtig):** Ergebnis-Dialog verschwand zunächst, weil `store.aktualisiere`
+  einen `render()`-Re-Render auslöst, der `#screen` neu baut. Gelöst über Modul-Variable
+  `offenesImportErgebnis` in profil.js (überlebt Re-Render, wird beim Screen-Aufbau angezeigt +
+  zurückgesetzt) — selbes Muster wie die Erfolgs-Pille. **Löst damit auch** den vertagten
+  ENTWICKLER-NOTIZEN-Punkt „Import-Erfolgsmeldung verschwindet durch Re-Render".
+- [x] **Browser-Check** `localhost:8000/test/` (echte Daten, Cache per CDP umgangen): Modus-/Konflikt-/
+  Ergebnis-Dialog, Merge + Ersetzen, erzwungene Kollision, Re-Import (0 Konflikte), Button-Farben
+  **hell UND dunkel** (`#2563eb`/`#d97706` bzw. `#4f93f5`/`#fbbf24`) — alle ✅.
+- [ ] **Alltags-Kurzanleitung** Hin-und-Her (Export→Dropbox→Import/Merge→zurück) — OPTIONAL, noch offen.
+  Ggf. kurzer App-Hinweis im Backup-Bereich.
+- **Deckt vertagte ENTWICKLER-NOTIZEN-Punkte mit ab:** „Import-Erfolgsmeldung verschwindet durch
+  Re-Render" (durch Ergebnis-Dialog gelöst). „Backup-Bereich feintunen" teilweise (Import-UI neu).
+
+## Hinweis (Session 2026-11-18)
+Beim Verifizieren wurde die **Test-Welt-IndexedDB** versehentlich per „Ersetzen"-Test überschrieben und
+anschließend vom Nutzer aus `seed_test_2026-10-16_1535.json` (746 Tage) wiederhergestellt. Excel + Produktiv
+unberührt. **Merke:** vor destruktiven Browser-Tests immer erst den Bestand exportieren.
 
 ---
 ---

@@ -59,8 +59,10 @@ Im Store (`store.js`, nutzt reine `undo.js`): Snapshot-Stacks im Speicher (NICHT
    Produktiv-Welt (`/`), NICHT in der Test-Welt (`/test/`) — dort ist `register('sw.js')` relativ
    zum Dokument → 404 (main.js:67). War schon immer so, kein Regress; SW-Verifikation daher über
    `http://localhost:8000/` statt `/test/`.
-2. **Statusmeldung** (Profil: nach Speichern/Import) verschwindet durch Store-Re-Render. Lösen,
-   wenn die Backup-Funktion im Detail getestet wird.
+2. ~~**Statusmeldung** (Profil: nach Speichern/Import) verschwindet durch Store-Re-Render.~~ Für den
+   **Import** ✅ GELÖST (2026-11-18, v73): der Import-Ergebnis-Dialog überlebt den Re-Render über die
+   Modul-Variable `offenesImportErgebnis` (siehe Merkposten unten). Der analoge Fall „Stammdaten
+   speichern"-Toast ist davon unberührt und bleibt als Kleinigkeit offen, falls er je stört.
 3. **Backup-Bereich** (Profil) feintunen, sobald Funktion im Detail getestet wird (Nutzer-Wunsch).
 4. ~~**Ereignisse einzeln löschen fehlt.**~~ ✅ ERLEDIGT (2026-10-16): Ereignisse lassen sich jetzt
    im Verlauf über klickbare Chips bearbeiten UND löschen (Overlay mit Kategorie/Von/Bis/Notiz,
@@ -221,6 +223,27 @@ Im Store (`store.js`, nutzt reine `undo.js`): Snapshot-Stacks im Speicher (NICHT
   `.karte .zeile` greift nicht im Dialog). Analog zu `.dialog.ev-edit`. Chip-Events pro `baue()` verdrahten
   (Jahr-Filter-Re-Render, s. Phase D). `oeffneMedDialog` muss im `baue()`-Closure sichtbar sein (wie
   `oeffneEvDialog`).
+- **Zwei-Geräte-Merge / konflikt-bewusster Import** (seit 2026-11-18, v73): Für Zwei-Geräte-Pflege
+  (Android + gelegentlich iPhone) via geteiltem **Dropbox-Ordner** — kein Sync-Code, kein Secret,
+  nur der bestehende JSON-Export/-Import wurde konflikt-bewusst gemacht. **Reine Logik in `backup.js`
+  (getestet):** `analysiereImport(bestand,datei)→{neu,identisch,konflikte}` (nur `tageseintraege`,
+  tiefer Vergleich via `JSON.stringify` — ok, da Einträge zentral/einheitlich erzeugt werden; Ereignisse/
+  Profil hier NICHT betrachtet) und `wendeMergeAn(bestand,datei,wahl)→{bestand,zaehlung}` mit
+  `wahl:'datei'|'lokal'` (Merge löscht NIE lokale Tage; Ereignisse per `id`; Profil lokal-first
+  `bestand.profil ?? datei.profil`; `zaehlung={neu,aktualisiert,unveraendert}`, bei 'lokal' zählen
+  behaltene Konflikte als unveraendert). `wendeImportAn(…,'ersetzen'|'merge')` bleibt für den
+  Ersetzen-Pfad. **UI in `screens/profil.js`:** natives `confirm()` ENTFERNT (verstieß gegen die
+  „keine confirm"-Regel) → 3 Overlays `#pr-modus-dialog`/`#pr-konflikt-dialog`/`#pr-ergebnis-dialog`
+  (`.dialog.pr-import`). Merge ist der primäre (blaue) Button, Ersetzen der `gefahr`-Button mit Warnung.
+  Nur bei ≥1 Konflikt öffnet der Konflikt-Dialog (sonst direkt Ergebnis). **CSS-Spezifitätsfalle:**
+  eigene Regeln `#screen .dialog.pr-import .d-btns button.primär{background:var(--akzent)}` +
+  `…button.gefahr{background:var(--warn)}` nötig (sonst generische `#screen button`-Regel). **Re-Render-
+  Falle (real aufgetreten!):** `store.aktualisiere` → `store.abonniere(render)` baut `#screen` komplett
+  neu → ein nach dem `aktualisiere` gesetztes `.auf` säße auf dem bereits ersetzten DOM-Element → Dialog
+  unsichtbar. Lösung: Ergebnis in MODUL-Variable `offenesImportErgebnis` merken (VOR `aktualisiere`), beim
+  Screen-Aufbau prüfen → Dialog öffnen → Variable auf `null` zurücksetzen (sonst poppt er bei jedem
+  Theme-/Skala-Re-Render wieder auf). Gleiches Muster wie die Erfolgs-Pille. **Merke:** die
+  Konflikt-Analyse betrachtet bewusst NUR Tageseinträge — Ereignisse/Profil lösen keine Rückfrage aus.
 - Mockups liegen in `mockups/` (git-ignoriert, als HTML, vom Nutzer bewusst behalten — NIE löschen):
   01-dashboard, 02-spacing-kopf, 03-profil, 04-geschlecht-datum, 05-anzeigegroesse (+ -2/-4-optionen),
   06-uebersicht, 07-zeitfilter, 08-eingabe (A/B-Vergleich), 08-1-eingabe (Variante A verfeinert),

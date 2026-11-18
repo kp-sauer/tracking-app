@@ -1,4 +1,4 @@
-import { baueExport, pruefeImport, wendeImportAn } from '../backup.js';
+import { baueExport, pruefeImport, wendeImportAn, analysiereImport, wendeMergeAn } from '../backup.js';
 import { geschlechtSegment, datumsPicker } from '../felder.js';
 import { effektiveSkala, SKALA_STUFEN } from '../theme.js';
 import { alter, zielInKg, zielInBmi, DEFAULT_ZIEL, heuteLokal } from '../calc.js';
@@ -6,6 +6,10 @@ import { nachDatumSortiert } from '../db.js';
 import { icon } from '../icons.js';
 
 const WELT_LABEL = { test: 'TEST', produktiv: 'PROD' };
+
+// Überlebt den Store-Re-Render (render() baut den Screen neu auf): nach einem Import
+// wird das Ergebnis hier gemerkt und beim nächsten Aufbau als Dialog wieder geöffnet.
+let offenesImportErgebnis = null; // null | { neu, aktualisiert, unveraendert }
 
 export function renderProfil(container, ctx) {
   const daten = ctx.store.get();
@@ -64,7 +68,41 @@ export function renderProfil(container, ctx) {
       <p class="status" id="pr-status" role="status" hidden></p>
     </div></section>
 
-    <div class="pr-version">WeightLog v${globalThis.APP_VERSION ?? '?'}</div>`;
+    <div class="pr-version">WeightLog v${globalThis.APP_VERSION ?? '?'}</div>
+
+    <div class="dialog-bg" id="pr-modus-dialog">
+      <div class="dialog pr-import">
+        <div class="d-titel">Daten importieren</div>
+        <div class="d-text">Wie sollen die Daten aus der Datei angewendet werden?</div>
+        <div class="d-btns d-btns-stapel">
+          <button type="button" class="primär" id="pr-modus-merge">Zusammenführen (empfohlen)</button>
+          <button type="button" class="gefahr" id="pr-modus-ersetzen">Ersetzen – verwirft lokale Daten</button>
+          <button type="button" id="pr-modus-abbr">Abbrechen</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="dialog-bg" id="pr-konflikt-dialog">
+      <div class="dialog pr-import">
+        <div class="d-titel">Abweichende Tage</div>
+        <div class="d-text">Diese Tage sind auf beiden Seiten vorhanden, aber unterschiedlich:</div>
+        <div class="pr-konflikt-liste" id="pr-konflikt-liste"></div>
+        <div class="d-btns d-btns-stapel">
+          <button type="button" class="primär" id="pr-konflikt-datei">Alle aus Datei übernehmen</button>
+          <button type="button" id="pr-konflikt-lokal">Alle lokal behalten</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="dialog-bg" id="pr-ergebnis-dialog">
+      <div class="dialog pr-import">
+        <div class="d-titel">Import abgeschlossen</div>
+        <div class="d-text" id="pr-ergebnis-text"></div>
+        <div class="d-btns">
+          <button type="button" class="primär" id="pr-ergebnis-ok">OK</button>
+        </div>
+      </div>
+    </div>`;
 
   // Komponenten initialisieren
   const geschlecht = geschlechtSegment(container.querySelector('#pr-geschlecht'), p.geschlecht);
@@ -271,6 +309,7 @@ export function renderProfil(container, ctx) {
   container.querySelector('#pr-import-btn').addEventListener('click', () => container.querySelector('#pr-import').click());
   container.querySelector('#pr-import').addEventListener('change', async (e) => {
     const file = e.target.files?.[0]; if (!file) return;
+    e.target.value = ''; // erlaubt erneuten Import derselben Datei
     let dateiObj;
     try { dateiObj = JSON.parse(await file.text()); }
     catch { zeigeStatus('Fehler: keine gültige JSON-Datei.'); return; }
@@ -282,12 +321,69 @@ export function renderProfil(container, ctx) {
         struktur: 'BLOCKIERT: unerwartetes Dateiformat.',
       };
       zeigeStatus(texte[pruefung.grund] ?? 'BLOCKIERT.');
-      e.target.value = ''; return;
+      return;
     }
-    const modus = globalThis.confirm?.('OK = Ersetzen (Bestand verwerfen), Abbrechen = Zusammenführen (Merge)') ? 'ersetzen' : 'merge';
-    await ctx.store.aktualisiere(d => wendeImportAn(d, dateiObj, modus), { undobar: false });
-    ctx.store.leereHistorie(); // Import ist kein undobarer Schritt → Historie verwerfen
-    zeigeStatus(`Import erfolgreich (${modus}).`);
-    e.target.value = '';
+    oeffneModus(dateiObj);
   });
+
+  // ---- Import-Flow (Modus → ggf. Konflikt → Ergebnis) ----
+  const modusDialog = container.querySelector('#pr-modus-dialog');
+  const konfliktDialog = container.querySelector('#pr-konflikt-dialog');
+
+  function oeffneModus(dateiObj) {
+    modusDialog.classList.add('auf');
+    container.querySelector('#pr-modus-abbr').onclick = () => modusDialog.classList.remove('auf');
+    container.querySelector('#pr-modus-ersetzen').onclick = async () => {
+      modusDialog.classList.remove('auf');
+      const neu = wendeImportAn(ctx.store.get(), dateiObj, 'ersetzen');
+      const anzahl = Object.keys(dateiObj.tageseintraege).length;
+      await anwenden(neu, { neu: anzahl, aktualisiert: 0, unveraendert: 0 });
+    };
+    container.querySelector('#pr-modus-merge').onclick = () => {
+      modusDialog.classList.remove('auf');
+      const analyse = analysiereImport(ctx.store.get(), dateiObj);
+      if (analyse.konflikte.length === 0) {
+        const { bestand, zaehlung } = wendeMergeAn(ctx.store.get(), dateiObj, 'datei');
+        anwenden(bestand, zaehlung);
+      } else {
+        oeffneKonflikt(dateiObj, analyse.konflikte);
+      }
+    };
+  }
+
+  function oeffneKonflikt(dateiObj, konflikte) {
+    const liste = container.querySelector('#pr-konflikt-liste');
+    liste.innerHTML = konflikte.map(k =>
+      `<div class="zeile-k"><span>${k.datum}</span><span>lokal ${k.lokal.gewicht_kg} → Datei ${k.datei.gewicht_kg} kg</span></div>`
+    ).join('');
+    konfliktDialog.classList.add('auf');
+    const fertig = async (wahl) => {
+      konfliktDialog.classList.remove('auf');
+      const { bestand, zaehlung } = wendeMergeAn(ctx.store.get(), dateiObj, wahl);
+      await anwenden(bestand, zaehlung);
+    };
+    container.querySelector('#pr-konflikt-datei').onclick = () => fertig('datei');
+    container.querySelector('#pr-konflikt-lokal').onclick = () => fertig('lokal');
+  }
+
+  async function anwenden(neuerBestand, zaehlung) {
+    offenesImportErgebnis = zaehlung;          // VOR dem Re-Render merken
+    await ctx.store.aktualisiere(() => neuerBestand, { undobar: false });
+    ctx.store.leereHistorie(); // Import ist kein undobarer Schritt
+  }
+
+  function zeigeErgebnis({ neu, aktualisiert, unveraendert }) {
+    container.querySelector('#pr-ergebnis-text').textContent =
+      `${neu} neu · ${aktualisiert} aktualisiert · ${unveraendert} unverändert`;
+    const dlg = container.querySelector('#pr-ergebnis-dialog');
+    dlg.classList.add('auf');
+    container.querySelector('#pr-ergebnis-ok').onclick = () => dlg.classList.remove('auf');
+  }
+
+  // Direkt beim Aufbau: gemerktes Ergebnis anzeigen (überlebt Re-Render).
+  if (offenesImportErgebnis) {
+    const erg = offenesImportErgebnis;
+    offenesImportErgebnis = null;
+    zeigeErgebnis(erg);
+  }
 }

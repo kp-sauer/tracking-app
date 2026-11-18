@@ -573,3 +573,10 @@ body > #kopf, body > #screen { max-width: 480px; margin-left: auto; margin-right
 #screen button.v-akt { padding:0; border:0; background:transparent; color:var(--fg-3); }
 #screen button.v-akt:hover { background:var(--surface-2); color:var(--akzent); }
 #screen button.v-akt.del:hover { color:var(--schlecht); }
+
+/* Import-Dialoge (Modus/Konflikt/Ergebnis) */
+#screen .dialog.pr-import .d-btns.d-btns-stapel { flex-direction: column; align-items: stretch; gap: var(--sp-2); }
+#screen .dialog.pr-import .d-btns button.primär { background: var(--akzent); color: #fff; border: none; }
+#screen .dialog.pr-import .d-btns button.gefahr { background: var(--warn); color: #fff; border: none; }
+#screen .dialog.pr-import .pr-konflikt-liste { max-height: 40vh; overflow-y: auto; margin: var(--sp-2) 0; font-size: 14px; }
+#screen .dialog.pr-import .pr-konflikt-liste .zeile-k { display: flex; justify-content: space-between; padding: var(--sp-1) 0; border-bottom: 1px solid var(--rand); }
