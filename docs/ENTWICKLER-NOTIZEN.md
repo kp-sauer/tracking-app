@@ -244,6 +244,10 @@ Im Store (`store.js`, nutzt reine `undo.js`): Snapshot-Stacks im Speicher (NICHT
   Screen-Aufbau prüfen → Dialog öffnen → Variable auf `null` zurücksetzen (sonst poppt er bei jedem
   Theme-/Skala-Re-Render wieder auf). Gleiches Muster wie die Erfolgs-Pille. **Merke:** die
   Konflikt-Analyse betrachtet bewusst NUR Tageseinträge — Ereignisse/Profil lösen keine Rückfrage aus.
+  **Übertragungs-Semantik (geklärt 2026-11-18, am Gerät abgenommen):** Die Datei trägt `profil` +
+  `tageseintraege` + `ereignisse`, aber beim Merge wandern nur Tage (mit Rückfrage) + Ereignisse (per `id`)
+  mit; **Profil ist lokal-first** (`bestand.profil ?? datei.profil`) → bleibt pro Gerät. Nutzer bestätigte
+  diese Trennung bewusst. Falls Profil künftig mitwandern soll: bewusste Zusatzänderung an `wendeMergeAn`.
 - Mockups liegen in `mockups/` (git-ignoriert, als HTML, vom Nutzer bewusst behalten — NIE löschen):
   01-dashboard, 02-spacing-kopf, 03-profil, 04-geschlecht-datum, 05-anzeigegroesse (+ -2/-4-optionen),
   06-uebersicht, 07-zeitfilter, 08-eingabe (A/B-Vergleich), 08-1-eingabe (Variante A verfeinert),

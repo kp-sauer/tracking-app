@@ -215,7 +215,7 @@ ist „App funktioniert immer, online wie offline"; echter Mehrgeräte-Sync wird
 | **Tech-Stack** | Vanilla JS + leichte Chart-Lib, **kein** Build-Step |
 | **Hosting** | kostenloses Static-Hosting (z. B. GitHub Pages); App per URL aufs Handy |
 | **Datenspeicher** | **IndexedDB** lokal im Browser (Android + iOS); Gerät = Source of Truth |
-| **Sync** | kein Sync-Server; ein Hauptgerät, Desktop nur zum Anschauen (via Backup/URL). **Zwei-Geräte-Pflege (umgesetzt v73, 2026-11-18):** dateibasierter Pseudo-Sync über einen geteilten **Dropbox-Ordner** (Android + gelegentlich iPhone) — bestehender JSON-Export/-Import, **konflikt-bewusster Merge** (fragt bei abweichenden Tagen nach), kein Sync-Code, kein Secret. Details: Arbeitspaket in [`docs/BACKLOG.md`](docs/BACKLOG.md). |
+| **Sync** | kein Sync-Server; ein Hauptgerät, Desktop nur zum Anschauen (via Backup/URL). **Zwei-Geräte-Pflege (umgesetzt v73, am Gerät abgenommen 2026-11-18):** dateibasierter Pseudo-Sync über einen geteilten **Dropbox-Ordner** (Android + gelegentlich iPhone) — bestehender JSON-Export/-Import, **konflikt-bewusster Merge** (fragt bei abweichenden Tagen nach). Übertragen werden Tageswerte + Ereignisse; **Profil bleibt lokal-first** (pro Gerät). Kein Sync-Code, kein Secret. Details: Arbeitspaket in [`docs/BACKLOG.md`](docs/BACKLOG.md). |
 | **Backup** | halbautomatischer **Export als JSON** über native Teilen-Funktion (→ Drive/iCloud); App erinnert nach X Einträgen |
 | **Restore/Import** | JSON importieren mit Auswahl **Ersetzen** oder **Zusammenführen (Merge)** |
 | **Excel-Historie** | einmalig **vorab per Tool zu JSON** konvertiert; App hat nur „JSON importieren" (kein Excel-Parser im Browser) |

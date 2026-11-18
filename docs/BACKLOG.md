@@ -63,13 +63,23 @@ Priorisierte Liste nach Session 2026-10-17. Abarbeitung in Commit-Paketen.
 ---
 ---
 
-# Arbeitspaket: Zwei-Geräte-Pflege via Dropbox-Backup ✅ (2026-11-18, umgesetzt in v73)
+# Arbeitspaket: Zwei-Geräte-Pflege via Dropbox-Backup ✅ (2026-11-18, umgesetzt v73, am Gerät abgenommen)
 
-> **Session-Übergabe:** UMGESETZT & browser-verifiziert (2026-11-18, v73). Spec:
+> **Session-Übergabe:** UMGESETZT, browser- UND gerät-verifiziert (2026-11-18, v73). Spec:
 > [`specs/2026-11-18-zwei-geraete-dropbox-merge-design.md`](specs/2026-11-18-zwei-geraete-dropbox-merge-design.md),
 > Plan: [`../plans/2026-11-18-zwei-geraete-dropbox-merge-plan.md`](../plans/2026-11-18-zwei-geraete-dropbox-merge-plan.md).
-> Offen bleibt nur die **Alltags-Kurzanleitung** (optional, s. u.) und die **Geräte-Abnahme durch den Nutzer**
-> (echter Dropbox-Hin-und-Her-Flow auf Android/iPhone).
+> **Geräte-Abnahme ✅:** echter Flow Android → Export → Dropbox → iPhone → Import → Zusammenführen →
+> Konflikt-Dialog → Ergebnis → zurück lief fehlerfrei (Nutzer, 2026-11-18). Offen bleibt nur die
+> **Alltags-Kurzanleitung** (optional, s. u.).
+>
+> **Was wird übertragen? (geklärt 2026-11-18):** Die Export-Datei (`baueExport`) enthält `profil`,
+> `tageseintraege` (Gewicht+Spritze+historie_rohtext) UND `ereignisse`. Beim **Merge** (`wendeMergeAn`)
+> gilt aber: Tageseinträge werden vereinigt (Konflikt → Rückfrage), Ereignisse still per `id` vereinigt,
+> **Profil aber LOKAL-FIRST** — das Profil des Zielgeräts bleibt; das Datei-Profil wird nur übernommen,
+> wenn lokal GAR KEINS existiert. Also: Gewichtstage + Ereignisse wandern mit, das Profil (Größe/Geschlecht/
+> Geburtsdatum/Theme/Größe/Ziele) bleibt pro Gerät. NICHT in der Datei: `letztes_backup` (lokaler Marker),
+> Undo-Historie (Session), Berechnetes (BMI/KPIs). Falls gewünscht, dass Profil mitwandert → bewusste
+> Zusatzänderung (aktuell absichtlich getrennt; Nutzer hat lokal-first am 2026-11-18 bestätigt).
 
 ## Ausgangswunsch (Nutzer)
 Daten auf ZWEI Geräten pflegen: **~90 % Android** (Hauptgerät), gelegentlich auf Geschäftsreisen

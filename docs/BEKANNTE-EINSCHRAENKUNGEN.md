@@ -28,6 +28,8 @@ Die drei bei der v1-Abnahme hier notierten offenen Punkte sind seither aufgelös
    (uPlot); die Trendlinie ist jetzt eine echte lineare Regression (`lineareTrend` in `calc.js`,
    getestet in `tests/calc.test.js`). Die alte „vereinfachte Linie / Ereignis-Balken" existiert
    nicht mehr.
-3. **Import-Erfolgsmeldung verschwindet durch Re-Render** — weiterhin offen (kosmetisch); geführt als
-   vertagter Feintuning-Rest in `ENTWICKLER-NOTIZEN.md` (zusammen mit dem analogen Profil-Statusmeldung-
-   Punkt, zu lösen beim Backup-Detailtest).
+3. **Import-Erfolgsmeldung verschwindet durch Re-Render** — ✅ erledigt (2026-11-18, v73). Mit dem
+   konflikt-bewussten Import (Arbeitspaket „Zwei-Geräte-Pflege via Dropbox-Backup") ersetzt ein
+   **stehender Ergebnis-Dialog** die flüchtige Pille; er überlebt den Store-Re-Render über die
+   Modul-Variable `offenesImportErgebnis` in `screens/profil.js` (Detail: Technik-Merkposten in
+   `ENTWICKLER-NOTIZEN.md`). Der analoge „Stammdaten speichern"-Toast bleibt als Kleinigkeit offen.
