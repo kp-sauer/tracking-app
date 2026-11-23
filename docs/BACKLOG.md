@@ -3,6 +3,33 @@
 Priorisierte Liste nach Session 2026-10-17. Abarbeitung in Commit-Paketen.
 
 ---
+---
+
+# Arbeitspaket: Datumsformat-Setting, Chart-Tooltip-Chips, Doppeltap ✅ (2026-11-23, umgesetzt v76, browser-verifiziert)
+
+> Drei Punkte aus realer Nutzung. Spec:
+> [`specs/2026-11-23-datumsformat-tooltip-doppeltap-design.md`](specs/2026-11-23-datumsformat-tooltip-doppeltap-design.md),
+> Plan: [`plans/2026-11-23-datumsformat-tooltip-doppeltap-plan.md`](plans/2026-11-23-datumsformat-tooltip-doppeltap-plan.md),
+> Mockup `mockups/18-chart-tooltip-ereignisse.html`.
+
+- [x] **[DARSTELLUNG]** Datumsformat als Profil-Setting, getrennt lang (`31. Okt. 2026` · `31.10.2026` ·
+  `Sa, 31.10.2026`, Default `31. Okt. 2026`) und kurz (`31.10.` · `31. Okt`, Default `31.10.`). Zentrales
+  reines Modul `app/js/datum.js` (getestet: `formatLang`/`formatKurz`/`achsenGranularitaet`/`formatAchse`);
+  additive Felder `profil.datum_lang`/`datum_kurz`. Lange Daten app-weit (Verlauf-/Eingabe-Dialoge, KPI
+  Min/Max) folgen dem Setting live. `felder.js` zieht Monats-Konstanten jetzt aus `datum.js`.
+- [x] **[CHARTS]** X-Achse deutsch statt US (`10/31`), mit Auto-Ausdünnung je Zeitspanne (≤45 Tage Tag,
+  bis ~18 Monate Monat inkl. `Jan 26` am Jahreswechsel, darüber Jahr) über `axes[0].values`.
+- [x] **[CHARTS]** Tooltip zeigt zusätzlich Ereignis-/Medikament-Chips (Verlauf-Farbgebung: Ereignis
+  blauer Rand, Medikament grau). Mehrtägige Ereignisse an jedem Tag; strukturierte Spritze „MJ 12,5 mg",
+  Rohtext unverändert. Reine Fn `app/js/tooltip-chips.js` (getestet). Tooltip bekommt `max-width`.
+- [x] **[ÜBERSICHT]** Doppeltap/-klick auf den Mini-Verlaufschart → Charts-Screen (`dblclick` +
+  Touch-Doppeltap <300 ms). Echter Finger-Doppeltap bleibt Geräte-Abnahme.
+- **Verifikation:** 233 Unit-Tests grün (14 neu); Browser `localhost:8000/test/` hell+dunkel mit
+  temporären Testdaten (Achse 30/180/Gesamt, Tooltip-Chips an Ereignis-/Med-Tagen, Setting live,
+  Doppeltap). **Offen:** echter Finger-Doppeltap am Gerät durch Nutzer.
+
+---
+---
 
 ## Commit 1 — Micro-Fixes (Prio 1 + gebündelte Trivialitäten) ✅
 

@@ -2,6 +2,7 @@ import { dashboardModell } from '../kpi.js';
 import { nachDatumSortiert, imZeitfenster, datenJahre } from '../db.js';
 import { wAvgSerie, zielInKg, DEFAULT_ZIEL, zielgewicht, heuteLokal } from '../calc.js';
 import { icon } from '../icons.js';
+import { formatLang, DATUM_LANG_DEFAULT } from '../datum.js';
 
 const r1 = (x) => (x == null ? '–' : x.toFixed(1));
 const r2 = (x) => (x == null ? '–' : x.toFixed(2));
@@ -53,6 +54,7 @@ export function renderDashboard(container, ctx) {
 
   function zeichne() {
     const daten = ctx.store.get();
+    const langFmt = (daten.profil && daten.profil.datum_lang) || DATUM_LANG_DEFAULT;
     const m = dashboardModell(daten, filter);
 
     // Hero ist IMMER global (filter-unabhängig): zeigt den aktuellen Ist-Zustand.
@@ -181,8 +183,8 @@ export function renderDashboard(container, ctx) {
       <section class="kpi-grid">
         <div class="kpi-tile"><div class="k-label">BMI</div><div class="k-wert">${r2(m.bmi)}</div><div class="k-sub">${bmiKlasse(m.bmi)}</div></div>
         <div class="kpi-tile"><div class="k-label">${m.verlustTitel ?? 'Verloren'}</div><div class="k-wert ${m.verlust != null && m.verlust >= 0 ? 'positiv' : ''}">${m.verlust == null ? '–' : (m.verlust >= 0 ? '−' : '+') + Math.abs(m.verlust).toFixed(1).replace('.', ',') + ' kg'}</div></div>
-        <div class="kpi-tile"><div class="k-label">Maximum</div><div class="k-wert">${kg(m.max?.gewicht_kg)}</div><div class="k-sub">${m.max?.datum ?? '–'}</div></div>
-        <div class="kpi-tile"><div class="k-label"><span class="min-dot"></span>Minimum</div><div class="k-wert">${kg(m.min?.gewicht_kg)}</div><div class="k-sub">${m.min?.datum ?? '–'}</div></div>
+        <div class="kpi-tile"><div class="k-label">Maximum</div><div class="k-wert">${kg(m.max?.gewicht_kg)}</div><div class="k-sub">${m.max?.datum ? formatLang(m.max.datum, langFmt) : '–'}</div></div>
+        <div class="kpi-tile"><div class="k-label"><span class="min-dot"></span>Minimum</div><div class="k-wert">${kg(m.min?.gewicht_kg)}</div><div class="k-sub">${m.min?.datum ? formatLang(m.min.datum, langFmt) : '–'}</div></div>
       </section>
 
       <section class="ziel-karte">
@@ -241,6 +243,19 @@ export function renderDashboard(container, ctx) {
       input.addEventListener('change', () => {
         filter.tage = Math.max(1, Math.min(3650, parseInt(input.value, 10) || 1)); zeichne();
       });
+    }
+
+    // Doppeltap/-klick auf den Mini-Verlaufschart -> Charts-Screen.
+    const chartKarte = container.querySelector('.chart-karte');
+    if (chartKarte) {
+      const zuCharts = () => { if (ctx && ctx.navigiere) ctx.navigiere('charts'); else location.hash = '#/charts'; };
+      chartKarte.addEventListener('dblclick', zuCharts);
+      let letzterTap = 0;
+      chartKarte.addEventListener('touchend', () => {
+        const jetzt = Date.now();
+        if (jetzt - letzterTap < 300) { zuCharts(); letzterTap = 0; }
+        else letzterTap = jetzt;
+      }, { passive: true });
     }
   }
 

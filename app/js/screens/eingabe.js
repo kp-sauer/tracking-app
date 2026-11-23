@@ -1,10 +1,11 @@
 import { PRAEPARATE, DOSIS_LISTE, EINGABE_KATEGORIEN, istEingabeKategorie, istGueltigesDatum } from '../schema.js';
 import { neuesEreignis, ereignislageAmTag, setzeTagesereignis } from '../ereignisse.js';
-import { datumsPicker, formatiereDatum } from '../felder.js';
+import { datumsPicker } from '../felder.js';
 import { letzterGewichtVor, letztesMedikament, dosisIndex } from '../db.js';
 import { datumAusHash } from '../router.js';
 import { icon } from '../icons.js';
 import { heuteLokal } from '../calc.js';
+import { formatLang, DATUM_LANG_DEFAULT } from '../datum.js';
 
 function heuteIso() { return heuteLokal(); }
 
@@ -436,10 +437,11 @@ export function renderEingabe(container, ctx) {
     const evKat = katWahl;
     const evText = container.querySelector('#ein-ev-text').value || null;
     const datumFest = datum;
+    const langFmt = (ctx.store.get().profil && ctx.store.get().profil.datum_lang) || DATUM_LANG_DEFAULT;
 
     // Flag VOR aktualisiere() setzen, damit der durch den Store ausgelöste globale
     // Re-Render (der diesen Screen neu baut) die Erfolgs-Pille wieder herstellt.
-    zuletztGespeichert = { text: `${fmtKomma(gewicht)} kg · ${formatiereDatum(datumFest)} gespeichert`, bis: Date.now() + 2600 };
+    zuletztGespeichert = { text: `${fmtKomma(gewicht)} kg · ${formatLang(datumFest, langFmt)} gespeichert`, bis: Date.now() + 2600 };
 
     await ctx.store.aktualisiere((d) => {
       const next = { ...d, tageseintraege: { ...d.tageseintraege, [datumFest]: { gewicht_kg: gewicht, spritze } } };
@@ -464,7 +466,8 @@ export function renderEingabe(container, ctx) {
     const gerundet = Math.round(gewicht * 10) / 10;
     const bestehend = ctx.store.get().tageseintraege[datum];
     if (bestehend) {
-      dText.innerHTML = `Für den <b>${formatiereDatum(datum)}</b> sind bereits <b>${fmtKomma(bestehend.gewicht_kg)} kg</b> erfasst. Mit <b>${fmtKomma(gerundet)} kg</b> überschreiben?`;
+      const langFmt = (ctx.store.get().profil && ctx.store.get().profil.datum_lang) || DATUM_LANG_DEFAULT;
+      dText.innerHTML = `Für den <b>${formatLang(datum, langFmt)}</b> sind bereits <b>${fmtKomma(bestehend.gewicht_kg)} kg</b> erfasst. Mit <b>${fmtKomma(gerundet)} kg</b> überschreiben?`;
       dialog.classList.add('auf');
       container.querySelector('#ein-d-ok').onclick = () => { dialog.classList.remove('auf'); speichereNun(gerundet); };
     } else {

@@ -7,17 +7,29 @@ Sessions ohne weiteren Kontext weiterarbeiten können.
 > **Projektziel:** siehe Abschnitt [App-Konzept](#app-konzept-ziel) weiter unten. Der Daten-Kontext
 > (Analyse der Excel) ist vollständig erfasst und bleibt als Referenz unten stehen.
 
-> ## Aktueller Stand (2026-11-18)
+> ## Aktueller Stand (2026-11-23)
 >
 > **v1 ist funktional fertig & abgenommen. Design-/UX-Feintuning ABGESCHLOSSEN. Backlog vollständig
 > abgearbeitet.**
-> Backlog Commits 1–4 vollständig umgesetzt; Sammel-Runde 2026-11-16 (Urlaubs-/Nutzungs-Feedback,
-> siehe `docs/BACKLOG.md`): **Phasen A + B + C + D + F erledigt**; aus Phase E sind **Commit 5
-> (Medikament-Chips bearbeiten), Commit 6 (Swipe-Navigation) und Commit 8 (In-App-Splash)** umgesetzt
-> — **Phase E damit vollständig**. Zusätzlich die Zwei-Geräte-Dropbox-Merge-Funktion (v73). Es sind
-> keine offenen Backlog-Punkte mehr vorhanden (nur optionale Kleinigkeiten, siehe `docs/BACKLOG.md`).
 >
-> **Neueste Änderungen (2026-11-18, aktuell v75):**
+> **Neueste Änderungen (2026-11-23, aktuell v76) — Nutzungs-Feedback-Runde:**
+> - **Datumsformat als Profil-Setting (Darstellung):** zwei neue Auswahlen „Datum lang" (Geburtsdatum,
+>   Dialoge, KPIs: `31. Okt. 2026` · `31.10.2026` · `Sa, 31.10.2026`) und „Datum kurz" (Chart-Achse,
+>   Tooltip: `31.10.` · `31. Okt`). Defaults lang=`31. Okt. 2026`, kurz=`31.10.`. Zentrales reines Modul
+>   `app/js/datum.js` (getestet) bündelt die Formatierung; Profil-Felder additiv `datum_lang`/`datum_kurz`.
+> - **Chart-X-Achse deutsch + Auto-Ausdünnung:** behebt das amerikanische `10/31`. Die Achse wählt die
+>   Granularität automatisch je sichtbarer Zeitspanne (≤45 Tage → Tag `31.10.`, bis ~18 Monate → Monat
+>   `Okt`/`Jan 26`, darüber → Jahr `2026`).
+> - **Chart-Tooltip zeigt Ereignisse/Medikamente:** unter Datum + Serienwerten eine Chip-Zeile in
+>   Verlauf-Farbgebung (Ereignis blauer Rand, Medikament grau). Mehrtägige Ereignisse an jedem Tag im
+>   Zeitraum; strukturierte Spritze als „MJ 12,5 mg", Rohtext („OZ 10/2") unverändert. Reine Fn
+>   `tooltipChips` (getestet). Mockup `mockups/18-chart-tooltip-ereignisse.html` (Variante A/B = Chips).
+> - **Übersicht: Doppeltap auf den Mini-Verlaufschart** wechselt zum Charts-Screen (Maus-`dblclick` +
+>   Touch-Doppeltap <300 ms; kein Swipe-Konflikt). Browser-verifiziert; echter Finger-Doppeltap bleibt
+>   Geräte-Abnahme. Spec: `docs/specs/2026-11-23-datumsformat-tooltip-doppeltap-design.md`, Plan:
+>   `docs/plans/2026-11-23-datumsformat-tooltip-doppeltap-plan.md`.
+>
+> **Frühere Änderungen (2026-11-18, v75):**
 > - **Nativer Android-Splash (Nachtrag zu Commit 8):** `background_color` in beiden
 >   `manifest.webmanifest` von Weiß `#ffffff` → Icon-Blau **`#1e88e5`** gesetzt. Android erzeugt vor
 >   dem HTML-Laden einen eigenen Splash (farbige Fläche + großes Icon, nicht abschaltbar); mit der

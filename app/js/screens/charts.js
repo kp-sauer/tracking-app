@@ -1,7 +1,9 @@
 import { nachDatumSortiert, imZeitfenster, datenJahre } from '../db.js';
 import { wAvgSerie, lineareTrend, zielInKg, DEFAULT_ZIEL } from '../calc.js';
 import { datumsPicker, formatiereDatumKurz } from '../felder.js';
+import { formatKurz, formatAchse, achsenGranularitaet, DATUM_KURZ_DEFAULT } from '../datum.js';
 import { icon } from '../icons.js';
+import { tooltipChips } from '../tooltip-chips.js';
 
 // Pure Aufbereitung: X = UTC-Sekunden (uPlot-Konvention), Gewicht, W-AVG, Trend.
 // `fensterTage` wird vom gefilterten Zeitfenster bestimmt; hier bekommen wir bereits
@@ -167,6 +169,7 @@ export function renderCharts(container, ctx) {
     if (plot) { plot.destroy(); plot = null; }
 
     const daten = ctx.store.get();
+    const kurzFmt = (daten.profil && daten.profil.datum_kurz) || DATUM_KURZ_DEFAULT;
     const fenster = wAvgSerie(imZeitfenster(nachDatumSortiert(daten), filter));
     const { x, gewicht, wavg, trend } = chartSerien(fenster);
 
@@ -220,7 +223,8 @@ export function renderCharts(container, ctx) {
     const fmtKg = (v) => (v == null ? '–' : v.toFixed(1).replace('.', ',') + ' kg');
     const fmtDat = (sek) => {
       const d = new Date(sek * 1000);
-      return `${d.getUTCDate()}.${d.getUTCMonth() + 1}.${d.getUTCFullYear()}`;
+      const iso = `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
+      return formatKurz(iso, kurzFmt);
     };
 
     // Serien-Reihenfolge: [x, gewicht, wavg, trend, ziel]
@@ -255,7 +259,12 @@ export function renderCharts(container, ctx) {
       scales: { x: { time: true }, y: { range: (u, min, max) => [min - 1, max + 1] } },
       axes: [
         { stroke: cFg2, grid: { stroke: cGitter, width: 1 }, ticks: { stroke: cGitter },
-          font: '11px -apple-system, system-ui, sans-serif' },
+          font: '11px -apple-system, system-ui, sans-serif',
+          values: (u, splits) => {
+            const spanne = (u.scales.x.max - u.scales.x.min); // Sekunden
+            const gran = achsenGranularitaet(spanne);
+            return splits.map(s => formatAchse(s, gran, kurzFmt));
+          } },
         { stroke: cFg2, grid: { stroke: cGitter, width: 1 }, ticks: { stroke: cGitter },
           size: 44, font: '11px -apple-system, system-ui, sans-serif' },
       ],
@@ -284,6 +293,17 @@ export function renderCharts(container, ctx) {
           if (sichtbar.gewicht) zeilen.push(`<div><span class="ch-tip-pkt" style="background:${cLinie}"></span>${fmtKg(u.data[1][i])}</div>`);
           if (sichtbar.wavg) zeilen.push(`<div><span class="ch-tip-pkt" style="background:${cTrendS}"></span>${fmtKg(u.data[2][i])}</div>`);
           if (sichtbar.trend) zeilen.push(`<div><span class="ch-tip-pkt" style="background:${cTrend}"></span>${fmtKg(u.data[3][i])}</div>`);
+          // Ereignisse/Medikamente des Tages als Chips (gleiche Farbgebung wie Verlauf).
+          const dTag = new Date(u.data[0][i] * 1000);
+          const isoTag = `${dTag.getUTCFullYear()}-${String(dTag.getUTCMonth()+1).padStart(2,'0')}-${String(dTag.getUTCDate()).padStart(2,'0')}`;
+          const spTag = (daten.tageseintraege[isoTag] || {}).spritze || null;
+          const chipsData = tooltipChips(daten.ereignisse, spTag, isoTag);
+          if (chipsData.length) {
+            const chipHtml = chipsData.map(c => c.typ === 'ev'
+              ? `<span class="chip ev">${icon('kalender')}${c.label}</span>`
+              : `<span class="chip med">${icon('pille')}${c.label}</span>`).join('');
+            zeilen.push(`<div class="ch-tip-chips">${chipHtml}</div>`);
+          }
           tip.innerHTML = zeilen.join('');
           tip.style.display = 'block';
           // Position: am Cursor, aber innerhalb der Fläche halten.

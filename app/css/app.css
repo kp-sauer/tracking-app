@@ -177,6 +177,13 @@ p[role="status"] { font-size: 14px; color: var(--fg-2); margin-top: 12px; }
 .ch-tooltip { position:absolute; pointer-events:none; background:var(--surface); border:1px solid var(--rand); border-radius:var(--radius-s); box-shadow:var(--schatten); padding:7px 10px; font-size:12px; font-weight:600; color:var(--fg); z-index:5; white-space:nowrap; }
 .ch-tooltip .ch-tip-datum { font-size:11px; color:var(--fg-2); margin-bottom:3px; }
 .ch-tooltip .ch-tip-pkt { width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:5px; vertical-align:middle; }
+.ch-tooltip { max-width: 220px; white-space: normal; }
+.ch-tooltip > div:not(.ch-tip-chips) { white-space: nowrap; }
+.ch-tooltip .ch-tip-chips { display:flex; flex-wrap:wrap; gap:4px; margin-top:6px; padding-top:6px; border-top:1px solid var(--rand); }
+.ch-tooltip .ch-tip-chips .chip { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600; padding:2px 8px; border-radius:999px; background:var(--surface-2); color:var(--fg-2); border:1px solid transparent; white-space:nowrap; }
+.ch-tooltip .ch-tip-chips .chip svg { width:11px; height:11px; }
+.ch-tooltip .ch-tip-chips .chip.ev { color:var(--akzent); background:transparent; border-color:var(--akzent); }
+.ch-tooltip .ch-tip-chips .chip.med { background:var(--rand); color:var(--fg-2); }
 
 /* Vollbild-Modus: Chart füllt den Screen, Filter oben schmal, Rest ausgeblendet. */
 body.chart-vollbild #kopf, body.chart-vollbild #tabs { display:none; }

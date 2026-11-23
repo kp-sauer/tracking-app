@@ -292,8 +292,43 @@ Im Store (`store.js`, nutzt reine `undo.js`): Snapshot-Stacks im Speicher (NICHT
   `manifest.webmanifest` via network-first, liefert es also online frisch aus — das ist NICHT die
   Ursache; die Ursache ist Androids Install-Zeitpunkt-Lesen.) Mockup `mockups/17-android-splash.html`
   (Weiß/Blau/Dunkel; Dunkel wäre der Fallback gewesen).
+- **Datumsformat zentral in `app/js/datum.js`** (seit 2026-11-23, v76): EIN reines, getestetes Modul für
+  ALLE Datumsformatierung. Exports: `formatLang(iso, format)` ('wort'→`31. Okt. 2026` MIT Punkt via
+  eigenem Array `MONATE_LANG_WORT`, 'num'→`31.10.2026`, 'wochentag'→`Sa, 31.10.2026`), `formatKurz(iso,
+  format)` OHNE Jahr ('num'→`31.10.`, 'wort'→`31. Okt` OHNE Punkt via `MONATE_KURZ`), `achsenGranularitaet(
+  spanneSek)` (≤45 Tage 'tag', ≤548 'monat', sonst 'jahr'), `formatAchse(tickSek, gran, kurzFmt)` (Label je
+  uPlot-Tick), Konstanten `DATUM_LANG_DEFAULT='wort'`/`DATUM_KURZ_DEFAULT='num'`/`WOCHENTAGE_KURZ`.
+  Profil-Felder additiv `profil.datum_lang`/`datum_kurz` (Profil-Setting „Darstellung", Muster wie
+  Theme/Skala-Segmented-Control, `{undobar:false}`). **Zeitzonen-Falle beachtet:** `formatLang`/`formatKurz`
+  zerlegen ISO per `split('-')` (zeitzonenfrei), NIE `new Date(iso)`; nur der Wochentag nutzt `Date.UTC`.
+  `formatAchse`/Chart-Tooltip lesen uPlot-Sekunden mit `getUTC*` (wie das alte `fmtDat`). **Drei Monats-
+  Arrays, kein Fehler:** `MONATE` (voll, für `formatiereDatum`-Legacy + Verlauf-Monatsgruppen), `MONATE_KURZ`
+  (`Okt`, ohne Punkt, für kurzes Format + Achse), `MONATE_LANG_WORT` (`Okt.`, mit Punkt, nur fürs lange
+  'wort'-Format). **felder.js koppelt sich NICHT voll an datum.js:** `formatiereDatum` bleibt VOLLER
+  Monatsname (Picker-Default; bestehender Test `'15. Juni 1980'`), `formatiereDatumKurz` bleibt kurz MIT
+  Jahr (`15. Jun 1980`, Picker-Anzeige in Charts/Verlauf) — nur `MONATE`/`MONATE_KURZ` werden aus datum.js
+  re-exportiert. **Chart-X-Achse** (behebt US-`10/31`): `axes[0].values = (u, splits) => splits.map(s =>
+  formatAchse(s, achsenGranularitaet(u.scales.x.max - u.scales.x.min), kurzFmt))`; `kurzFmt` = `daten.profil
+  .datum_kurz` in `zeichnePlot()` (`const daten = ctx.store.get()`), im Closure sichtbar für Achse UND
+  Tooltip-`fmtDat`.
+- **Chart-Tooltip Ereignis-/Medikament-Chips** (seit 2026-11-23, v76): Reine Fn `app/js/tooltip-chips.js`
+  `tooltipChips(ereignisse, spritze, datumIso)` → `[{typ:'ev'|'med', label}]` (med zuerst, dann Ereignisse;
+  nutzt `ereignisseAmTag` → mehrtägige an jedem Tag; strukturierte Spritze → „MJ 12,5 mg", sonst
+  `historie_rohtext`; getestet). Im `setCursor`-Hook von charts.js: ISO aus `u.data[0][i]` (UTC-Komponenten)
+  bauen, `daten.tageseintraege[iso].spritze` + `daten.ereignisse` → Chips als `<span class="chip ev/med">`
+  mit `icon('kalender')`/`icon('pille')` (dieselben Namen wie im Verlauf) VOR `tip.innerHTML = zeilen.join()`
+  anhängen. CSS: `.ch-tooltip` bekommt `max-width:220px; white-space:normal`, Serienzeilen holen ihr nowrap
+  über `.ch-tooltip > div:not(.ch-tip-chips){white-space:nowrap}` zurück, nur die Chip-Zeile bricht um.
+  Chip-Farben gespiegelt unter `.ch-tooltip .ch-tip-chips .chip(.ev/.med)` (folgen Theme-Tokens, in hell+dunkel
+  verifiziert).
+- **Übersicht Doppeltap → Charts** (seit 2026-11-23, v76): In `dashboard.js verdrahte()` auf `.chart-karte`
+  ein `dblclick` → `ctx.navigiere('charts')` (Fallback `location.hash='#/charts'`) PLUS Touch-Eigenerkennung
+  (zwei `touchend` <300 ms, `passive:true`). `if (chartKarte)`-Schutz für den Leer-Zustand. Kein
+  Swipe-Konflikt (Doppeltap ist keine horizontale Geste; `.chart-karte` ist keine Swipe-Ausschlusszone, muss
+  auch keine sein). Echter Finger-Doppeltap bleibt Geräte-Abnahme (Playwright-Touch ≠ Android, vgl.
+  Charts-Touch-Falle).
 - Mockups liegen in `mockups/` (git-ignoriert, als HTML, vom Nutzer bewusst behalten — NIE löschen):
   01-dashboard, 02-spacing-kopf, 03-profil, 04-geschlecht-datum, 05-anzeigegroesse (+ -2/-4-optionen),
   06-uebersicht, 07-zeitfilter, 08-eingabe (A/B-Vergleich), 08-1-eingabe (Variante A verfeinert),
   10-ereignis-bearbeiten, 16-splash (Variante A: Icon + Wort), 17-android-splash (nativer Splash:
-  Flächenfarbe Weiß/Blau/Dunkel).
+  Flächenfarbe Weiß/Blau/Dunkel), 18-chart-tooltip-ereignisse (Tooltip-Chips Variante A/B/C-Vergleich).

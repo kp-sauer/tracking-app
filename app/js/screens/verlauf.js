@@ -1,10 +1,11 @@
 import { nachDatumSortiert, entferneTageseintrag, gruppiereNachMonat, vortagesDifferenzen, datenJahre, dosisIndex } from '../db.js';
 import { ereignisseAmTag, aktualisiereEreignis, entferneEreignis } from '../ereignisse.js';
-import { MONATE, formatiereDatum, formatiereDatumKurz, datumsPicker } from '../felder.js';
+import { MONATE, formatiereDatumKurz, datumsPicker } from '../felder.js';
 import { EINGABE_KATEGORIEN, istEingabeKategorie, PRAEPARATE, DOSIS_LISTE } from '../schema.js';
 import { icon } from '../icons.js';
 import { heuteLokal } from '../calc.js';
 import { istStrukturierteSpritze, setzeSpritze, entferneSpritze } from '../spritze.js';
+import { formatLang, DATUM_LANG_DEFAULT } from '../datum.js';
 
 const WTAG = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
 
@@ -43,6 +44,7 @@ export function renderVerlauf(container, ctx) {
 
   function baue() {
   const daten = ctx.store.get();
+  const langFmt = (daten.profil && daten.profil.datum_lang) || DATUM_LANG_DEFAULT;
   const aufsteigend = nachDatumSortiert(daten);     // chronologisch (für Differenzen)
   const diffs = vortagesDifferenzen(aufsteigend);   // auf GESAMTdaten, nie filtern
   const absteigend = [...aufsteigend].reverse();    // neueste zuerst (Anzeige)
@@ -194,7 +196,7 @@ export function renderVerlauf(container, ctx) {
     const eintrag = daten.tageseintraege[datum];
     const kg = eintrag ? fmtKg(eintrag.gewicht_kg) : '–';
     zuLoeschen = datum;
-    dText.innerHTML = `Der Eintrag vom <b>${formatiereDatum(datum)}</b> (${kg} kg) wird dauerhaft entfernt.`;
+    dText.innerHTML = `Der Eintrag vom <b>${formatLang(datum, langFmt)}</b> (${kg} kg) wird dauerhaft entfernt.`;
     dialog.classList.add('auf');
   }
   container.querySelector('#v-d-abbr').addEventListener('click', () => {
@@ -267,7 +269,7 @@ export function renderVerlauf(container, ctx) {
     const ev = ctx.store.get().ereignisse.find(e => e.id === aktEvId);
     if (!ev) return;
     const label = KAT_LABEL[ev.kategorie] || 'Ereignis';
-    const spanne = ev.von === ev.bis ? formatiereDatum(ev.von) : `${formatiereDatum(ev.von)} – ${formatiereDatum(ev.bis)}`;
+    const spanne = ev.von === ev.bis ? formatLang(ev.von, langFmt) : `${formatLang(ev.von, langFmt)} – ${formatLang(ev.bis, langFmt)}`;
     container.querySelector('#v-ev-del-text').innerHTML = `<b>${label}</b> (${spanne}) wird dauerhaft entfernt.`;
     evDialog.classList.remove('auf');
     evDelDialog.classList.add('auf');
@@ -367,7 +369,7 @@ export function renderVerlauf(container, ctx) {
   container.querySelector('#v-med-del').addEventListener('click', () => {
     if (!aktMedDatum) return;
     container.querySelector('#v-med-del-text').innerHTML =
-      `<b>${praepWahl} ${fmtKg(DOSIS_LISTE[praepWahl][dosisIdx]).replace('.', ',')} mg</b> (${formatiereDatum(aktMedDatum)}) wird vom Tag entfernt. Das Gewicht bleibt erhalten.`;
+      `<b>${praepWahl} ${fmtKg(DOSIS_LISTE[praepWahl][dosisIdx]).replace('.', ',')} mg</b> (${formatLang(aktMedDatum, langFmt)}) wird vom Tag entfernt. Das Gewicht bleibt erhalten.`;
     medDialog.classList.remove('auf');
     medDelDialog.classList.add('auf');
   });

@@ -1,9 +1,8 @@
 // Wiederverwendbare iOS-artige Eingabe-Komponenten (Geschlecht-Segmented, Datums-Rädchen-Picker).
 
-export const MONATE = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
-
-// Kurz-Kürzel (3 Zeichen) – nur für die Rad-Items im Picker, nicht für die Anzeige-Pille.
-export const MONATE_KURZ = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+// Monats-Konstanten zentral aus datum.js (vermeidet Doppelpflege).
+import { MONATE, MONATE_KURZ } from './datum.js';
+export { MONATE, MONATE_KURZ };
 
 // ---- Pure Datums-Logik (testbar) ----
 // ISO "YYYY-MM-DD" -> {tag, monat, jahr} (monat 1-12). Ungültig/leer -> sinnvoller Default (heute-nah).

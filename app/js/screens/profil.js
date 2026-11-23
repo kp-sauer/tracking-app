@@ -4,6 +4,7 @@ import { effektiveSkala, SKALA_STUFEN } from '../theme.js';
 import { alter, zielInKg, zielInBmi, DEFAULT_ZIEL, heuteLokal } from '../calc.js';
 import { nachDatumSortiert } from '../db.js';
 import { icon } from '../icons.js';
+import { DATUM_LANG_DEFAULT, DATUM_KURZ_DEFAULT, formatKurz } from '../datum.js';
 
 const WELT_LABEL = { test: 'TEST', produktiv: 'PROD' };
 
@@ -16,7 +17,7 @@ export function renderProfil(container, ctx) {
   const p = daten.profil ?? { koerpergroesse_m: 1.75, geschlecht: 'm', geburtsdatum: '', theme: 'system' };
   const anzahlTage = nachDatumSortiert(daten).length;
   const letztesBackup = daten.letztes_backup
-    ? new Date(daten.letztes_backup).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })
+    ? formatKurz(daten.letztes_backup.slice(0, 10), p.datum_kurz ?? DATUM_KURZ_DEFAULT)
     : '–';
   const heute = heuteLokal();
   const alterText = p.geburtsdatum ? `${alter(p.geburtsdatum, heute)} Jahre` : '–';
@@ -55,6 +56,8 @@ export function renderProfil(container, ctx) {
     <section class="karte">
       <div class="zeile"><label>Design</label><div class="ctrl"><span id="pr-theme"></span></div></div>
       <div class="zeile"><label>Größe</label><div class="ctrl"><span id="pr-skala"></span></div></div>
+      <div class="zeile"><label>Datum lang</label><div class="ctrl"><span id="pr-datum-lang"></span></div></div>
+      <div class="zeile"><label>Datum kurz</label><div class="ctrl"><span id="pr-datum-kurz"></span></div></div>
     </section>
 
     <div class="abschnitt">Backup &amp; Daten</div>
@@ -141,6 +144,26 @@ export function renderProfil(container, ctx) {
     skalaSeg.appendChild(b);
   }
   skalaHost.appendChild(skalaSeg);
+
+  // Datumsformat lang/kurz als Segmented-Control — sofort live & speichernd (wie Theme/Skala).
+  const LANG_OPT = [['wort','31. Okt. 2026'],['num','31.10.2026'],['wochentag','Sa, 31.10.2026']];
+  const KURZ_OPT = [['num','31.10.'],['wort','31. Okt']];
+  const baueFormatSeg = (hostId, optionen, aktuell, feld) => {
+    const host = container.querySelector(hostId);
+    const s = document.createElement('div'); s.className = 'seg seg-kompakt';
+    for (const [v, label] of optionen) {
+      const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.dataset.v = v;
+      if (v === aktuell) b.classList.add('aktiv');
+      b.addEventListener('click', () => {
+        for (const k of s.children) k.classList.toggle('aktiv', k.dataset.v === v);
+        ctx.store.aktualisiere(d => ({ ...d, profil: { ...(d.profil ?? {}), [feld]: v } }), { undobar: false });
+      });
+      s.appendChild(b);
+    }
+    host.appendChild(s);
+  };
+  baueFormatSeg('#pr-datum-lang', LANG_OPT, p.datum_lang ?? DATUM_LANG_DEFAULT, 'datum_lang');
+  baueFormatSeg('#pr-datum-kurz', KURZ_OPT, p.datum_kurz ?? DATUM_KURZ_DEFAULT, 'datum_kurz');
 
   // ---- Ziel + Zwischenziel (auto-live, wie Darstellung) ----
   const groesse = parseFloat(p.koerpergroesse_m) || 1.75;
