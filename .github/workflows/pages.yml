@@ -22,11 +22,9 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  # Phase 1: app/ als Pages-Artefakt hochladen.
+  build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -43,6 +41,16 @@ jobs:
         with:
           path: ./app
 
+  # Phase 2: das Artefakt veröffentlichen. Getrennter Job + needs:build —
+  # so ist der Upload sicher abgeschlossen/registriert, BEVOR deploy-pages das
+  # Artefakt sucht (sonst "Found 0 artifacts", wenn beides in EINEM Job läuft).
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
