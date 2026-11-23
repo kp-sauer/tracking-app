@@ -66,8 +66,9 @@ export function formatAchse(tickSek, granularitaet, kurzFormat) {
   const tag = d.getUTCDate(), monat = d.getUTCMonth() + 1, jahr = d.getUTCFullYear();
   if (granularitaet === 'jahr') return String(jahr);
   if (granularitaet === 'monat') {
-    // Jahr nur am Januar anzeigen, damit die Achse Jahreswechsel markiert.
-    return monat === 1 ? `${MONATE_KURZ[0]} ${String(jahr).slice(2)}` : MONATE_KURZ[monat - 1];
+    // Nur Monatsname. Das Jahr kommt in der Chart-Achse ueber eine zweite Zeile
+    // (am ersten Tick + Jahreswechsel), daher hier KEIN Jahr mehr anhaengen.
+    return MONATE_KURZ[monat - 1];
   }
   // 'tag' -> Kurz-Format auf ein synthetisches ISO anwenden (zeitzonenfrei).
   const iso = `${jahr}-${String(monat).padStart(2,'0')}-${String(tag).padStart(2,'0')}`;

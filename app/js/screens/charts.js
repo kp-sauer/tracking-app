@@ -263,7 +263,20 @@ export function renderCharts(container, ctx) {
           values: (u, splits) => {
             const spanne = (u.scales.x.max - u.scales.x.min); // Sekunden
             const gran = achsenGranularitaet(spanne);
-            return splits.map(s => formatAchse(s, gran, kurzFmt));
+            // Bei Tag-/Monatsansicht das Jahr als ZWEITE Zeile (uPlot rendert '\n' zweizeilig).
+            // Jahr nur am ersten Tick + bei Jahreswechsel, sonst zweite Zeile leer.
+            // WICHTIG: zweite Zeile IMMER anhängen ('\n') — auch leer —, damit alle
+            // Labels gleich hoch sind und uPlot konsistent Platz für Zeile 2 reserviert.
+            // Bei gran==='jahr' steht das Jahr ohnehin schon in Zeile 1 → keine zweite Zeile.
+            let letztesJahr = null;
+            return splits.map((s, i) => {
+              const oben = formatAchse(s, gran, kurzFmt);
+              if (gran === 'jahr') return oben; // Jahr steht schon oben
+              const jahr = new Date(s * 1000).getUTCFullYear(); // UTC, wie im Rest der Datei
+              const zeigeJahr = i === 0 || jahr !== letztesJahr;
+              letztesJahr = jahr;
+              return zeigeJahr ? `${oben}\n${jahr}` : `${oben}\n`;
+            });
           } },
         { stroke: cFg2, grid: { stroke: cGitter, width: 1 }, ticks: { stroke: cGitter },
           size: 44, font: '11px -apple-system, system-ui, sans-serif' },

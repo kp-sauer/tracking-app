@@ -12,7 +12,15 @@ Sessions ohne weiteren Kontext weiterarbeiten können.
 > **v1 ist funktional fertig & abgenommen. Design-/UX-Feintuning ABGESCHLOSSEN. Backlog vollständig
 > abgearbeitet.**
 >
-> **Neueste Änderungen (2026-11-23, aktuell v76) — Nutzungs-Feedback-Runde:**
+> **Neueste Änderungen (2026-11-23, aktuell v77) — Feinschliff zur Feedback-Runde:**
+> - **Chart-X-Achse: Jahr als zweite Zeile zurück.** Tag-/Monatsansicht zeigen oben das deutsche
+>   Datum (`31.10.` / `Okt`) und darunter das Jahr (`2025`/`2026`) — nur am ersten Tick und bei
+>   Jahreswechsel, sonst leere zweite Zeile (konstante Label-Höhe). Monats-Granularität liefert dafür
+>   nur noch den Monatsnamen (kein doppeltes „Jan 26" mehr).
+> - **Profil „Datum lang/kurz": Optionen untereinander** (volle Kartenbreite, gestapelt statt gequetscht
+>   nebeneinander) — Klasse `.seg-gestapelt`, aktiv blau wie die übrigen Segmente, hell+dunkel.
+>
+> **Frühere Änderungen (2026-11-23, v76) — Nutzungs-Feedback-Runde:**
 > - **Datumsformat als Profil-Setting (Darstellung):** zwei neue Auswahlen „Datum lang" (Geburtsdatum,
 >   Dialoge, KPIs: `31. Okt. 2026` · `31.10.2026` · `Sa, 31.10.2026`) und „Datum kurz" (Chart-Achse,
 >   Tooltip: `31.10.` · `31. Okt`). Defaults lang=`31. Okt. 2026`, kurz=`31.10.`. Zentrales reines Modul

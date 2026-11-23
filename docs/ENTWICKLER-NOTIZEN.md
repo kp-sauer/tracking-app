@@ -311,6 +311,20 @@ Im Store (`store.js`, nutzt reine `undo.js`): Snapshot-Stacks im Speicher (NICHT
   formatAchse(s, achsenGranularitaet(u.scales.x.max - u.scales.x.min), kurzFmt))`; `kurzFmt` = `daten.profil
   .datum_kurz` in `zeichnePlot()` (`const daten = ctx.store.get()`), im Closure sichtbar für Achse UND
   Tooltip-`fmtDat`.
+- **Chart-X-Achse Jahr als zweite Zeile** (seit 2026-11-23, v77): uPlot rendert Achsen-Tick-Labels mit
+  `\n` ZWEIZEILIG (reserviert Platz für Zeile 2 — am echten uPlot verifiziert). Die `values`-Closure in
+  charts.js hängt bei Tag-/Monatsansicht `'\n' + jahr` NUR am ersten Tick (`i===0`) und bei Jahreswechsel
+  (`jahr !== letztesJahr`) an, sonst `'\n'` (leere zweite Zeile → ALLE Labels gleich hoch). Jahr via
+  `new Date(s*1000).getUTCFullYear()`. Bei gran==='jahr' KEINE zweite Zeile (Jahr steht schon oben).
+  **Wichtig (Doppel-Jahr-Falle):** `formatAchse` Monats-Granularität liefert deshalb nur noch den
+  Monatsnamen (`Jan`, NICHT mehr `Jan 26`) — sonst stünde am Januar „Jan 26" + „2026" doppelt. Test in
+  `tests/datum.test.js` entsprechend auf `'Jan'` angepasst.
+- **Profil Datum-Settings gestapelt** (seit 2026-11-23, v77): Die zwei Datum-Format-Auswahlen („Datum
+  lang"/„Datum kurz") nutzen `.seg-gestapelt` (statt `.seg-kompakt`): Optionen UNTEREINANDER, volle
+  Kartenbreite (`flex-direction:column`, Buttons `width:100%`, linksbündig), weil die langen Labels
+  (`Sa, 31.10.2026`) nebeneinander zu gequetscht waren. Vollbreites Zeilen-Muster `.zeile-datum-fmt`/
+  `.fmt-voll` (Label oben). CSS-Spezifität: `#screen .seg.seg-gestapelt button` (1,2,1) schlägt die
+  generische `#screen button`-Regel; aktiv via `--akzent-weich`/`--akzent` (Theme-Tokens, hell+dunkel).
 - **Chart-Tooltip Ereignis-/Medikament-Chips** (seit 2026-11-23, v76): Reine Fn `app/js/tooltip-chips.js`
   `tooltipChips(ereignisse, spritze, datumIso)` → `[{typ:'ev'|'med', label}]` (med zuerst, dann Ereignisse;
   nutzt `ereignisseAmTag` → mehrtägige an jedem Tag; strukturierte Spritze → „MJ 12,5 mg", sonst

@@ -71,9 +71,9 @@ test('formatAchse tag: nutzt Kurz-Format', () => {
   assert.equal(formatAchse(sek('2026-10-31'), 'tag', 'wort'), '31. Okt');
 });
 
-test('formatAchse monat: Monatswort, Jahr nur bei Januar', () => {
+test('formatAchse monat: nur Monatswort (Jahr kommt ueber Chart-Zweitzeile)', () => {
   assert.equal(formatAchse(sek('2026-07-01'), 'monat', 'num'), 'Jul');
-  assert.equal(formatAchse(sek('2026-01-01'), 'monat', 'num'), 'Jan 26');
+  assert.equal(formatAchse(sek('2026-01-01'), 'monat', 'num'), 'Jan');
 });
 
 test('formatAchse jahr: vierstellig', () => {

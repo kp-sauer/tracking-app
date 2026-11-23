@@ -56,8 +56,8 @@ export function renderProfil(container, ctx) {
     <section class="karte">
       <div class="zeile"><label>Design</label><div class="ctrl"><span id="pr-theme"></span></div></div>
       <div class="zeile"><label>Größe</label><div class="ctrl"><span id="pr-skala"></span></div></div>
-      <div class="zeile"><label>Datum lang</label><div class="ctrl"><span id="pr-datum-lang"></span></div></div>
-      <div class="zeile"><label>Datum kurz</label><div class="ctrl"><span id="pr-datum-kurz"></span></div></div>
+      <div class="zeile zeile-datum-fmt"><label>Datum lang</label><div class="fmt-voll"><span id="pr-datum-lang"></span></div></div>
+      <div class="zeile zeile-datum-fmt"><label>Datum kurz</label><div class="fmt-voll"><span id="pr-datum-kurz"></span></div></div>
     </section>
 
     <div class="abschnitt">Backup &amp; Daten</div>
@@ -150,7 +150,7 @@ export function renderProfil(container, ctx) {
   const KURZ_OPT = [['num','31.10.'],['wort','31. Okt']];
   const baueFormatSeg = (hostId, optionen, aktuell, feld) => {
     const host = container.querySelector(hostId);
-    const s = document.createElement('div'); s.className = 'seg seg-kompakt';
+    const s = document.createElement('div'); s.className = 'seg seg-gestapelt';
     for (const [v, label] of optionen) {
       const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.dataset.v = v;
       if (v === aktuell) b.classList.add('aktiv');

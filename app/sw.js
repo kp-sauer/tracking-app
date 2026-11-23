@@ -7,7 +7,7 @@
 // version.js kommt, bliebe sw.js sonst unverändert → kein SW-Update → alte Version klebt
 // fest (war ein realer Bug: v63→v70 kamen nie am Gerät an). Die BUILD-Zeile erzwingt den
 // Byte-Unterschied. Sie MUSS mit js/version.js übereinstimmen.
-const BUILD = '76';
+const BUILD = '77';
 importScripts('js/version.js');
 const CACHE = 'tracking-shell-v' + self.APP_VERSION;
 // Selbstkontrolle: fällt auf, wenn beim Deploy nur eine der beiden Stellen hochgezählt wurde.

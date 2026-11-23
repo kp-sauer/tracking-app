@@ -394,6 +394,21 @@ body > #kopf, body > #screen { max-width: 480px; margin-left: auto; margin-right
 .karte .zeile-geschlecht .seg-voll .seg { display:flex; width:100%; flex-wrap:nowrap; }
 .karte .zeile-geschlecht .seg-voll .seg button { flex:1 1 0; min-width:0; justify-content:center; }
 
+/* Datum-lang/-kurz: Label oben, Optionen GESTAPELT über die volle Kartenbreite
+   darunter (Muster wie .zeile-geschlecht). Lange Labels wie 'Sa, 31.10.2026'
+   sind nebeneinander gequetscht unleserlich → je Option eine volle Zeile. */
+.karte .zeile-datum-fmt { flex-wrap:wrap; }
+.karte .zeile-datum-fmt > label { width:100%; }
+.karte .zeile-datum-fmt .fmt-voll { width:100%; padding:var(--sp-1) 0 var(--sp-2); }
+/* .seg-gestapelt: Optionen untereinander, jede volle Breite, linksbündig.
+   #screen-Präfix nötig (Spezifität 1,2,1 > generische `#screen button`-Regel 1,1,1),
+   sonst erbt der Button padding/border/zentrierte Farbe der generischen Regel.
+   Nur Theme-Tokens — funktioniert in Hell UND Dunkel. */
+.seg.seg-gestapelt, #screen .seg.seg-gestapelt { display:flex; flex-direction:column; width:100%; gap:6px; flex-wrap:nowrap; align-items:stretch; }
+.seg.seg-gestapelt button, #screen .seg.seg-gestapelt button { width:100%; text-align:left; justify-content:flex-start; border:1px solid var(--rand); background:var(--surface-2); color:var(--fg); border-radius:var(--radius-s); padding:10px 14px; font-weight:600; }
+.seg.seg-gestapelt button.aktiv, #screen .seg.seg-gestapelt button.aktiv { background:var(--akzent-weich); color:var(--akzent); border-color:var(--akzent); box-shadow:none; }
+.seg.seg-gestapelt button:not(.aktiv):hover, #screen .seg.seg-gestapelt button:not(.aktiv):hover { background:var(--akzent-weich); }
+
 /* Tag-vor/zurück-Pfeile in der Datumszeile (dezent, kein eigener Block). */
 /* Tag-vor/zurück-Pfeile: reine Icon-Tap-Flächen, KEIN Rahmen/Hintergrund (nur Hover-Echo).
    `#screen button.tag-pfeil` = Spezifität (1,1,1) → schlägt die generische
