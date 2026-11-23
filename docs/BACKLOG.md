@@ -5,7 +5,7 @@ Priorisierte Liste nach Session 2026-10-17. Abarbeitung in Commit-Paketen.
 ---
 ---
 
-# Arbeitspaket: Datumsformat-Setting, Chart-Tooltip-Chips, Doppeltap ✅ (2026-11-23, umgesetzt v76, browser-verifiziert)
+# Arbeitspaket: Datumsformat-Setting, Chart-Tooltip-Chips, Doppeltap ✅ (2026-11-23, umgesetzt v76 + Feinschliff v77, browser- UND teils gerät-verifiziert)
 
 > Drei Punkte aus realer Nutzung. Spec:
 > [`specs/2026-11-23-datumsformat-tooltip-doppeltap-design.md`](specs/2026-11-23-datumsformat-tooltip-doppeltap-design.md),
@@ -17,16 +17,28 @@ Priorisierte Liste nach Session 2026-10-17. Abarbeitung in Commit-Paketen.
   reines Modul `app/js/datum.js` (getestet: `formatLang`/`formatKurz`/`achsenGranularitaet`/`formatAchse`);
   additive Felder `profil.datum_lang`/`datum_kurz`. Lange Daten app-weit (Verlauf-/Eingabe-Dialoge, KPI
   Min/Max) folgen dem Setting live. `felder.js` zieht Monats-Konstanten jetzt aus `datum.js`.
+  **Feinschliff v77:** die beiden Auswahlen werden UNTEREINANDER / volle Breite dargestellt
+  (`.seg-gestapelt`), weil lange Optionen nebeneinander gequetscht waren.
 - [x] **[CHARTS]** X-Achse deutsch statt US (`10/31`), mit Auto-Ausdünnung je Zeitspanne (≤45 Tage Tag,
-  bis ~18 Monate Monat inkl. `Jan 26` am Jahreswechsel, darüber Jahr) über `axes[0].values`.
+  bis ~18 Monate Monat, darüber Jahr) über `axes[0].values`. **Feinschliff v77:** das **Jahr** steht
+  wieder in einer **zweiten Zeile** unter den Tag-/Monats-Labels (uPlot `\n`-Mehrzeilen-Label), nur am
+  ersten Tick + bei Jahreswechsel; Monats-Granularität liefert dafür nur noch den Monatsnamen
+  (kein doppeltes `Jan 26` mehr).
 - [x] **[CHARTS]** Tooltip zeigt zusätzlich Ereignis-/Medikament-Chips (Verlauf-Farbgebung: Ereignis
   blauer Rand, Medikament grau). Mehrtägige Ereignisse an jedem Tag; strukturierte Spritze „MJ 12,5 mg",
   Rohtext unverändert. Reine Fn `app/js/tooltip-chips.js` (getestet). Tooltip bekommt `max-width`.
 - [x] **[ÜBERSICHT]** Doppeltap/-klick auf den Mini-Verlaufschart → Charts-Screen (`dblclick` +
-  Touch-Doppeltap <300 ms). Echter Finger-Doppeltap bleibt Geräte-Abnahme.
+  Touch-Doppeltap <300 ms). **Am Gerät vom Nutzer bestätigt (2026-11-23, funktioniert).**
 - **Verifikation:** 233 Unit-Tests grün (14 neu); Browser `localhost:8000/test/` hell+dunkel mit
-  temporären Testdaten (Achse 30/180/Gesamt, Tooltip-Chips an Ereignis-/Med-Tagen, Setting live,
-  Doppeltap). **Offen:** echter Finger-Doppeltap am Gerät durch Nutzer.
+  temporären Testdaten (Achse 30/180/Gesamt inkl. Jahr-Zweitzeile, Tooltip-Chips an Ereignis-/Med-Tagen,
+  Setting live + gestapelte Darstellung, Doppeltap). **Keine offenen Punkte mehr** in diesem Arbeitspaket.
+
+> **Hinweis Deploy (2026-11-23):** Der GitHub-Pages-Workflow `.github/workflows/pages.yml` schlug mit
+> „No artifacts named 'github-pages'" fehl. **Ursache:** Upload + Deploy lagen in EINEM Job → `deploy-pages`
+> suchte das Artefakt, bevor es registriert war. **Fix:** offizielles **Zwei-Job-Muster** (`build` lädt
+> `app/` hoch via `upload-pages-artifact@v3`, `deploy` mit `needs: build` veröffentlicht via
+> `deploy-pages@v4`). Seitdem läuft der Deploy durch. (NICHT `upload-pages-artifact@v4` nutzen — existiert
+> in der benötigten Form nicht; `@v3` ist korrekt.)
 
 ---
 ---

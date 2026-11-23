@@ -88,6 +88,19 @@ Im Store (`store.js`, nutzt reine `undo.js`): Snapshot-Stacks im Speicher (NICHT
     am Gerät fest (am Server lag längst die neue). Deshalb die literale `BUILD`-Zeile in sw.js: sie erzwingt
     den Byte-Unterschied. Darum MUSS BUILD mit hochgezählt werden. (Früher war der Cache-Name hart in sw.js
     → änderte sich automatisch; mit der Zentralisierung ging dieser Nebeneffekt verloren.)
+- **GitHub-Pages-Deploy: Zwei-Job-Workflow Pflicht** (seit 2026-11-23, realer Vorfall): Der Deploy
+  (`.github/workflows/pages.yml`) schlug reproduzierbar fehl mit **„No artifacts named 'github-pages' were
+  found" / „Found 0 artifact(s)"**. **Ursache:** Upload (`upload-pages-artifact`) und Deploy
+  (`deploy-pages`) lagen in EINEM Job → `deploy-pages` fragte das Artefakt über die API ab, bevor der
+  Upload registriert war → 0 Artefakte. **Fix = offizielles Zwei-Job-Muster:** Job `build` (Checkout →
+  Configure Pages → `upload-pages-artifact@v3` mit `path: ./app`) + separater Job `deploy` mit
+  `needs: build` (nur `deploy-pages@v4`). Erst wenn `build` KOMPLETT fertig ist, startet `deploy`.
+  - **Fallstrick (verifiziert):** `actions/upload-pages-artifact@v4` existiert NICHT in der benötigten
+    Form — die Pages-spezifische Action ist bei `@v3` (nicht verwechseln mit `actions/upload-artifact@v4`,
+    das es gibt). Richtig: `upload-pages-artifact@v3` + `deploy-pages@v4`.
+  - **Nicht die Ursache:** der „Node.js 20 is deprecated"-Hinweis ist nur eine Warnung (GitHub zwingt die
+    Actions auf Node 24), blockiert den Deploy NICHT. Pages-Quelle muss in den Repo-Settings auf
+    „GitHub Actions" stehen (war korrekt).
 - **Charts Touch-Cursor (uPlot v1.6.31 hat KEINEN Touch-Support)** (seit 2026-11-16, Phase F): Auf dem
   Gerät folgt der Cursor dem Finger nicht und liegt versetzt. Zwei Fix-Versuche an einem eigenen
   Touch-Handler für die Normalansicht scheiterten am echten Android (u.a. UI-`zoom` verfälscht die
