@@ -1,7 +1,7 @@
 import { nachDatumSortiert, imZeitfenster, datenJahre } from '../db.js';
 import { wAvgSerie, lineareTrend, zielInKg, DEFAULT_ZIEL } from '../calc.js';
 import { datumsPicker, formatiereDatumKurz } from '../felder.js';
-import { formatKurz, formatAchse, achsenGranularitaet, DATUM_KURZ_DEFAULT } from '../datum.js';
+import { formatKurz, formatAchse, achsenGranularitaet, monatsTicksSek, jahresTicksSek, monatsLabelSichtbar, DATUM_KURZ_DEFAULT } from '../datum.js';
 import { icon } from '../icons.js';
 import { tooltipChips } from '../tooltip-chips.js';
 
@@ -260,6 +260,40 @@ export function renderCharts(container, ctx) {
       axes: [
         { stroke: cFg2, grid: { stroke: cGitter, width: 1 }, ticks: { stroke: cGitter },
           font: '11px -apple-system, system-ui, sans-serif',
+          // Eigene Tick-Positionen (uPlot v1.6.31 splits-Signatur:
+          // (self, axisIdx, scaleMin, scaleMax, foundIncr, foundSpace)).
+          // Bei Monats-Granularitaet erzwingen wir GENAU einen Tick je Monat
+          // (Monatserster 00:00 UTC) — sonst setzt uPlot mehrere Ticks im selben
+          // Monat und die values-Closure labelt denselben Monatsnamen mehrfach.
+          // Fuer Tag-/Jahr-Granularitaet hat uPlot v1.6.31 keine oeffentliche
+          // Moeglichkeit, die eingebauten Default-Ticks aus dem splits-Callback
+          // heraus abzurufen (der Default-Generator ist nicht exportiert und
+          // wird durch unseren Callback ersetzt). Wir bilden daher die uPlot-
+          // Default-Logik fuer diese Faelle nach: ab einem auf Tagesgrenze
+          // abgerundeten Start in foundIncr-Schritten bis scaleMax — identisch
+          // zu uPlots nicht-Monats-Zweig. (Monats-/Jahr-Snapping uebernimmt die
+          // monatsTicksSek-Funktion bzw. der Tagesraster deckt den Rest ab.)
+          splits: (u, axisIdx, scaleMin, scaleMax, foundIncr) => {
+            const spanne = (u.scales.x.max - u.scales.x.min); // Sekunden
+            const gran = achsenGranularitaet(spanne);
+            if (gran === 'monat') {
+              return monatsTicksSek(u.scales.x.min, u.scales.x.max);
+            }
+            if (gran === 'jahr') {
+              // Je EIN Tick pro Jahr (Jahreserster) — sonst labelt uPlot dieselbe
+              // Jahreszahl mehrfach (2023·2023·2024…).
+              return jahresTicksSek(u.scales.x.min, u.scales.x.max);
+            }
+            // Nicht-Monats-Fall: uPlot-Default nachbilden (Schritt = foundIncr),
+            // Start auf UTC-Tagesgrenze <= scaleMin, dann hoch bis scaleMax.
+            const TAG_S = 86400;
+            const ticks = [];
+            let s = Math.floor(scaleMin / TAG_S) * TAG_S;
+            // ersten Tick >= scaleMin ausrichten
+            while (s < scaleMin) s += foundIncr;
+            for (; s <= scaleMax; s += foundIncr) ticks.push(s);
+            return ticks;
+          },
           values: (u, splits) => {
             const spanne = (u.scales.x.max - u.scales.x.min); // Sekunden
             const gran = achsenGranularitaet(spanne);
@@ -268,6 +302,10 @@ export function renderCharts(container, ctx) {
             // WICHTIG: zweite Zeile IMMER anhängen ('\n') — auch leer —, damit alle
             // Labels gleich hoch sind und uPlot konsistent Platz für Zeile 2 reserviert.
             // Bei gran==='jahr' steht das Jahr ohnehin schon in Zeile 1 → keine zweite Zeile.
+            // AUSDUENNUNG (nur Monat, >12 Ticks): jeder zweite Tick ohne Monatsname in
+            // Zeile 1 — aber die Jahr-Zweitzeile bleibt an Jahreswechsel-Ticks IMMER
+            // erhalten (auch wenn ausgeduennt), sonst verschwaende die Jahresmarke.
+            // Der erste Tick ist nie ausgeduennt (monatsLabelSichtbar startet bei Index 0).
             let letztesJahr = null;
             return splits.map((s, i) => {
               const oben = formatAchse(s, gran, kurzFmt);
@@ -275,7 +313,9 @@ export function renderCharts(container, ctx) {
               const jahr = new Date(s * 1000).getUTCFullYear(); // UTC, wie im Rest der Datei
               const zeigeJahr = i === 0 || jahr !== letztesJahr;
               letztesJahr = jahr;
-              return zeigeJahr ? `${oben}\n${jahr}` : `${oben}\n`;
+              // Monats-Label ggf. ausduennen (nur Zeile 1 leeren, Tick bleibt).
+              const zeile1 = (gran === 'monat' && !monatsLabelSichtbar(i, splits.length)) ? '' : oben;
+              return zeigeJahr ? `${zeile1}\n${jahr}` : `${zeile1}\n`;
             });
           } },
         { stroke: cFg2, grid: { stroke: cGitter, width: 1 }, ticks: { stroke: cGitter },

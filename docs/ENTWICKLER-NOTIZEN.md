@@ -332,6 +332,28 @@ Im Store (`store.js`, nutzt reine `undo.js`): Snapshot-Stacks im Speicher (NICHT
   **Wichtig (Doppel-Jahr-Falle):** `formatAchse` Monats-Granularität liefert deshalb nur noch den
   Monatsnamen (`Jan`, NICHT mehr `Jan 26`) — sonst stünde am Januar „Jan 26" + „2026" doppelt. Test in
   `tests/datum.test.js` entsprechend auf `'Jan'` angepasst.
+- **Chart-X-Achse: ein Tick pro Monat/Jahr + Label-Ausdünnung** (seit 2026-11-25, v78): Behebt doppelte
+  Achsen-Labels (`Okt … Okt` in Monats-, `2023 · 2023` in „Gesamt"-/Jahr-Ansicht). **Root Cause (am
+  vendor-uPlot v1.6.31 verifiziert):** Ohne eigene `splits` verteilt uPlot die Zeit-Ticks nach eigenem
+  Raster, und weil die App KEINEN `tzDate` konfiguriert, snappt der Default-Generator an LOKALE
+  Kalendergrenzen — mehrere Ticks pro Monat/Jahr, während die `values`-Closure mit `getUTC*` liest →
+  derselbe Name mehrfach. **Lösung:** Drei reine, getestete Funktionen in `app/js/datum.js`:
+  `monatsTicksSek(minSek,maxSek)` / `jahresTicksSek(minSek,maxSek)` liefern die UTC-Monats- bzw.
+  Jahresersten (00:00 UTC) im Bereich (zeitzonenfrei via `Date.UTC`; robust bei nicht-endlich / min>max
+  → `[]` / min===max). In charts.js wählt die **`splits:`-Funktion** am X-Achsen-Objekt je nach
+  `achsenGranularitaet`: `'monat'`→`monatsTicksSek`, `'jahr'`→`jahresTicksSek`, sonst (`'tag'`) uPlots
+  nicht-Monats-Zweig NACHGEBILDET (Start auf UTC-Tagesgrenze ≤ scaleMin, dann in `foundIncr`-Schritten
+  bis scaleMax; UTC-konsistent zum Rest). **`monatsLabelSichtbar(index, anzahlTicks)`**: ≤12 Ticks →
+  alle beschriftet; >12 → nur jeder zweite (`index%2===0`, Start bei 0, damit der erste Tick mit der
+  Jahr-Zweitzeile sichtbar bleibt). Die Ausdünnung betrifft NUR das Label in der `values`-Closure
+  (Zeile 1 → Leerstring), NICHT die Tick-Positionen → Gitterlinien bleiben vollständig; `monatsTicksSek`
+  unverändert. **Kombination mit der Jahr-Zweitzeile:** `zeigeJahr` (i===0 || Jahrwechsel) bleibt
+  UNABHÄNGIG von der Ausdünnung → an einem Jahreswechsel-Tick erscheint das Jahr IMMER, auch wenn der
+  Monatsname dort ausgedünnt wäre. **Merke:** `jahr`-Granularität braucht KEINE Ausdünnung (ein Label
+  je Jahr reicht platzmäßig). Browser-verifiziert (hell+dunkel): 90/180 Tage je Monat einmal,
+  Jahreswechsel (`Nov|2025·Dez·Jan|2026·…`), „Gesamt" (`2023·2024·2025·2026`), 18-Monate-Zeitraum
+  (jeder 2. Monat beschriftet, Jahr-Zeile an Mai 2025 + Jan 2026). 14 neue Tests in `tests/datum.test.js`
+  (gesamt 247 grün).
 - **Profil Datum-Settings gestapelt** (seit 2026-11-23, v77): Die zwei Datum-Format-Auswahlen („Datum
   lang"/„Datum kurz") nutzen `.seg-gestapelt` (statt `.seg-kompakt`): Optionen UNTEREINANDER, volle
   Kartenbreite (`flex-direction:column`, Buttons `width:100%`, linksbündig), weil die langen Labels

@@ -7,12 +7,26 @@ Sessions ohne weiteren Kontext weiterarbeiten können.
 > **Projektziel:** siehe Abschnitt [App-Konzept](#app-konzept-ziel) weiter unten. Der Daten-Kontext
 > (Analyse der Excel) ist vollständig erfasst und bleibt als Referenz unten stehen.
 
-> ## Aktueller Stand (2026-11-23)
+> ## Aktueller Stand (2026-11-25)
 >
 > **v1 ist funktional fertig & abgenommen. Design-/UX-Feintuning ABGESCHLOSSEN. Backlog vollständig
 > abgearbeitet.**
 >
-> **Neueste Änderungen (2026-11-23, aktuell v77) — Feinschliff zur Feedback-Runde:**
+> **Neueste Änderungen (2026-11-25, aktuell v78) — Chart-X-Achse: doppelte Labels behoben:**
+> - **Ein Tick pro Monat / pro Jahr statt uPlot-Default.** Bisher setzte uPlot die Achsen-Ticks nach
+>   eigenem Raster (zusätzlich in LOKALZEIT, da kein `tzDate` konfiguriert ist) → bei Monats-Ansicht
+>   erschien derselbe Monatsname mehrfach (`Okt … Okt`), in der „Gesamt"-Ansicht dieselbe Jahreszahl
+>   doppelt (`2023 · 2023 · 2024 …`). Jetzt liefern zwei reine, getestete Funktionen `monatsTicksSek`
+>   bzw. `jahresTicksSek` in `app/js/datum.js` genau die UTC-Monats- bzw. Jahresersten; charts.js hängt
+>   sie je nach Granularität als uPlot-`splits` → jeder Monat/jedes Jahr erscheint genau EINMAL.
+> - **Ausdünnung bei langen Monats-Spannen (>12 Monate):** damit nicht ~18 Monats-Labels nebeneinander
+>   stehen (und Monatsnamen sich über den Jahreswechsel wiederholen), bekommt bei mehr als 12 Ticks nur
+>   noch jeder zweite Monat ein Label (`monatsLabelSichtbar`); Tick/Gitterlinie bleiben überall. Die
+>   Jahr-Zweitzeile bleibt an erstem Tick + Jahreswechsel IMMER sichtbar, auch wenn der Monatsname dort
+>   ausgedünnt ist. Browser-verifiziert (hell+dunkel): 90/180 Tage, Jahreswechsel, „Gesamt", 18 Monate.
+>   14 neue Unit-Tests (gesamt 247 grün).
+>
+> **Frühere Änderungen (2026-11-23, v77) — Feinschliff zur Feedback-Runde:**
 > - **Chart-X-Achse: Jahr als zweite Zeile zurück.** Tag-/Monatsansicht zeigen oben das deutsche
 >   Datum (`31.10.` / `Okt`) und darunter das Jahr (`2025`/`2026`) — nur am ersten Tick und bei
 >   Jahreswechsel, sonst leere zweite Zeile (konstante Label-Höhe). Monats-Granularität liefert dafür

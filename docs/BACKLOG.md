@@ -5,6 +5,32 @@ Priorisierte Liste nach Session 2026-10-17. Abarbeitung in Commit-Paketen.
 ---
 ---
 
+# Arbeitspaket: Chart-X-Achse doppelte Labels ✅ (2026-11-25, umgesetzt v78, browser-verifiziert hell+dunkel)
+
+> Aus realer Nutzung: bei Spannen über wenige, aber mehrere Monate tauchte derselbe Monatsname
+> mehrfach auf der X-Achse auf (`Okt … Okt`). Bei der Verifikation fiel derselbe Effekt in der
+> „Gesamt"-Ansicht auf (jede Jahreszahl doppelt). Beides behoben.
+
+- [x] **[CHARTS]** Monats-Ansicht: ein Tick pro Monat statt uPlot-Default → jeder Monatsname genau
+  einmal. Reine Fn `monatsTicksSek` (UTC-Monatsersten) in `app/js/datum.js`, via `splits:` an der
+  X-Achse.
+- [x] **[CHARTS]** „Gesamt"/Jahr-Ansicht: ein Tick pro Jahr → `2023·2024·2025·2026` je einmal (vorher
+  doppelt). Reine Fn `jahresTicksSek`.
+- [x] **[CHARTS]** Lange Monats-Spannen (>12 Monate): jeder zweite Monat ohne Label (Tick/Gitter bleibt),
+  damit ~18 Labels nicht gequetscht/wiederholt nebeneinander stehen. Reine Fn `monatsLabelSichtbar`;
+  Jahr-Zweitzeile an erstem Tick + Jahreswechsel bleibt IMMER sichtbar.
+- **Root Cause (verifiziert):** uPlot v1.6.31 verteilt Ticks ohne eigene `splits` nach eigenem Raster
+  und snappt (ohne konfigurierten `tzDate`) an LOKALE Kalendergrenzen, während die `values`-Closure
+  UTC liest → mehrere Ticks pro Einheit mit gleichem Namen. Detail-Merkposten in
+  [`ENTWICKLER-NOTIZEN.md`](ENTWICKLER-NOTIZEN.md).
+- **Verifikation:** 247 Unit-Tests grün (14 neu); Browser `localhost:8000/test/` hell+dunkel mit
+  Seed-Testdaten (90/180 Tage, Jahreswechsel 135 T., „Gesamt", 18-Monate-Zeitraum im Vollbild).
+  **Keine offenen Punkte.** Deploy: Version auf v78 (version.js + sw.js BUILD); Push + Geräte-Abnahme
+  durch Nutzer.
+
+---
+---
+
 # Arbeitspaket: Datumsformat-Setting, Chart-Tooltip-Chips, Doppeltap ✅ (2026-11-23, umgesetzt v76 + Feinschliff v77, browser- UND teils gerät-verifiziert)
 
 > Drei Punkte aus realer Nutzung. Spec:
